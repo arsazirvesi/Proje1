@@ -58,8 +58,8 @@ export default function SponsorManagement() {
     <div data-testid="sponsor-management-page">
       <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 className="font-heading text-white text-2xl sm:text-3xl">Sponsor Yönetimi</h1>
-          <p className="text-summit-text-muted text-sm mt-1">{sponsors.length} sponsor</p>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Sponsor Yönetimi</h1>
+          <p className="text-gray-500 text-sm mt-1">{sponsors.length} sponsor</p>
         </div>
         <button onClick={openCreate} className="btn-gold flex items-center gap-2 px-4 py-2.5 text-sm" data-testid="add-sponsor-btn">
           <Plus size={15} /> Yeni Sponsor
@@ -68,7 +68,7 @@ export default function SponsorManagement() {
 
       {msg && <div className="bg-summit-gold/10 border border-summit-gold/30 rounded-lg p-3 text-summit-gold text-sm mb-5 flex items-center justify-between">{msg}<button onClick={() => setMsg("")}><X size={14} /></button></div>}
 
-      <div className="bg-summit-paper border border-white/8 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full admin-table">
             <thead>
@@ -81,17 +81,17 @@ export default function SponsorManagement() {
               </tr>
             </thead>
             <tbody>
-              {sponsors.length === 0 && <tr><td colSpan={5} className="text-center py-10 text-summit-text-muted">Sponsor bulunamadı</td></tr>}
+              {sponsors.length === 0 && <tr><td colSpan={5} className="text-center py-10 text-gray-500">Sponsor bulunamadı</td></tr>}
               {sponsors.map(s => (
                 <tr key={s.id} data-testid={`sponsor-row-${s.id}`}>
-                  <td className="text-white font-medium">{s.name}</td>
+                  <td className="text-summit-navy font-medium">{s.name}</td>
                   <td>
-                    <span className={`text-xs px-2 py-0.5 rounded font-medium ${s.tier === "main" ? "bg-summit-gold/15 text-summit-gold" : s.tier === "organization" ? "bg-blue-500/15 text-blue-400" : "bg-white/5 text-summit-text-muted"}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded font-medium ${s.tier === "main" ? "bg-summit-gold/15 text-summit-gold" : s.tier === "organization" ? "bg-blue-500/15 text-blue-400" : "bg-white/5 text-gray-500"}`}>
                       {getTierLabel(s.tier)}
                     </span>
                   </td>
-                  <td className="hidden sm:table-cell text-summit-text-muted text-xs">{s.website_url || "-"}</td>
-                  <td className="text-summit-text-muted">{s.order}</td>
+                  <td className="hidden sm:table-cell text-gray-500 text-xs">{s.website_url || "-"}</td>
+                  <td className="text-gray-500">{s.order}</td>
                   <td>
                     <div className="flex gap-2">
                       <button onClick={() => openEdit(s)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-summit-gold/10 text-summit-gold hover:bg-summit-gold/20"><Pencil size={13} /></button>
@@ -106,31 +106,31 @@ export default function SponsorManagement() {
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60">
-          <div className="bg-summit-paper border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
+          <div className="bg-summit-paper border border-gray-200 rounded-2xl p-6 w-full max-w-md shadow-xl">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-white text-lg">{editing ? "Sponsor Düzenle" : "Yeni Sponsor"}</h3>
-              <button onClick={() => setModal(false)}><X size={18} className="text-summit-text-muted hover:text-white" /></button>
+              <h3 className="font-heading text-summit-navy text-lg">{editing ? "Sponsor Düzenle" : "Yeni Sponsor"}</h3>
+              <button onClick={() => setModal(false)}><X size={18} className="text-gray-500 hover:text-summit-navy" /></button>
             </div>
             <div className="space-y-4">
               {[["name","Sponsor Adı *","text"], ["logo_url","Logo URL","url"], ["website_url","Web Sitesi URL","url"]].map(([field, label, type]) => (
                 <div key={field}>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">{label}</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">{label}</label>
                   <input type={type} placeholder={label} value={form[field]} onChange={e => setForm({...form, [field]: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
                 </div>
               ))}
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Tier</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Tier</label>
                 <select value={form.tier} onChange={e => setForm({...form, tier: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50">
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50">
                   {tiers.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Sıra</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Sıra</label>
                 <input type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value)||0})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div className="flex gap-3 justify-end">
                 <button onClick={() => setModal(false)} className="btn-outline-gold px-5 py-2.5 text-sm">İptal</button>

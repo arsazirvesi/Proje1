@@ -14,24 +14,21 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const isHome = location.pathname === "/";
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => setMenuOpen(false), [location]);
 
-  const isTransparent = isHome && !scrolled;
-
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-        isTransparent
-          ? "bg-transparent"
-          : "bg-white shadow-sm border-b border-gray-100"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white/95 backdrop-blur shadow-sm border-b border-gray-100"
+          : "bg-white/80 backdrop-blur border-b border-transparent"
       }`}
       data-testid="navbar"
     >
@@ -43,7 +40,7 @@ export default function Navbar() {
               <span className="font-heading font-bold text-white text-sm">AYZ</span>
             </div>
             <div>
-              <div className={`font-heading font-bold text-sm leading-tight ${isTransparent ? "text-white" : "text-summit-navy"}`}>
+              <div className="font-heading font-bold text-sm leading-tight text-summit-navy">
                 Arsa Yatırım
               </div>
               <div className="text-summit-gold text-xs tracking-widest uppercase font-semibold">
@@ -61,8 +58,6 @@ export default function Navbar() {
                 className={`text-sm font-medium transition-colors duration-200 ${
                   location.pathname === link.href
                     ? "text-summit-gold"
-                    : isTransparent
-                    ? "text-white/85 hover:text-white"
                     : "text-gray-600 hover:text-summit-navy"
                 }`}
                 data-testid={`nav-link-${link.label}`}
@@ -76,11 +71,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/zirve-kaydi"
-              className={`text-sm font-semibold px-4 py-2 rounded-lg transition-all ${
-                isTransparent
-                  ? "text-white border border-white/40 hover:bg-white/10"
-                  : "text-summit-navy border border-summit-navy/20 hover:bg-gray-50"
-              }`}
+              className="text-sm font-semibold px-4 py-2 rounded-lg text-summit-navy border border-summit-navy/20 hover:bg-gray-50 transition-all"
               data-testid="nav-guest-btn"
             >
               Zirve Kaydı
@@ -96,7 +87,7 @@ export default function Navbar() {
 
           {/* Mobile hamburger */}
           <button
-            className={`md:hidden p-2 ${isTransparent ? "text-white" : "text-summit-navy"}`}
+            className="md:hidden p-2 text-summit-navy"
             onClick={() => setMenuOpen(!menuOpen)}
             data-testid="mobile-menu-btn"
           >

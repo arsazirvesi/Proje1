@@ -21,7 +21,7 @@ export default function BlogDetailPage() {
   }, [slug]);
 
   if (loading) return (
-    <div className="bg-summit-navy min-h-screen">
+    <div className="bg-white min-h-screen">
       <Navbar />
       <div className="flex justify-center items-center min-h-screen">
         <div className="w-10 h-10 border-2 border-summit-gold border-t-transparent rounded-full animate-spin" />
@@ -30,17 +30,17 @@ export default function BlogDetailPage() {
   );
 
   if (error || !post) return (
-    <div className="bg-summit-navy min-h-screen">
+    <div className="bg-white min-h-screen">
       <Navbar />
       <div className="flex flex-col justify-center items-center min-h-screen gap-5">
-        <h2 className="font-heading text-white text-3xl">Blog yazısı bulunamadı</h2>
+        <h2 className="font-heading text-summit-navy text-3xl">Blog yazısı bulunamadı</h2>
         <Link to="/blog" className="btn-gold px-6 py-3 text-sm">Blog'a Dön</Link>
       </div>
     </div>
   );
 
   return (
-    <div className="bg-summit-navy min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body">
       <Navbar />
 
       <div className="pt-28 pb-24">
@@ -50,12 +50,12 @@ export default function BlogDetailPage() {
             className="w-full h-72 sm:h-96 bg-cover bg-center mb-0"
             style={{ backgroundImage: `url(${post.image_url})` }}
           >
-            <div className="w-full h-full bg-gradient-to-b from-transparent to-summit-navy" />
+            <div className="w-full h-full bg-gradient-to-b from-transparent to-white" />
           </div>
         )}
 
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/blog" className="inline-flex items-center gap-2 text-summit-text-muted hover:text-summit-gold text-sm mb-8 mt-8 transition-colors">
+          <Link to="/blog" className="inline-flex items-center gap-2 text-gray-500 hover:text-summit-gold text-sm mb-8 mt-8 transition-colors">
             <ArrowLeft size={16} />
             Blog'a Dön
           </Link>
@@ -68,10 +68,10 @@ export default function BlogDetailPage() {
             ))}
           </div>
 
-          <h1 className="font-heading text-white text-3xl sm:text-4xl lg:text-5xl leading-tight">{post.title}</h1>
+          <h1 className="font-heading text-summit-navy text-3xl sm:text-4xl lg:text-5xl leading-tight">{post.title}</h1>
 
-          <div className="flex items-center gap-5 mt-5 pb-6 border-b border-white/8">
-            <span className="text-summit-text-muted text-sm flex items-center gap-1.5">
+          <div className="flex items-center gap-5 mt-5 pb-6 border-b border-gray-200">
+            <span className="text-gray-500 text-sm flex items-center gap-1.5">
               <Calendar size={14} className="text-summit-gold" />
               {new Date(post.created_at).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })}
             </span>
@@ -79,7 +79,7 @@ export default function BlogDetailPage() {
           </div>
 
           <div
-            className="mt-8 text-summit-text-secondary text-base leading-relaxed prose-custom"
+            className="mt-8 text-gray-600 text-base leading-relaxed prose-custom"
             style={{ whiteSpace: "pre-wrap" }}
           >
             {post.content}

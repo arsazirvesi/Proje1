@@ -8,6 +8,7 @@ import qrcode
 import io
 import base64
 import logging
+import html as html_escape
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Any, Annotated
 from pathlib import Path
@@ -377,10 +378,10 @@ async def generate_badge(guest_id: str):
     img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
 
-    name = guest.get("name", "")
-    company = guest.get("company", "")
-    title_val = guest.get("title", "")
-    initials = "".join([w[0].upper() for w in name.split()[:2]]) if name else "K"
+    name = html_escape.escape(guest.get("name") or "")
+    company = html_escape.escape(guest.get("company") or "")
+    title_val = html_escape.escape(guest.get("title") or "")
+    initials = "".join([w[0].upper() for w in guest.get("name", "").split()[:2]]) if guest.get("name") else "K"
 
     html = f"""<!DOCTYPE html>
 <html lang="tr"><head><meta charset="UTF-8"><title>Yaka Kartı - {name}</title>

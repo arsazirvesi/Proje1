@@ -48,40 +48,54 @@ export default function HomePage() {
     <div className="bg-white min-h-screen font-body">
       <Navbar />
 
-      {/* ===== HERO ===== */}
+      {/* ===== HERO (light) ===== */}
       <section
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-summit-paper via-white to-summit-gold/5"
         data-testid="hero-section"
-        style={{
-          backgroundImage: "url(https://images.pexels.com/photos/32990165/pexels-photo-32990165.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
       >
-        {/* Overlay */}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26,39,68,0.70) 0%, rgba(26,39,68,0.85) 60%, rgba(26,39,68,0.95) 100%)" }} />
+        {/* Decorative geometric background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full bg-summit-gold/10 blur-3xl" />
+          <div className="absolute -bottom-40 -left-32 w-[560px] h-[560px] rounded-full bg-summit-navy/5 blur-3xl" />
+          {/* subtle grid */}
+          <svg className="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid-light" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1A2744" strokeWidth="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-light)"/>
+          </svg>
+        </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-28 pb-20">
-          <span className="section-overline text-white/70 animate-fade-in stagger-1 opacity-0 inline-block">
-            21 Mayıs 2026 &nbsp;|&nbsp; Hilton İstanbul Bosphorus
-          </span>
+          {/* Top badge */}
+          <div className="inline-flex items-center gap-2 bg-white border border-summit-gold/30 rounded-full px-5 py-2 mb-6 shadow-sm animate-fade-in stagger-1 opacity-0">
+            <span className="w-2 h-2 rounded-full bg-summit-gold animate-pulse" />
+            <span className="text-summit-navy text-xs font-semibold tracking-widest uppercase">
+              21 Mayıs 2026 &nbsp;|&nbsp; Hilton İstanbul Bosphorus
+            </span>
+          </div>
 
-          <h1 className="font-heading font-bold text-white text-5xl sm:text-6xl lg:text-7xl leading-tight mt-4 animate-slide-up stagger-2 opacity-0" style={{ color: "#fff" }}>
+          <h1 className="font-heading font-bold text-summit-navy text-5xl sm:text-6xl lg:text-7xl leading-tight animate-slide-up stagger-2 opacity-0">
             Arsa Yatırım{" "}
             <span className="text-gold-gradient">Zirvesi</span>
-            <br />2026
+            <br />
+            <span className="text-summit-navy">2026</span>
           </h1>
 
-          <p className="text-white/75 text-lg mt-6 max-w-2xl mx-auto leading-relaxed animate-slide-up stagger-3 opacity-0">
+          <p className="text-gray-600 text-lg mt-6 max-w-2xl mx-auto leading-relaxed animate-slide-up stagger-3 opacity-0">
             Türkiye'nin en kapsamlı arsa yatırım buluşmasında uzman konuşmacılar, stratejik içgörüler ve güçlü networking fırsatları sizi bekliyor.
           </p>
 
-          {/* Countdown */}
+          {/* Countdown (light) */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 mt-10 animate-slide-up stagger-4 opacity-0" data-testid="countdown-timer">
             {[["days", "Gün"], ["hours", "Saat"], ["minutes", "Dakika"], ["seconds", "Saniye"]].map(([key, label]) => (
-              <div key={key} className="countdown-box">
-                <div className="countdown-number">{String(countdown[key] ?? 0).padStart(2, "0")}</div>
-                <div className="countdown-label">{label}</div>
+              <div key={key} className="bg-white border border-gray-200 rounded-2xl py-4 px-5 min-w-[76px] shadow-sm">
+                <div className="font-heading text-3xl sm:text-4xl font-bold text-summit-navy leading-none">
+                  {String(countdown[key] ?? 0).padStart(2, "0")}
+                </div>
+                <div className="text-gray-500 text-[0.6rem] uppercase tracking-widest mt-2">{label}</div>
               </div>
             ))}
           </div>
@@ -90,37 +104,27 @@ export default function HomePage() {
             <Link to="/uyelik" className="btn-gold text-base px-8 py-3.5" data-testid="hero-register-btn">
               Ücretsiz Üye Ol
             </Link>
-            <Link to="/zirve-kaydi" className="btn-outline-gold text-base px-8 py-3.5" data-testid="hero-guest-btn">
+            <Link to="/zirve-kaydi" className="btn-outline-navy text-base px-8 py-3.5" data-testid="hero-guest-btn">
               Zirveye Katıl
             </Link>
           </div>
-        </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float">
-          <div className="w-px h-10 bg-gradient-to-b from-transparent to-white/40" />
-          <div className="w-2 h-2 rounded-full bg-white/40" />
-        </div>
-      </section>
-
-      {/* ===== INFO BAR ===== */}
-      <div className="bg-summit-navy py-5 border-y border-summit-navy/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          {/* Quick info row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-14 max-w-4xl mx-auto">
             {[
-              { icon: Calendar, label: "21 Mayıs 2026, Perşembe" },
-              { icon: MapPin, label: "Hilton İstanbul Bosphorus" },
+              { icon: Calendar, label: "21 Mayıs 2026" },
+              { icon: MapPin, label: "Hilton Bosphorus" },
               { icon: Users, label: "4 Uzman Konuşmacı" },
               { icon: Award, label: "Ücretsiz Katılım" },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center justify-center gap-2">
-                <Icon size={16} className="text-summit-gold shrink-0" />
-                <span className="text-white/80 text-sm">{label}</span>
+              <div key={label} className="flex items-center justify-center gap-2 bg-white/60 backdrop-blur border border-gray-200 rounded-xl py-3 px-4">
+                <Icon size={15} className="text-summit-gold shrink-0" />
+                <span className="text-gray-700 text-xs sm:text-sm font-medium">{label}</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ===== ABOUT ===== */}
       <section className="py-20 sm:py-28 bg-white" data-testid="about-section">
@@ -335,23 +339,26 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ===== CTA ===== */}
-      <section className="bg-summit-navy py-24 sm:py-32" data-testid="cta-section">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* ===== CTA (light) ===== */}
+      <section className="relative bg-summit-paper py-24 sm:py-32 overflow-hidden" data-testid="cta-section">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-summit-gold/5 blur-3xl" />
+        </div>
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block text-summit-gold text-xs font-semibold uppercase tracking-widest mb-4">Sınırlı Kontenjan</span>
-          <h2 className="font-heading text-white text-4xl sm:text-5xl leading-tight">Yerinizi Ayırtın</h2>
-          <p className="text-white/65 text-base mt-5 leading-relaxed max-w-xl mx-auto">
+          <h2 className="font-heading text-summit-navy text-4xl sm:text-5xl leading-tight">Yerinizi Ayırtın</h2>
+          <p className="text-gray-600 text-base mt-5 leading-relaxed max-w-xl mx-auto">
             Arsa yatırımı dünyasının zirvesinde yerinizi alın. Ücretsiz kayıt ile tüm oturumları ve networking etkinliğini keşfedin.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
             <Link to="/uyelik" className="btn-gold text-base px-10 py-4" data-testid="cta-member-btn">
               Üyelik Oluştur
             </Link>
-            <Link to="/zirve-kaydi" className="btn-outline-gold text-base px-10 py-4" data-testid="cta-guest-btn">
+            <Link to="/zirve-kaydi" className="btn-outline-navy text-base px-10 py-4" data-testid="cta-guest-btn">
               Zirve Kaydı
             </Link>
           </div>
-          <p className="text-white/35 text-xs mt-5">Katılım tamamen ücretsizdir</p>
+          <p className="text-gray-400 text-xs mt-5">Katılım tamamen ücretsizdir</p>
         </div>
       </section>
 

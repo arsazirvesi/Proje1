@@ -30,20 +30,20 @@ export default function GuestRegisterPage() {
   if (result) {
     const badgeUrl = `${process.env.REACT_APP_BACKEND_URL}${result.badge_url}`;
     return (
-      <div className="bg-summit-navy min-h-screen font-body">
+      <div className="bg-white min-h-screen font-body">
         <Navbar />
         <div className="min-h-screen flex items-center justify-center px-4">
           <div className="bg-summit-paper border border-summit-gold/30 rounded-2xl p-10 max-w-md w-full text-center gold-glow">
             <div className="w-16 h-16 bg-summit-gold/15 rounded-full flex items-center justify-center mx-auto mb-5">
               <CheckCircle size={32} className="text-summit-gold" />
             </div>
-            <h2 className="font-heading text-white text-2xl font-bold">Kaydınız Alındı!</h2>
-            <p className="text-summit-text-secondary text-sm mt-3 leading-relaxed">
+            <h2 className="font-heading text-summit-navy text-2xl font-bold">Kaydınız Alındı!</h2>
+            <p className="text-gray-600 text-sm mt-3 leading-relaxed">
               Arsa Yatırım Zirvesi 2026 kaydınız başarıyla alınmıştır. Onay emaili gönderilmiştir.
             </p>
-            <div className="bg-summit-surface rounded-xl border border-summit-gold/20 p-4 mt-6">
+            <div className="bg-gray-50 rounded-xl border border-summit-gold/20 p-4 mt-6">
               <p className="text-summit-gold text-xs font-semibold uppercase tracking-wider mb-2">Yaka Kartınız</p>
-              <p className="text-summit-text-secondary text-xs mb-3">Etkinlik günü kayıt masasında teslim edilecektir. Aşağıdan önizleyebilirsiniz:</p>
+              <p className="text-gray-600 text-xs mb-3">Etkinlik günü kayıt masasında teslim edilecektir. Aşağıdan önizleyebilirsiniz:</p>
               <a href={badgeUrl} target="_blank" rel="noopener noreferrer"
                 className="btn-gold px-5 py-2.5 text-sm inline-flex items-center gap-2" data-testid="view-badge-btn">
                 Yaka Kartını Gör <ExternalLink size={14} />
@@ -57,99 +57,99 @@ export default function GuestRegisterPage() {
   }
 
   return (
-    <div className="bg-summit-navy min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body">
       <Navbar />
 
       <div className="pt-32 pb-24">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
             <span className="section-overline">21 Mayıs 2026</span>
-            <h1 className="font-heading text-white text-4xl sm:text-5xl">Zirve Kaydı</h1>
-            <p className="text-summit-text-secondary mt-4 text-sm">
+            <h1 className="font-heading text-summit-navy text-4xl sm:text-5xl">Zirve Kaydı</h1>
+            <p className="text-gray-600 mt-4 text-sm">
               Hilton İstanbul Bosphorus'taki zirvemize katılmak için kayıt oluşturun. Ücretsizdir.
             </p>
           </div>
 
-          <div className="bg-summit-paper border border-white/8 rounded-2xl p-6 sm:p-8">
+          <div className="bg-summit-paper border border-gray-200 rounded-2xl p-6 sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-5" data-testid="guest-register-form">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Ad Soyad *</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Ad Soyad *</label>
                   <div className="relative">
-                    <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+                    <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="text" required placeholder="Adınız Soyadınız" value={form.name}
                       onChange={e => setForm({...form, name: e.target.value})}
-                      className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors"
                       data-testid="input-guest-name" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">E-posta *</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">E-posta *</label>
                   <div className="relative">
-                    <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+                    <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="email" required placeholder="ornek@email.com" value={form.email}
                       onChange={e => setForm({...form, email: e.target.value})}
-                      className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors"
                       data-testid="input-guest-email" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Telefon *</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Telefon *</label>
                   <div className="relative">
-                    <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+                    <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="tel" required placeholder="+90 5XX XXX XXXX" value={form.phone}
                       onChange={e => setForm({...form, phone: e.target.value})}
-                      className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors"
                       data-testid="input-guest-phone" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Şirket / Kurum</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Şirket / Kurum</label>
                   <div className="relative">
-                    <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+                    <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="text" placeholder="Şirket adı" value={form.company}
                       onChange={e => setForm({...form, company: e.target.value})}
-                      className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors"
                       data-testid="input-guest-company" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Unvan</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Unvan</label>
                   <div className="relative">
-                    <Briefcase size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+                    <Briefcase size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="text" placeholder="Unvanınız" value={form.title}
                       onChange={e => setForm({...form, title: e.target.value})}
-                      className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors"
                       data-testid="input-guest-title" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Şehir</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Şehir</label>
                   <div className="relative">
-                    <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+                    <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input type="text" placeholder="İstanbul" value={form.city}
                       onChange={e => setForm({...form, city: e.target.value})}
-                      className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors"
                       data-testid="input-guest-city" />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Zirveden Beklentileriniz</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Zirveden Beklentileriniz</label>
                 <div className="relative">
-                  <FileText size={15} className="absolute left-3 top-3 text-summit-text-muted" />
+                  <FileText size={15} className="absolute left-3 top-3 text-gray-500" />
                   <textarea
                     placeholder="Hangi konuları öğrenmek istiyorsunuz?"
                     rows={3}
                     value={form.expectations}
                     onChange={e => setForm({...form, expectations: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 transition-colors resize-none"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 transition-colors resize-none"
                     data-testid="input-guest-expectations"
                   />
                 </div>
@@ -170,7 +170,7 @@ export default function GuestRegisterPage() {
                 {loading ? "Kaydediliyor..." : "Zirveye Ücretsiz Katıl"}
               </button>
 
-              <p className="text-summit-text-muted text-xs text-center">
+              <p className="text-gray-500 text-xs text-center">
                 Katılım tamamen ücretsizdir. Yaka kartınız etkinlik günü hazır olacaktır.
               </p>
             </form>

@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   LayoutDashboard, Users, UserCheck, Mic2, Award, Image, FileText,
-  Calendar, ListOrdered, LogOut, Menu, X, ChevronRight
+  Calendar, ListOrdered, LogOut, Menu, ChevronRight
 } from "lucide-react";
 
 const navItems = [
@@ -37,13 +37,13 @@ export default function AdminLayout() {
   const Sidebar = () => (
     <div className="admin-sidebar w-64 h-full flex flex-col">
       {/* Header */}
-      <div className="p-5 border-b border-summit-gold/10">
+      <div className="p-5 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gold-gradient rounded-lg flex items-center justify-center shrink-0">
-            <span className="font-heading font-bold text-summit-navy text-xs">AYZ</span>
+          <div className="w-9 h-9 bg-gradient-to-br from-summit-gold to-summit-gold-light rounded-lg flex items-center justify-center shrink-0">
+            <span className="font-heading font-bold text-white text-xs">AYZ</span>
           </div>
           <div>
-            <div className="text-white text-sm font-semibold font-heading">Yönetici</div>
+            <div className="text-summit-navy text-sm font-semibold font-heading">Yönetici Paneli</div>
             <div className="text-summit-gold text-xs">Zirvesi 2026</div>
           </div>
         </div>
@@ -58,8 +58,8 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
             className={`admin-nav-item flex items-center gap-3 px-5 py-2.5 text-sm transition-all ${
               isActive(href)
-                ? "active text-white"
-                : "text-summit-text-muted hover:text-white"
+                ? "active text-summit-navy font-semibold"
+                : "text-gray-600 hover:text-summit-navy"
             }`}
             data-testid={`admin-nav-${label}`}
           >
@@ -71,19 +71,19 @@ export default function AdminLayout() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-summit-gold/10">
+      <div className="p-4 border-t border-gray-200">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-summit-surface rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-summit-gold/10 rounded-full flex items-center justify-center">
             <span className="text-summit-gold text-xs font-bold">{user?.name?.[0] || "A"}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-white text-xs font-medium truncate">{user?.name || "Admin"}</div>
-            <div className="text-summit-text-muted text-xs truncate">{user?.email}</div>
+            <div className="text-summit-navy text-xs font-medium truncate">{user?.name || "Admin"}</div>
+            <div className="text-gray-500 text-xs truncate">{user?.email}</div>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-summit-text-muted hover:text-red-400 text-xs py-2 transition-colors"
+          className="w-full flex items-center gap-2 text-gray-500 hover:text-red-500 text-xs py-2 transition-colors"
           data-testid="admin-logout-btn"
         >
           <LogOut size={14} />
@@ -94,7 +94,7 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="flex h-screen bg-summit-navy overflow-hidden font-body">
+    <div className="flex h-screen bg-summit-paper overflow-hidden font-body">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block h-full shrink-0">
         <Sidebar />
@@ -103,7 +103,7 @@ export default function AdminLayout() {
       {/* Mobile Sidebar */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
           <div className="relative z-10 h-full">
             <Sidebar />
           </div>
@@ -113,16 +113,16 @@ export default function AdminLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex items-center justify-between px-5 py-3.5 bg-summit-paper border-b border-summit-gold/10 shrink-0">
+        <header className="flex items-center justify-between px-5 py-3.5 bg-white border-b border-gray-200 shrink-0">
           <button
-            className="lg:hidden text-summit-text-muted hover:text-white p-1"
+            className="lg:hidden text-gray-600 hover:text-summit-navy p-1"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu size={22} />
           </button>
           <div className="flex items-center gap-2">
             <a href="/" target="_blank" rel="noopener noreferrer"
-              className="text-xs text-summit-text-muted hover:text-summit-gold transition-colors hidden sm:block">
+              className="text-xs text-gray-500 hover:text-summit-gold transition-colors hidden sm:block">
               Siteyi Görüntüle →
             </a>
           </div>

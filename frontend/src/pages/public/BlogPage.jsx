@@ -16,13 +16,13 @@ export default function BlogPage() {
   }, []);
 
   return (
-    <div className="bg-summit-navy min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body">
       <Navbar />
 
-      <div className="pt-32 pb-16 text-center bg-gradient-to-b from-summit-paper/50 to-transparent">
+      <div className="pt-32 pb-16 text-center bg-gradient-to-b from-gray-50 to-transparent">
         <span className="section-overline">İçerik & Makaleler</span>
-        <h1 className="font-heading text-white text-5xl sm:text-6xl">Blog</h1>
-        <p className="text-summit-text-secondary mt-4 max-w-2xl mx-auto px-4">
+        <h1 className="font-heading text-summit-navy text-5xl sm:text-6xl">Blog</h1>
+        <p className="text-gray-600 mt-4 max-w-2xl mx-auto px-4">
           Arsa yatırımı, gayrimenkul piyasası ve yatırım stratejileri hakkında güncel makaleler.
         </p>
       </div>
@@ -37,8 +37,8 @@ export default function BlogPage() {
             <div className="w-16 h-16 bg-summit-gold/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <Tag size={24} className="text-summit-gold" />
             </div>
-            <h3 className="font-heading text-white text-2xl">Henüz İçerik Yok</h3>
-            <p className="text-summit-text-muted text-sm mt-3">Blog yazıları yakında eklenecektir.</p>
+            <h3 className="font-heading text-summit-navy text-2xl">Henüz İçerik Yok</h3>
+            <p className="text-gray-500 text-sm mt-3">Blog yazıları yakında eklenecektir.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -57,7 +57,7 @@ export default function BlogPage() {
                   />
                 )}
                 {!post.image_url && (
-                  <div className="h-44 bg-gradient-to-br from-summit-surface to-summit-navy flex items-center justify-center">
+                  <div className="h-44 bg-gradient-to-br from-summit-surface to-white flex items-center justify-center">
                     <Tag size={32} className="text-summit-gold/30" />
                   </div>
                 )}
@@ -69,12 +69,12 @@ export default function BlogPage() {
                       </span>
                     ))}
                   </div>
-                  <h3 className="font-heading text-white text-lg font-semibold leading-snug line-clamp-2">{post.title}</h3>
+                  <h3 className="font-heading text-summit-navy text-lg font-semibold leading-snug line-clamp-2">{post.title}</h3>
                   {post.excerpt && (
-                    <p className="text-summit-text-muted text-xs mt-3 leading-relaxed line-clamp-3">{post.excerpt}</p>
+                    <p className="text-gray-500 text-xs mt-3 leading-relaxed line-clamp-3">{post.excerpt}</p>
                   )}
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
-                    <span className="text-summit-text-muted text-xs flex items-center gap-1">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <span className="text-gray-500 text-xs flex items-center gap-1">
                       <Calendar size={11} />
                       {new Date(post.created_at).toLocaleDateString("tr-TR")}
                     </span>

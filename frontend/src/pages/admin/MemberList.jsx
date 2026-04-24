@@ -75,11 +75,11 @@ export default function MemberList() {
     <div data-testid="member-list-page">
       <div className="flex items-start justify-between mb-7 flex-wrap gap-3">
         <div>
-          <h1 className="font-heading text-white text-2xl sm:text-3xl">Üye Listesi</h1>
-          <p className="text-summit-text-muted text-sm mt-1">{members.length} kayıtlı üye</p>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Üye Listesi</h1>
+          <p className="text-gray-500 text-sm mt-1">{members.length} kayıtlı üye</p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-summit-surface border border-white/10 rounded-lg text-summit-text-secondary text-sm hover:border-summit-gold/30 transition-colors">
+          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600 text-sm hover:border-summit-gold/30 transition-colors">
             <Download size={14} /> CSV İndir
           </button>
           <button onClick={() => setEmailModal(true)} className="btn-gold flex items-center gap-2 px-4 py-2 text-sm" data-testid="send-bulk-email-btn">
@@ -95,15 +95,15 @@ export default function MemberList() {
         </div>
       )}
 
-      <div className="bg-summit-paper border border-white/8 rounded-xl overflow-hidden">
-        <div className="p-4 border-b border-white/5">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="p-4 border-b border-gray-100">
           <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-text-muted" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               placeholder="İsim, email veya şirket ara..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-summit-surface border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-white text-sm placeholder-summit-text-muted focus:outline-none focus:border-summit-gold/50 max-w-sm"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-gold/50 max-w-sm"
               data-testid="member-search-input"
             />
           </div>
@@ -129,12 +129,12 @@ export default function MemberList() {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-10 text-summit-text-muted">Üye bulunamadı</td></tr>
+                  <tr><td colSpan={7} className="text-center py-10 text-gray-500">Üye bulunamadı</td></tr>
                 )}
                 {filtered.map(m => (
                   <tr key={m.id} data-testid={`member-row-${m.id}`}>
-                    <td className="text-white font-medium">{m.name}</td>
-                    <td className="text-summit-text-secondary">{m.email}</td>
+                    <td className="text-summit-navy font-medium">{m.name}</td>
+                    <td className="text-gray-600">{m.email}</td>
                     <td className="hidden md:table-cell">{m.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{m.company || "-"}</td>
                     <td className="hidden lg:table-cell">{m.city || "-"}</td>
@@ -160,33 +160,33 @@ export default function MemberList() {
 
       {/* Email Modal */}
       {emailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60">
-          <div className="bg-summit-paper border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
+          <div className="bg-summit-paper border border-gray-200 rounded-2xl p-6 w-full max-w-lg shadow-xl">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-white text-lg">Toplu Email Gönder</h3>
-              <button onClick={() => setEmailModal(false)}><X size={18} className="text-summit-text-muted hover:text-white" /></button>
+              <h3 className="font-heading text-summit-navy text-lg">Toplu Email Gönder</h3>
+              <button onClick={() => setEmailModal(false)}><X size={18} className="text-gray-500 hover:text-summit-navy" /></button>
             </div>
-            <p className="text-summit-text-muted text-xs mb-5">{members.length} üyeye email gönderilecektir.</p>
+            <p className="text-gray-500 text-xs mb-5">{members.length} üyeye email gönderilecektir.</p>
             <div className="space-y-4">
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Konu</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Konu</label>
                 <input
                   type="text"
                   placeholder="Email konusu"
                   value={emailForm.subject}
                   onChange={e => setEmailForm({...emailForm, subject: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50"
                   data-testid="email-subject-input"
                 />
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">İçerik (HTML)</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">İçerik (HTML)</label>
                 <textarea
                   placeholder="Email içeriği..."
                   rows={6}
                   value={emailForm.content}
                   onChange={e => setEmailForm({...emailForm, content: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50 resize-none"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50 resize-none"
                   data-testid="email-content-input"
                 />
               </div>

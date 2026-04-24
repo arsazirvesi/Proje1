@@ -21,14 +21,14 @@ export default function ProgramPage() {
   }, []);
 
   return (
-    <div className="bg-summit-navy min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body">
       <Navbar />
 
       {/* Header */}
-      <div className="pt-32 pb-16 text-center bg-gradient-to-b from-summit-paper/50 to-transparent">
+      <div className="pt-32 pb-16 text-center bg-gradient-to-b from-gray-50 to-transparent">
         <span className="section-overline">21 Mayıs 2026</span>
-        <h1 className="font-heading text-white text-5xl sm:text-6xl">Zirve Programı</h1>
-        <p className="text-summit-text-secondary mt-4 max-w-2xl mx-auto px-4">
+        <h1 className="font-heading text-summit-navy text-5xl sm:text-6xl">Zirve Programı</h1>
+        <p className="text-gray-600 mt-4 max-w-2xl mx-auto px-4">
           Hilton İstanbul Bosphorus, Zirve Salonu
         </p>
       </div>
@@ -62,7 +62,7 @@ export default function ProgramPage() {
                   {/* Time */}
                   <div className="text-right w-14 shrink-0 pt-4">
                     <span className="text-summit-gold text-xs font-mono font-bold block">{session.time_start}</span>
-                    <span className="text-summit-text-muted text-xs font-mono block">{session.time_end}</span>
+                    <span className="text-gray-500 text-xs font-mono block">{session.time_end}</span>
                   </div>
 
                   {/* Dot */}
@@ -71,12 +71,12 @@ export default function ProgramPage() {
                   </div>
 
                   {/* Card */}
-                  <div className={`flex-1 rounded-xl border border-white/8 border-l-4 p-4 mb-0 ${
+                  <div className={`flex-1 rounded-xl border border-gray-200 border-l-4 p-4 mb-0 ${
                     isBreak ? "bg-summit-surface/30 opacity-70" : "bg-summit-paper"
                   } ${typeInfo.border}`}>
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div className="flex-1">
-                        <h4 className={`font-heading font-semibold ${isBreak ? "text-summit-text-muted text-sm" : "text-white text-base"}`}>
+                        <h4 className={`font-heading font-semibold ${isBreak ? "text-gray-500 text-sm" : "text-summit-navy text-base"}`}>
                           {session.title}
                         </h4>
                         {session.speaker_name && (
@@ -86,7 +86,7 @@ export default function ProgramPage() {
                           </p>
                         )}
                         {session.description && (
-                          <p className="text-summit-text-muted text-xs mt-2 leading-relaxed">{session.description}</p>
+                          <p className="text-gray-500 text-xs mt-2 leading-relaxed">{session.description}</p>
                         )}
                       </div>
                       <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${typeInfo.color}`}>
@@ -102,7 +102,7 @@ export default function ProgramPage() {
 
         {/* Note */}
         <div className="mt-14 bg-summit-paper border border-summit-gold/20 rounded-xl p-6 text-center">
-          <p className="text-summit-text-secondary text-sm">
+          <p className="text-gray-600 text-sm">
             Program değişiklik hakkı saklıdır. Güncel bilgiler için bültenimize abone olun.
           </p>
           <a href="/uyelik" className="btn-gold px-6 py-2.5 text-sm mt-4 inline-block">

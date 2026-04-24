@@ -58,8 +58,8 @@ export default function ProgramManagement() {
     <div data-testid="program-management-page">
       <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 className="font-heading text-white text-2xl sm:text-3xl">Program Yönetimi</h1>
-          <p className="text-summit-text-muted text-sm mt-1">{sessions.length} oturum</p>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Program Yönetimi</h1>
+          <p className="text-gray-500 text-sm mt-1">{sessions.length} oturum</p>
         </div>
         <button onClick={openCreate} className="btn-gold flex items-center gap-2 px-4 py-2.5 text-sm" data-testid="add-session-btn">
           <Plus size={15} /> Yeni Oturum
@@ -68,7 +68,7 @@ export default function ProgramManagement() {
 
       {msg && <div className="bg-summit-gold/10 border border-summit-gold/30 rounded-lg p-3 text-summit-gold text-sm mb-5 flex items-center justify-between">{msg}<button onClick={() => setMsg("")}><X size={14} /></button></div>}
 
-      <div className="bg-summit-paper border border-white/8 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full admin-table">
             <thead>
@@ -81,12 +81,12 @@ export default function ProgramManagement() {
               </tr>
             </thead>
             <tbody>
-              {sessions.length === 0 && <tr><td colSpan={5} className="text-center py-10 text-summit-text-muted">Oturum bulunamadı</td></tr>}
+              {sessions.length === 0 && <tr><td colSpan={5} className="text-center py-10 text-gray-500">Oturum bulunamadı</td></tr>}
               {sessions.map(s => (
                 <tr key={s.id} data-testid={`session-row-${s.id}`}>
                   <td className="font-mono text-xs text-summit-gold whitespace-nowrap">{s.time_start} - {s.time_end}</td>
-                  <td className="text-white text-sm">{s.title}</td>
-                  <td className="hidden sm:table-cell text-summit-text-muted text-sm">{s.speaker_name || "-"}</td>
+                  <td className="text-summit-navy text-sm">{s.title}</td>
+                  <td className="hidden sm:table-cell text-gray-500 text-sm">{s.speaker_name || "-"}</td>
                   <td>
                     <span className={`text-xs px-2 py-0.5 rounded font-medium ${typeColors[s.session_type] || typeColors.talk}`}>
                       {types.find(t => t[0] === s.session_type)?.[1] || s.session_type}
@@ -106,51 +106,51 @@ export default function ProgramManagement() {
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60">
-          <div className="bg-summit-paper border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
+          <div className="bg-summit-paper border border-gray-200 rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-white text-lg">{editing ? "Oturum Düzenle" : "Yeni Oturum"}</h3>
-              <button onClick={() => setModal(false)}><X size={18} className="text-summit-text-muted hover:text-white" /></button>
+              <h3 className="font-heading text-summit-navy text-lg">{editing ? "Oturum Düzenle" : "Yeni Oturum"}</h3>
+              <button onClick={() => setModal(false)}><X size={18} className="text-gray-500 hover:text-summit-navy" /></button>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Başlangıç *</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Başlangıç *</label>
                   <input type="time" value={form.time_start} onChange={e => setForm({...form, time_start: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
                 </div>
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Bitiş</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Bitiş</label>
                   <input type="time" value={form.time_end} onChange={e => setForm({...form, time_end: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
                 </div>
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Oturum Başlığı *</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Oturum Başlığı *</label>
                 <input type="text" placeholder="Oturum başlığı" value={form.title} onChange={e => setForm({...form, title: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Konuşmacı</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Konuşmacı</label>
                 <input type="text" placeholder="Konuşmacı adı" value={form.speaker_name} onChange={e => setForm({...form, speaker_name: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Oturum Tipi</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Oturum Tipi</label>
                 <select value={form.session_type} onChange={e => setForm({...form, session_type: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50">
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50">
                   {types.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Açıklama</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Açıklama</label>
                 <textarea placeholder="Oturum açıklaması..." rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50 resize-none" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50 resize-none" />
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Sıra</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Sıra</label>
                 <input type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value)||0})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div className="flex gap-3 justify-end">
                 <button onClick={() => setModal(false)} className="btn-outline-gold px-5 py-2.5 text-sm">İptal</button>

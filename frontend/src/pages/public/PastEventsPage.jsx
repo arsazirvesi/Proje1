@@ -15,13 +15,13 @@ export default function PastEventsPage() {
   }, []);
 
   return (
-    <div className="bg-summit-navy min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body">
       <Navbar />
 
-      <div className="pt-32 pb-16 text-center bg-gradient-to-b from-summit-paper/50 to-transparent">
+      <div className="pt-32 pb-16 text-center bg-gradient-to-b from-gray-50 to-transparent">
         <span className="section-overline">Geçmiş Yıllar</span>
-        <h1 className="font-heading text-white text-5xl sm:text-6xl">Geçmiş Etkinlikler</h1>
-        <p className="text-summit-text-secondary mt-4 max-w-2xl mx-auto px-4">
+        <h1 className="font-heading text-summit-navy text-5xl sm:text-6xl">Geçmiş Etkinlikler</h1>
+        <p className="text-gray-600 mt-4 max-w-2xl mx-auto px-4">
           Her yıl büyüyen Arsa Yatırım Zirvesi'nin geçmiş yıllarına bir göz atın.
         </p>
       </div>
@@ -36,7 +36,7 @@ export default function PastEventsPage() {
             {events.map((ev, i) => (
               <div
                 key={ev.id}
-                className="group bg-summit-paper rounded-2xl border border-white/8 overflow-hidden card-hover"
+                className="group bg-summit-paper rounded-2xl border border-gray-200 overflow-hidden card-hover"
                 style={{ animationDelay: `${i * 0.1}s` }}
                 data-testid={`event-card-${ev.id}`}
               >
@@ -54,21 +54,21 @@ export default function PastEventsPage() {
                 </div>
 
                 <div className="p-6">
-                  <h3 className="font-heading text-white text-xl font-bold">{ev.title}</h3>
+                  <h3 className="font-heading text-summit-navy text-xl font-bold">{ev.title}</h3>
 
                   <div className="flex flex-col gap-2 mt-4">
-                    <div className="flex items-center gap-2 text-summit-text-muted text-xs">
+                    <div className="flex items-center gap-2 text-gray-500 text-xs">
                       <MapPin size={13} className="text-summit-gold shrink-0" />
                       {ev.venue}
                     </div>
                     {ev.attendee_count && (
-                      <div className="flex items-center gap-2 text-summit-text-muted text-xs">
+                      <div className="flex items-center gap-2 text-gray-500 text-xs">
                         <Users size={13} className="text-summit-gold shrink-0" />
                         {ev.attendee_count}+ Katılımcı
                       </div>
                     )}
                     {ev.speakers_count && (
-                      <div className="flex items-center gap-2 text-summit-text-muted text-xs">
+                      <div className="flex items-center gap-2 text-gray-500 text-xs">
                         <Calendar size={13} className="text-summit-gold shrink-0" />
                         {ev.speakers_count} Konuşmacı
                       </div>
@@ -76,7 +76,7 @@ export default function PastEventsPage() {
                   </div>
 
                   {ev.description && (
-                    <p className="text-summit-text-secondary text-xs mt-4 leading-relaxed line-clamp-3">{ev.description}</p>
+                    <p className="text-gray-600 text-xs mt-4 leading-relaxed line-clamp-3">{ev.description}</p>
                   )}
                 </div>
               </div>
@@ -87,8 +87,8 @@ export default function PastEventsPage() {
         {/* Next event teaser */}
         <div className="mt-16 bg-gradient-to-r from-summit-gold/10 to-summit-gold/5 border border-summit-gold/25 rounded-2xl p-8 text-center">
           <span className="section-overline">Sıradaki</span>
-          <h2 className="font-heading text-white text-3xl sm:text-4xl">4. Arsa Yatırım Zirvesi 2026</h2>
-          <p className="text-summit-text-secondary text-sm mt-3">
+          <h2 className="font-heading text-summit-navy text-3xl sm:text-4xl">4. Arsa Yatırım Zirvesi 2026</h2>
+          <p className="text-gray-600 text-sm mt-3">
             21 Mayıs 2026 &bull; Hilton İstanbul Bosphorus
           </p>
           <a href="/zirve-kaydi" className="btn-gold px-8 py-3 text-sm mt-6 inline-block" data-testid="next-event-register-btn">

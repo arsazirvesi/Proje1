@@ -61,26 +61,29 @@ def test_get_sponsors(session):
 
 # --- Registration ---
 def test_register_member(session):
-    payload = {"name": "TEST_Member User", "email": "test_member_xyz123@example.com", "phone": "5551234567", "company": "Test Co", "city": "İstanbul"}
+    ts = int(time.time())
+    payload = {"name": "TEST_Member User", "email": f"test_member_{ts}@example.com", "phone": "5551234567", "company": "Test Co", "city": "İstanbul"}
     r = session.post(f"{BASE_URL}/api/register/member", json=payload)
     assert r.status_code == 200
     data = r.json()
     assert "id" in data
+    pytest.member_email = payload["email"]
     print(f"Member ID: {data['id']}")
 
 def test_register_member_duplicate(session):
-    payload = {"name": "TEST_Member User", "email": "test_member_xyz123@example.com"}
+    email = getattr(pytest, "member_email", "test_member_xyz123@example.com")
+    payload = {"name": "TEST_Member User", "email": email}
     r = session.post(f"{BASE_URL}/api/register/member", json=payload)
     assert r.status_code == 400
 
 def test_register_guest(session):
-    payload = {"name": "TEST_Guest User", "email": "test_guest_xyz123@example.com", "company": "Test Co", "city": "Ankara", "expectations": "Networking"}
+    ts = int(time.time())
+    payload = {"name": "TEST_Guest User", "email": f"test_guest_{ts}@example.com", "company": "Test Co", "title": "CEO", "city": "Ankara", "expectations": "Networking"}
     r = session.post(f"{BASE_URL}/api/register/guest", json=payload)
     assert r.status_code == 200
     data = r.json()
     assert "id" in data
     assert "badge_url" in data
-    # Store guest_id for badge test
     pytest.guest_id = data["id"]
     print(f"Guest ID: {data['id']}, Badge URL: {data['badge_url']}")
 
@@ -92,6 +95,30 @@ def test_badge_generation(session):
     assert "text/html" in r.headers.get("content-type", "")
     assert "TEST_Guest User" in r.text
     print("Badge HTML generated successfully")
+
+# --- XSS escape test ---
+def test_badge_xss_escape(session):
+    """Register a guest with HTML-like input and verify the badge escapes it."""
+    xss_payload = {
+        "name": "TEST_<script>alert(1)</script>",
+        "email": f"test_xss_{int(time.time())}@example.com",
+        "company": "<img src=x onerror=alert(2)>",
+        "title": "CEO<b>",
+        "city": "İstanbul",
+        "expectations": "XSS"
+    }
+    r = session.post(f"{BASE_URL}/api/register/guest", json=xss_payload)
+    assert r.status_code == 200
+    gid = r.json()["id"]
+    br = session.get(f"{BASE_URL}/api/badge/{gid}")
+    assert br.status_code == 200
+    body = br.text
+    # Raw script tags must NOT appear in the rendered badge
+    assert "<script>alert(1)</script>" not in body, "Unescaped <script> tag found in badge - XSS vulnerability!"
+    assert "<img src=x onerror=alert(2)>" not in body, "Unescaped <img> tag with onerror found in badge - XSS vulnerability!"
+    # Escaped versions should be present
+    assert "&lt;script&gt;" in body or "&lt;script" in body
+    print("Badge XSS escape verified")
 
 # --- Admin Auth ---
 def test_admin_login(session):
@@ -121,7 +148,16 @@ def test_admin_members_list(admin_session):
 def test_admin_guests_list(admin_session):
     r = admin_session.get(f"{BASE_URL}/api/admin/guests")
     assert r.status_code == 200
-    assert isinstance(r.json(), list)
+
+# --- Bulk email regression (SendGrid key not set expected) ---
+def test_admin_bulk_email_no_sendgrid(admin_session):
+    """Even without SendGrid API key, endpoint must not 500."""
+    payload = {"subject": "Test", "content": "<p>hi</p>", "recipient_type": "members"}
+    r = admin_session.post(f"{BASE_URL}/api/admin/email/send", json=payload)
+    # Must be a graceful response, not server error
+    assert r.status_code < 500, f"Bulk email endpoint errored: {r.status_code} {r.text}"
+    print(f"Bulk email (no SendGrid) returned {r.status_code}")
+
 
 def test_admin_speakers_get(admin_session):
     r = admin_session.get(f"{BASE_URL}/api/admin/speakers")

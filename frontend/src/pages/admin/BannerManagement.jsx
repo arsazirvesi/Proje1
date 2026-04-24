@@ -50,8 +50,8 @@ export default function BannerManagement() {
     <div data-testid="banner-management-page">
       <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 className="font-heading text-white text-2xl sm:text-3xl">Banner Yönetimi</h1>
-          <p className="text-summit-text-muted text-sm mt-1">{banners.length} banner</p>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Banner Yönetimi</h1>
+          <p className="text-gray-500 text-sm mt-1">{banners.length} banner</p>
         </div>
         <button onClick={openCreate} className="btn-gold flex items-center gap-2 px-4 py-2.5 text-sm" data-testid="add-banner-btn">
           <Plus size={15} /> Yeni Banner
@@ -62,17 +62,17 @@ export default function BannerManagement() {
 
       <div className="grid grid-cols-1 gap-4">
         {banners.map(b => (
-          <div key={b.id} className="bg-summit-paper border border-white/8 rounded-xl p-5 flex items-center gap-4 card-hover" data-testid={`banner-row-${b.id}`}>
+          <div key={b.id} className="bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4 card-hover" data-testid={`banner-row-${b.id}`}>
             {b.image_url ? (
               <div className="w-20 h-14 rounded-lg bg-cover bg-center shrink-0" style={{ backgroundImage: `url(${b.image_url})` }} />
             ) : (
-              <div className="w-20 h-14 rounded-lg bg-summit-surface flex items-center justify-center shrink-0">
-                <Image size={20} className="text-summit-text-muted" />
+              <div className="w-20 h-14 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                <Image size={20} className="text-gray-500" />
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h4 className="text-white font-medium text-sm">{b.title}</h4>
-              {b.subtitle && <p className="text-summit-text-muted text-xs mt-0.5">{b.subtitle}</p>}
+              <h4 className="text-summit-navy font-medium text-sm">{b.title}</h4>
+              {b.subtitle && <p className="text-gray-500 text-xs mt-0.5">{b.subtitle}</p>}
               <span className={`text-xs mt-1 inline-block px-2 py-0.5 rounded ${b.is_active ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"}`}>
                 {b.is_active ? "Aktif" : "Pasif"}
               </span>
@@ -83,32 +83,32 @@ export default function BannerManagement() {
             </div>
           </div>
         ))}
-        {banners.length === 0 && <p className="text-center text-summit-text-muted py-10 text-sm">Henüz banner eklenmemiş.</p>}
+        {banners.length === 0 && <p className="text-center text-gray-500 py-10 text-sm">Henüz banner eklenmemiş.</p>}
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60">
-          <div className="bg-summit-paper border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
+          <div className="bg-summit-paper border border-gray-200 rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-white text-lg">{editing ? "Banner Düzenle" : "Yeni Banner"}</h3>
-              <button onClick={() => setModal(false)}><X size={18} className="text-summit-text-muted hover:text-white" /></button>
+              <h3 className="font-heading text-summit-navy text-lg">{editing ? "Banner Düzenle" : "Yeni Banner"}</h3>
+              <button onClick={() => setModal(false)}><X size={18} className="text-gray-500 hover:text-summit-navy" /></button>
             </div>
             <div className="space-y-4">
               {[["title","Başlık *","text"], ["subtitle","Alt Başlık","text"], ["image_url","Görsel URL","url"], ["cta_text","Buton Metni","text"], ["cta_url","Buton URL","url"]].map(([field, label, type]) => (
                 <div key={field}>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">{label}</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">{label}</label>
                   <input type={type} placeholder={label} value={form[field]} onChange={e => setForm({...form, [field]: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
                 </div>
               ))}
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Sıra</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Sıra</label>
                 <input type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value)||0})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.is_active} onChange={e => setForm({...form, is_active: e.target.checked})} className="w-4 h-4 accent-summit-gold" />
-                <span className="text-summit-text-secondary text-sm">Aktif</span>
+                <span className="text-gray-600 text-sm">Aktif</span>
               </label>
               <div className="flex gap-3 justify-end mt-2">
                 <button onClick={() => setModal(false)} className="btn-outline-gold px-5 py-2.5 text-sm">İptal</button>

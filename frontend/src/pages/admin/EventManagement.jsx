@@ -56,8 +56,8 @@ export default function EventManagement() {
     <div data-testid="event-management-page">
       <div className="flex items-start justify-between mb-7">
         <div>
-          <h1 className="font-heading text-white text-2xl sm:text-3xl">Geçmiş Etkinlikler</h1>
-          <p className="text-summit-text-muted text-sm mt-1">{events.length} etkinlik</p>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Geçmiş Etkinlikler</h1>
+          <p className="text-gray-500 text-sm mt-1">{events.length} etkinlik</p>
         </div>
         <button onClick={openCreate} className="btn-gold flex items-center gap-2 px-4 py-2.5 text-sm" data-testid="add-event-btn">
           <Plus size={15} /> Yeni Etkinlik
@@ -68,7 +68,7 @@ export default function EventManagement() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {events.map(ev => (
-          <div key={ev.id} className="bg-summit-paper border border-white/8 rounded-xl overflow-hidden card-hover" data-testid={`event-admin-${ev.id}`}>
+          <div key={ev.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden card-hover" data-testid={`event-admin-${ev.id}`}>
             {ev.image_url && <div className="h-36 bg-cover bg-center" style={{ backgroundImage: `url(${ev.image_url})` }} />}
             <div className="p-4">
               <div className="flex items-start justify-between gap-2 mb-2">
@@ -78,54 +78,54 @@ export default function EventManagement() {
                   <button onClick={() => handleDelete(ev.id)} className="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20"><Trash2 size={12} /></button>
                 </div>
               </div>
-              <h4 className="text-white text-sm font-medium">{ev.title}</h4>
-              <p className="text-summit-text-muted text-xs mt-1">{ev.venue}</p>
-              {ev.attendee_count && <p className="text-summit-text-muted text-xs mt-0.5">{ev.attendee_count}+ Katılımcı</p>}
+              <h4 className="text-summit-navy text-sm font-medium">{ev.title}</h4>
+              <p className="text-gray-500 text-xs mt-1">{ev.venue}</p>
+              {ev.attendee_count && <p className="text-gray-500 text-xs mt-0.5">{ev.attendee_count}+ Katılımcı</p>}
             </div>
           </div>
         ))}
-        {events.length === 0 && <p className="col-span-3 text-center text-summit-text-muted py-10 text-sm">Etkinlik bulunamadı</p>}
+        {events.length === 0 && <p className="col-span-3 text-center text-gray-500 py-10 text-sm">Etkinlik bulunamadı</p>}
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60">
-          <div className="bg-summit-paper border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
+          <div className="bg-summit-paper border border-gray-200 rounded-2xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-white text-lg">{editing ? "Etkinlik Düzenle" : "Yeni Etkinlik"}</h3>
-              <button onClick={() => setModal(false)}><X size={18} className="text-summit-text-muted hover:text-white" /></button>
+              <h3 className="font-heading text-summit-navy text-lg">{editing ? "Etkinlik Düzenle" : "Yeni Etkinlik"}</h3>
+              <button onClick={() => setModal(false)}><X size={18} className="text-gray-500 hover:text-summit-navy" /></button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Etkinlik Adı *</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Etkinlik Adı *</label>
                 <input type="text" placeholder="1. Arsa Yatırım Zirvesi" value={form.title} onChange={e => setForm({...form, title: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Yıl *</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Yıl *</label>
                   <input type="number" placeholder="2024" value={form.year} onChange={e => setForm({...form, year: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
                 </div>
                 <div>
-                  <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Katılımcı Sayısı</label>
+                  <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Katılımcı Sayısı</label>
                   <input type="number" placeholder="500" value={form.attendee_count} onChange={e => setForm({...form, attendee_count: e.target.value})}
-                    className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
                 </div>
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Mekan *</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Mekan *</label>
                 <input type="text" placeholder="Hilton İstanbul Bosphorus" value={form.venue} onChange={e => setForm({...form, venue: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Açıklama</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Açıklama</label>
                 <textarea placeholder="Etkinlik hakkında..." rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50 resize-none" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50 resize-none" />
               </div>
               <div>
-                <label className="text-summit-text-muted text-xs uppercase tracking-wider mb-2 block">Görsel URL</label>
+                <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">Görsel URL</label>
                 <input type="url" placeholder="https://..." value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})}
-                  className="w-full bg-summit-surface border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-summit-gold/50" />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
               </div>
               <div className="flex gap-3 justify-end">
                 <button onClick={() => setModal(false)} className="btn-outline-gold px-5 py-2.5 text-sm">İptal</button>
