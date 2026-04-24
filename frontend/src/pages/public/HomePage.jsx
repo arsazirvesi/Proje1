@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { MapPin, Calendar, Users, Award, ChevronRight, Star, Check, ArrowRight, Ticket, Building2, Mic2 } from "lucide-react";
+import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2 } from "lucide-react";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
 
@@ -40,9 +40,6 @@ export default function HomePage() {
     axios.get(`${API}/events`).then(r => setEvents(r.data.slice(0, 3))).catch(() => {});
     axios.get(`${API}/sponsors`).then(r => setSponsors(r.data)).catch(() => {});
   }, []);
-
-  const featured = speakers.find(s => s.is_featured);
-  const others = speakers.filter(s => !s.is_featured);
 
   return (
     <div className="bg-white min-h-screen font-body">
@@ -303,50 +300,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== FEATURED SPEAKER ===== */}
-      {featured && (
-        <section className="py-12 sm:py-16 bg-white" data-testid="featured-speaker-section">
+      {/* ===== SPEAKERS (equal grid - no featured) ===== */}
+      {speakers.length > 0 && (
+        <section className="py-12 sm:py-16 bg-white" data-testid="speakers-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
-              <span className="section-overline">Zirve Sahibi</span>
-              <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Öne Çıkan Konuşmacı</h2>
+              <span className="section-overline">Konuşmacılar</span>
+              <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Zirvenin Uzman İsimleri</h2>
             </div>
 
-            <div className="bg-white shadow-xl border border-gray-200 rounded-md overflow-hidden" data-testid="featured-speaker-card">
-              <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {speakers.map((sp) => (
                 <div
-                  className="h-64 lg:h-auto min-h-96"
-                  style={{
-                    backgroundImage: `url(${featured.image_url})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center top",
-                  }}
-                />
-                <div className="p-8 sm:p-12 flex flex-col justify-center">
-                  <span className="featured-badge mb-4 inline-block w-fit">Zirve Sahibi & Organizatör</span>
-                  <div className="flex items-center gap-1 mb-3">
-                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="text-summit-accent fill-summit-accent" />)}
-                  </div>
-                  <h2 className="font-heading text-summit-navy text-3xl sm:text-4xl">{featured.name}</h2>
-                  <p className="text-summit-navy text-base mt-2 font-semibold">{featured.title}</p>
-                  <p className="text-gray-600 text-sm mt-5 leading-relaxed">{featured.bio}</p>
-                  <div className="mt-8">
-                    <Link to="/ziyaretci-kaydi" className="btn-navy px-6 py-3">
-                      Zirveye Katıl
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Other speakers */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
-              {others.map((sp) => (
-                <div key={sp.id} className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md" data-testid={`speaker-card-${sp.name}`}>
-                  <div className="h-64 bg-cover bg-center" style={{ backgroundImage: `url(${sp.image_url})` }} />
-                  <div className="p-5">
-                    <h4 className="font-heading text-summit-navy text-lg">{sp.name}</h4>
-                    <p className="text-summit-navy text-xs mt-1.5 font-medium">{sp.title}</p>
+                  key={sp.id}
+                  className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
+                  data-testid={`speaker-card-${sp.name}`}
+                >
+                  <div className="h-60 bg-cover bg-center" style={{ backgroundImage: `url(${sp.image_url})` }} />
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
+                    <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
+                    {sp.bio && (
+                      <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -354,7 +330,7 @@ export default function HomePage() {
 
             <div className="text-center mt-8">
               <Link to="/konusmacilar" className="btn-outline-navy px-7 py-3 inline-flex items-center gap-2">
-                Tüm Konuşmacılar <ChevronRight size={15} />
+                Tüm Konuşmacı Detayları <ChevronRight size={15} />
               </Link>
             </div>
           </div>
