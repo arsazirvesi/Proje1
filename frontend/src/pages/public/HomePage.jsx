@@ -316,7 +316,7 @@ export default function HomePage() {
                   className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
                   data-testid={`speaker-card-${sp.name}`}
                 >
-                  <div className="h-60 bg-cover bg-center" style={{ backgroundImage: `url(${sp.image_url})` }} />
+                  <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: 'center 20%' }} />
                   <div className="p-5 flex-1 flex flex-col">
                     <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
                     <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
