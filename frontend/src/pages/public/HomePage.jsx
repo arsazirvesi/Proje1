@@ -409,15 +409,26 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-center text-gray-500 text-xs uppercase tracking-[0.2em] mb-8 font-semibold">Destekçilerimiz</p>
           <div className="flex flex-wrap items-center justify-center gap-8">
-            {sponsors.map((sp) => (
-              <div key={sp.id} className="flex flex-col items-center gap-2">
-                <div className={`px-8 py-4 rounded-md border font-heading text-base font-bold ${sp.tier === "main" ? "bg-summit-navy/5 border-summit-navy/30 text-summit-navy" : "bg-white border-gray-200 text-gray-600"}`}>
-                  {sp.name}
+            {sponsors.map((sp) => {
+              const cardContent = (
+                <>
+                  <div className={`px-8 py-4 rounded-md border font-heading text-base font-bold transition-all ${sp.tier === "main" ? "bg-summit-navy/5 border-summit-navy/30 text-summit-navy hover:bg-summit-navy hover:text-white" : "bg-white border-gray-200 text-gray-600"}`}>
+                    {sp.name}
+                  </div>
+                  {sp.tier === "main" && <span className="tier-main">Ana Sponsor</span>}
+                  {sp.tier === "organization" && <span className="tier-organization">Organizasyon</span>}
+                </>
+              );
+              return (
+                <div key={sp.id} className="flex flex-col items-center gap-2">
+                  {sp.website_url ? (
+                    <a href={sp.website_url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2" data-testid={`sponsor-link-${sp.name}`}>
+                      {cardContent}
+                    </a>
+                  ) : cardContent}
                 </div>
-                {sp.tier === "main" && <span className="tier-main">Ana Sponsor</span>}
-                {sp.tier === "organization" && <span className="tier-organization">Organizasyon</span>}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

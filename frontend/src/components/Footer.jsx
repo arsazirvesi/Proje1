@@ -64,7 +64,7 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-2 text-white/50 text-xs flex-wrap justify-center">
             <span>Ana Sponsor:</span>
-            <span className="text-summit-accent font-semibold">FIRAT CONSTRUCTION YAPI A.Ş.</span>
+            <a href="https://firatconstruction.com" target="_blank" rel="noopener noreferrer" className="text-summit-accent font-semibold hover:underline" data-testid="footer-firat-link">FIRAT CONSTRUCTION YAPI A.Ş.</a>
             <span>|</span>
             <span>Organizasyon:</span>
             <span className="text-summit-accent font-semibold">JNR Fuarcılık</span>
