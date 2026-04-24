@@ -34,7 +34,7 @@ export default function SpeakersPage() {
               className="bg-white border border-gray-200 rounded-md overflow-hidden card-hover flex flex-col shadow-sm"
               data-testid={`speaker-card-${sp.id}`}
             >
-              <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: 'center 20%' }} />
+              <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
               <div className="p-5 flex-1 flex flex-col">
                 <h3 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h3>
                 <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
