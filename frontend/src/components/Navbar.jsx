@@ -64,12 +64,9 @@ export default function Navbar() {
                 <Menu size={22} />
               </button>
 
-              <Link to="/" className="flex items-center gap-3" data-testid="nav-logo">
-                <div className="w-10 h-10 rounded-md bg-summit-navy flex items-center justify-center shadow-sm">
-                  <span className="font-heading font-bold text-white text-sm">AYZ</span>
-                </div>
-                <div className="hidden sm:block">
-                  <div className="font-heading font-bold text-sm leading-tight text-summit-navy">
+              <Link to="/" className="flex items-center" data-testid="nav-logo">
+                <div>
+                  <div className="font-heading font-bold text-base sm:text-sm leading-tight text-summit-navy">
                     Arsa Yatırım Zirvesi
                   </div>
                   <div className="text-summit-navy text-[0.68rem] tracking-[0.2em] uppercase font-semibold opacity-70">
@@ -136,16 +133,11 @@ export default function Navbar() {
 
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-md bg-summit-navy flex items-center justify-center shadow">
-                  <span className="font-heading font-bold text-white text-sm">AYZ</span>
+              <div>
+                <div className="font-heading font-bold text-summit-navy text-base leading-tight">
+                  Arsa Yatırım Zirvesi
                 </div>
-                <div>
-                  <div className="font-heading font-bold text-summit-navy text-base leading-tight">
-                    Arsa Yatırım Zirvesi
-                  </div>
-                  <div className="text-summit-navy text-[0.68rem] tracking-[0.2em] uppercase font-semibold opacity-70">2026</div>
-                </div>
+                <div className="text-summit-navy text-[0.68rem] tracking-[0.2em] uppercase font-semibold opacity-70">2026 · İstanbul</div>
               </div>
               <button
                 onClick={() => setDrawerOpen(false)}

@@ -40,15 +40,8 @@ export default function AdminLayout() {
     <div className="admin-sidebar w-64 h-full flex flex-col">
       {/* Header */}
       <div className="p-5 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-summit-gold to-summit-gold-light rounded-lg flex items-center justify-center shrink-0">
-            <span className="font-heading font-bold text-white text-xs">AYZ</span>
-          </div>
-          <div>
-            <div className="text-summit-navy text-sm font-semibold font-heading">Yönetici Paneli</div>
-            <div className="text-summit-gold text-xs">Zirvesi 2026</div>
-          </div>
-        </div>
+        <div className="text-summit-navy text-base font-semibold font-heading">Yönetici Paneli</div>
+        <div className="text-summit-navy opacity-70 text-xs tracking-wider uppercase mt-1 font-semibold">Arsa Yatırım Zirvesi 2026</div>
       </div>
 
       {/* Nav */}

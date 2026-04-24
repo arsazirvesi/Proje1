@@ -10,14 +10,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 rounded-md bg-white flex items-center justify-center shadow">
-                <span className="font-heading font-bold text-summit-navy text-sm">AYZ</span>
-              </div>
-              <div>
-                <div className="font-heading font-bold text-white text-lg leading-tight">Arsa Yatırım Zirvesi</div>
-                <div className="text-summit-accent text-[0.68rem] tracking-[0.2em] uppercase font-semibold">2026 · İstanbul</div>
-              </div>
+            <div className="mb-5">
+              <div className="font-heading font-bold text-white text-xl leading-tight">Arsa Yatırım Zirvesi</div>
+              <div className="text-summit-accent text-[0.68rem] tracking-[0.2em] uppercase font-semibold mt-1">2026 · İstanbul</div>
             </div>
             <p className="text-white/70 text-sm leading-relaxed max-w-sm">
               Türkiye'nin en kapsamlı arsa yatırımı platformu. Uzman konuşmacılar, pratik bilgiler ve güçlü networking fırsatları.

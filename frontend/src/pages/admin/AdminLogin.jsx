@@ -38,11 +38,8 @@ export default function AdminLogin() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-gold-gradient rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="font-heading font-bold text-summit-navy text-lg">AYZ</span>
-          </div>
-          <h1 className="font-heading text-summit-navy text-2xl font-bold">Yönetici Paneli</h1>
-          <p className="text-gray-500 text-sm mt-1">Arsa Yatırım Zirvesi 2026</p>
+          <h1 className="font-heading text-summit-navy text-3xl font-bold">Yönetici Paneli</h1>
+          <p className="text-gray-500 text-sm mt-2 uppercase tracking-widest font-semibold">Arsa Yatırım Zirvesi 2026</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-xl">
