@@ -1,0 +1,60 @@
+{
+  "summary": "Iteration 4 full regression for navy #22316a corporate redesign with 3 separate registration CRMs (visitors / exhibitors / speaker-applications). Backend 30/30 pytest cases pass (all new endpoints + duplicate guards + filters + PATCH/DELETE + dashboard stats + email broadcast recipient types). Frontend: Poppins font, navy/yellow theme confirmed (0 elements with old orange #F39200), left drawer shows all 4 registration links (Ziyaretçi/Stant/Konuşmacı/Bülten), all 3 public registration pages submit successfully, conditional fields work (sponsor→paket, konuşmaci→topic), all redirects OK (/zirve-kaydi and /uyelik → /ziyaretci-kaydi; /admin/uyeler → /admin/bulten-uyeleri; /admin/misafirler → /admin/ziyaretciler), admin login works, admin CRM pages render with status tabs, search, table, CSV İndir, Toplu Email.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/admin/email/send", "issue": "Returns 200 with sendgrid_configured:false when SENDGRID not configured (by design, but might be 503 more accurately). Cosmetic - same as iter 3."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "HomePage",
+        "issues": [
+          "Section heading reads 'KAYIT TÜRLERİ' (review request mentioned '3 KAYIT TÜRÜ'). The 3 cards (Ziyaretçi with EN POPÜLER badge, Stant, Konuşmacı/Sponsor) are all present and correct - label difference is cosmetic only.",
+          "Navy #22316a and yellow accent confirmed site-wide. Poppins font family in use. 0 elements retain old orange (#F39200) per DOM scan."
+        ]
+      },
+      {
+        "screen": "Admin CRM pages",
+        "issues": [
+          "Ziyaretçiler, Fuar Stant, Konuşmacı/Sponsor pages all render with: status filter tabs (Tümü/Yeni/İletişim Kuruldu/Onaylandı/Reddedildi), search input, results table, CSV İndir button, Toplu Email button. Sidebar navigation shows all 11 admin sections."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter4.py",
+    "/app/backend/tests/test_api.py",
+    "/app/test_reports/pytest/iter4_results.xml"
+  ],
+  "action_items": [
+    "No blocking issues. Optional: change homepage section title from 'KAYIT TÜRLERİ' to '3 KAYIT TÜRÜ' if exact match with spec desired (cosmetic).",
+    "Optional: return HTTP 503 instead of 200 on /api/admin/email/send when SendGrid not configured (cosmetic)."
+  ],
+  "critical_code_review_comments": [
+    "server.py now 1100+ lines - splitting into routers/ modules (auth, public, registration, admin_*) strongly recommended.",
+    "JWT_SECRET still has hard-coded default fallback - switch to fail-fast on missing env for production.",
+    "No rate limiting on /api/auth/login - add slowapi before public launch.",
+    "Duplicate email error messages returned in Turkish with HTTPException(400, '...') - fine for UI, but consider standardised error envelope {code, message} for API consumers.",
+    "register_exhibitor / register_speaker_application share almost identical shape (create → insert → send_email → return id). Small helper could DRY this (~20 duplicated lines each)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter4.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (30/30 new cases in test_iter4.py)",
+    "frontend": "100% (3 public forms submit OK, 3 redirects OK, 4 admin CRM pages render OK, theme + drawer verified)"
+  },
+  "test_credentials": {
+    "admin_email": "admin@arsayatirim.com",
+    "admin_password": "Admin@2026!"
+  },
+  "seed_data_creation": "Created via tests: 1 visitor, 1 exhibitor, 3 speaker applications - all cleaned via test teardown / post-run db cleanup. 1 leftover UI-submitted exhibitor (test_e_ui_*) also removed via direct Mongo cleanup. Database clean.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run backend: REACT_APP_BACKEND_URL=https://arsa-yatirim-zirvesi.preview.emergentagent.com pytest /app/backend/tests/test_iter4.py -v. Frontend testids: input-exh-company, input-exh-contact, input-exh-email, input-exh-phone, input-exh-tax-office, input-exh-tax-no, input-exh-sector (select), input-exh-stand (select), input-exh-products, input-exh-website, input-exh-social, input-exh-notes, submit-exh-btn. Visitor testids: input-guest-*, submit-guest-btn. Drawer testids: drawer-open-btn, drawer-panel, drawer-close-btn. Admin login: admin@arsayatirim.com / Admin@2026!. All redirects working. SendGrid still unconfigured (sendgrid_configured:false in responses).",
+  "rca_of_the_issue": "N/A - no bugs found."
+}

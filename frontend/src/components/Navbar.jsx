@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Menu, X, Home, Mic2, ListOrdered, Calendar, FileText,
-  UserPlus, Ticket, MapPin, Mail, Phone
+  Ticket, MapPin, Mail, Building2, Megaphone, UserPlus
 } from "lucide-react";
 
 const navLinks = [
@@ -14,8 +14,10 @@ const navLinks = [
 ];
 
 const ctaLinks = [
-  { label: "Ücretsiz Üyelik", href: "/uyelik", icon: UserPlus },
-  { label: "Zirve Kaydı", href: "/zirve-kaydi", icon: Ticket },
+  { label: "Ziyaretçi Kaydı", href: "/ziyaretci-kaydi", icon: Ticket, highlight: true },
+  { label: "Fuar Stant Başvurusu", href: "/fuar-stant-kaydi", icon: Building2 },
+  { label: "Konuşmacı / Sponsor", href: "/konusmaci-basvuru", icon: Megaphone },
+  { label: "Bülten Üyeliği", href: "/bulten", icon: UserPlus },
 ];
 
 export default function Navbar() {
@@ -31,7 +33,6 @@ export default function Navbar() {
 
   useEffect(() => setDrawerOpen(false), [location]);
 
-  // Lock body scroll when drawer open
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -55,41 +56,39 @@ export default function Navbar() {
             {/* Left: Drawer toggle + Logo */}
             <div className="flex items-center gap-3">
               <button
-                className="p-2 -ml-2 text-summit-navy hover:bg-summit-orange/10 rounded transition-colors"
+                className="p-2 -ml-2 text-summit-navy hover:bg-summit-navy/5 rounded-md transition-colors"
                 onClick={() => setDrawerOpen(true)}
                 aria-label="Menüyü aç"
                 data-testid="drawer-open-btn"
               >
-                <Menu size={24} />
+                <Menu size={22} />
               </button>
 
               <Link to="/" className="flex items-center gap-3" data-testid="nav-logo">
-                <div className="relative">
-                  <div className="w-11 h-11 rounded bg-gradient-to-br from-summit-orange to-summit-yellow flex items-center justify-center shadow-sm">
-                    <span className="font-display font-bold text-white text-base tracking-wider">AYZ</span>
-                  </div>
+                <div className="w-10 h-10 rounded-md bg-summit-navy flex items-center justify-center shadow-sm">
+                  <span className="font-heading font-bold text-white text-sm">AYZ</span>
                 </div>
                 <div className="hidden sm:block">
-                  <div className="font-display font-bold text-sm leading-tight text-summit-navy tracking-wider">
-                    ARSA YATIRIM ZİRVESİ
+                  <div className="font-heading font-bold text-sm leading-tight text-summit-navy">
+                    Arsa Yatırım Zirvesi
                   </div>
-                  <div className="text-summit-orange text-xs tracking-[0.2em] uppercase font-bold">
-                    2026 · İSTANBUL
+                  <div className="text-summit-navy text-[0.68rem] tracking-[0.2em] uppercase font-semibold opacity-70">
+                    2026 · İstanbul
                   </div>
                 </div>
               </Link>
             </div>
 
             {/* Desktop links (center) */}
-            <div className="hidden lg:flex items-center gap-8">
+            <div className="hidden lg:flex items-center gap-7">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`text-sm font-semibold tracking-wide uppercase transition-colors duration-200 ${
+                  className={`text-sm font-medium transition-colors duration-200 ${
                     location.pathname === link.href
-                      ? "text-summit-orange"
-                      : "text-gray-700 hover:text-summit-navy"
+                      ? "text-summit-navy font-semibold"
+                      : "text-gray-600 hover:text-summit-navy"
                   }`}
                   data-testid={`nav-link-${link.label}`}
                 >
@@ -101,18 +100,18 @@ export default function Navbar() {
             {/* Right CTAs */}
             <div className="hidden md:flex items-center gap-3">
               <Link
-                to="/zirve-kaydi"
-                className="text-xs font-bold uppercase tracking-wider px-4 py-2 rounded text-summit-navy border-2 border-summit-navy hover:bg-summit-navy hover:text-white transition-all"
-                data-testid="nav-guest-btn"
+                to="/ziyaretci-kaydi"
+                className="text-xs font-semibold px-4 py-2 rounded-md text-summit-navy border-2 border-summit-navy hover:bg-summit-navy hover:text-white transition-all"
+                data-testid="nav-visitor-btn"
               >
-                Zirve Kaydı
+                Ziyaretçi Kaydı
               </Link>
               <Link
-                to="/uyelik"
-                className="btn-gold py-2 px-5"
-                data-testid="nav-register-btn"
+                to="/fuar-stant-kaydi"
+                className="btn-navy py-2 px-5 text-xs"
+                data-testid="nav-exhibitor-btn"
               >
-                Ücretsiz Üyelik
+                Stant Başvurusu
               </Link>
             </div>
           </div>
@@ -133,20 +132,19 @@ export default function Navbar() {
             className="relative w-[85%] max-w-md bg-white h-full flex flex-col drawer-enter shadow-2xl"
             data-testid="drawer-panel"
           >
-            {/* Drawer Top Accent */}
             <div className="corp-accent-bar" />
 
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded bg-gradient-to-br from-summit-orange to-summit-yellow flex items-center justify-center shadow">
-                  <span className="font-display font-bold text-white text-lg tracking-wider">AYZ</span>
+                <div className="w-11 h-11 rounded-md bg-summit-navy flex items-center justify-center shadow">
+                  <span className="font-heading font-bold text-white text-sm">AYZ</span>
                 </div>
                 <div>
-                  <div className="font-display font-bold text-summit-navy text-base leading-tight tracking-wider">
-                    ARSA YATIRIM ZİRVESİ
+                  <div className="font-heading font-bold text-summit-navy text-base leading-tight">
+                    Arsa Yatırım Zirvesi
                   </div>
-                  <div className="text-summit-orange text-xs tracking-[0.2em] uppercase font-bold">2026</div>
+                  <div className="text-summit-navy text-[0.68rem] tracking-[0.2em] uppercase font-semibold opacity-70">2026</div>
                 </div>
               </div>
               <button
@@ -171,22 +169,22 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     to={link.href}
-                    className={`flex items-center gap-4 px-6 py-3.5 border-l-[3px] transition-all ${
+                    className={`flex items-center gap-4 px-6 py-3 border-l-[3px] transition-all ${
                       isActive
-                        ? "bg-summit-orange/10 border-summit-orange text-summit-navy font-bold"
-                        : "border-transparent text-gray-700 hover:bg-summit-orange/5 hover:border-summit-orange/40 hover:text-summit-navy"
+                        ? "bg-summit-navy/8 border-summit-navy text-summit-navy font-semibold"
+                        : "border-transparent text-gray-700 hover:bg-summit-navy/4 hover:border-summit-navy/40 hover:text-summit-navy"
                     }`}
                     data-testid={`drawer-link-${link.label}`}
                   >
-                    <Icon size={18} className={isActive ? "text-summit-orange" : "text-gray-400"} />
-                    <span className="text-sm font-semibold uppercase tracking-wider">{link.label}</span>
+                    <Icon size={17} className={isActive ? "text-summit-navy" : "text-gray-400"} />
+                    <span className="text-sm font-medium">{link.label}</span>
                   </Link>
                 );
               })}
 
               {/* CTA Section */}
-              <div className="px-6 pt-8 pb-2">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400">Kayıt</p>
+              <div className="px-6 pt-7 pb-2">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400">Kayıt ve Başvuru</p>
               </div>
               {ctaLinks.map((link) => {
                 const Icon = link.icon;
@@ -194,29 +192,36 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     to={link.href}
-                    className="flex items-center gap-4 px-6 py-3.5 border-l-[3px] border-transparent hover:bg-summit-orange/5 hover:border-summit-orange/40 text-gray-700 hover:text-summit-navy transition-all"
+                    className={`flex items-center gap-4 px-6 py-3 border-l-[3px] transition-all ${
+                      link.highlight
+                        ? "bg-summit-accent/10 border-summit-accent text-summit-navy font-semibold hover:bg-summit-accent/15"
+                        : "border-transparent text-gray-700 hover:bg-summit-navy/4 hover:border-summit-navy/40 hover:text-summit-navy"
+                    }`}
                     data-testid={`drawer-cta-${link.label}`}
                   >
-                    <Icon size={18} className="text-summit-orange" />
-                    <span className="text-sm font-semibold uppercase tracking-wider">{link.label}</span>
+                    <Icon size={17} className={link.highlight ? "text-summit-navy" : "text-summit-navy"} />
+                    <span className="text-sm font-medium">{link.label}</span>
+                    {link.highlight && (
+                      <span className="ml-auto text-[0.55rem] bg-summit-accent text-summit-navy px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Popüler</span>
+                    )}
                   </Link>
                 );
               })}
 
-              {/* Contact Info */}
-              <div className="mt-8 mx-6 p-5 bg-summit-paper rounded border-l-4 border-summit-orange">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-summit-orange mb-3">İletişim</p>
+              {/* Contact */}
+              <div className="mt-7 mx-6 p-5 bg-summit-paper rounded-md border-l-4 border-summit-navy">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-summit-navy mb-3">İletişim</p>
                 <ul className="space-y-2.5">
                   <li className="flex items-start gap-2 text-xs text-gray-700">
-                    <Calendar size={13} className="text-summit-orange mt-0.5 shrink-0" />
+                    <Calendar size={13} className="text-summit-navy mt-0.5 shrink-0" />
                     21 Mayıs 2026, Perşembe
                   </li>
                   <li className="flex items-start gap-2 text-xs text-gray-700">
-                    <MapPin size={13} className="text-summit-orange mt-0.5 shrink-0" />
+                    <MapPin size={13} className="text-summit-navy mt-0.5 shrink-0" />
                     Hilton İstanbul Bosphorus, Şişli
                   </li>
                   <li className="flex items-start gap-2 text-xs text-gray-700">
-                    <Mail size={13} className="text-summit-orange mt-0.5 shrink-0" />
+                    <Mail size={13} className="text-summit-navy mt-0.5 shrink-0" />
                     info@arsayatirimzirvesi.com
                   </li>
                 </ul>
@@ -226,11 +231,11 @@ export default function Navbar() {
             {/* Drawer Footer CTA */}
             <div className="p-6 border-t border-gray-200 bg-summit-paper">
               <Link
-                to="/uyelik"
-                className="btn-gold w-full text-center text-sm py-3 block"
+                to="/ziyaretci-kaydi"
+                className="btn-navy w-full text-center py-3 block"
                 data-testid="drawer-footer-cta"
               >
-                Ücretsiz Üye Ol
+                Hemen Ziyaretçi Kaydı Oluştur
               </Link>
               <p className="text-center text-xs text-gray-500 mt-3">
                 © 2026 Arsa Yatırım Zirvesi

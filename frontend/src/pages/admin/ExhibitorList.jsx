@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter } from "lucide-react";
+import { Trash2, Search, Download, Send, X, Eye, Filter } from "lucide-react";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
 
@@ -17,14 +17,14 @@ function StatusBadge({ status }) {
   return <span className={`status-badge ${s.cls}`}>{s.label}</span>;
 }
 
-export default function GuestList() {
+export default function ExhibitorList() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [detail, setDetail] = useState(null);
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ subject: "", content: "" });
-  const [detail, setDetail] = useState(null);
   const [sending, setSending] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -34,7 +34,7 @@ export default function GuestList() {
       const params = {};
       if (statusFilter !== "all") params.status = statusFilter;
       if (search) params.q = search;
-      const { data } = await axios.get(`${API}/admin/guests`, { params, withCredentials: true });
+      const { data } = await axios.get(`${API}/admin/exhibitors`, { params, withCredentials: true });
       setItems(data);
     } catch {}
     setLoading(false);
@@ -46,17 +46,17 @@ export default function GuestList() {
   }, [fetchData]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bu ziyaretçi kaydını silmek istediğinizden emin misiniz?")) return;
+    if (!window.confirm("Bu stant başvurusunu silmek istediğinizden emin misiniz?")) return;
     try {
-      await axios.delete(`${API}/admin/guests/${id}`, { withCredentials: true });
+      await axios.delete(`${API}/admin/exhibitors/${id}`, { withCredentials: true });
       setItems(g => g.filter(x => x.id !== id));
-      setMsg("Ziyaretçi silindi.");
+      setMsg("Stant başvurusu silindi.");
     } catch {}
   };
 
-  const handleUpdateStatus = async (id, status, admin_notes) => {
+  const handleUpdate = async (id, status, admin_notes) => {
     try {
-      await axios.patch(`${API}/admin/guests/${id}`, { status, admin_notes }, { withCredentials: true });
+      await axios.patch(`${API}/admin/exhibitors/${id}`, { status, admin_notes }, { withCredentials: true });
       setItems(g => g.map(x => x.id === id ? {...x, status, admin_notes} : x));
       if (detail?.id === id) setDetail({...detail, status, admin_notes});
       setMsg("Güncellendi");
@@ -68,7 +68,7 @@ export default function GuestList() {
     setSending(true);
     try {
       const { data } = await axios.post(`${API}/admin/email/send`,
-        { ...emailForm, recipient_type: "guests" },
+        { ...emailForm, recipient_type: "exhibitors" },
         { withCredentials: true }
       );
       setMsg(data.message);
@@ -79,18 +79,16 @@ export default function GuestList() {
   };
 
   const exportCSV = () => {
-    const rows = [["Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"]];
+    const rows = [["Firma", "Yetkili", "Email", "Telefon", "Sektör", "Stant Tercihi", "Vergi No", "Durum", "Tarih"]];
     items.forEach(g => rows.push([
-      g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
-      g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10)
+      g.company_name, g.contact_name, g.email, g.phone, g.sector || "", g.stand_preference || "",
+      g.tax_number || "", g.status || "new", g.created_at?.slice(0,10)
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "ziyaretciler.csv"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "fuar-stant-basvurulari.csv"; a.click();
   };
-
-  const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
   const counts = STATUS_OPTIONS.reduce((acc, o) => {
     acc[o.value] = o.value === "all" ? items.length : items.filter(i => (i.status || "new") === o.value).length;
@@ -98,17 +96,17 @@ export default function GuestList() {
   }, {});
 
   return (
-    <div data-testid="guest-list-page">
+    <div data-testid="exhibitor-list-page">
       <div className="flex items-start justify-between mb-7 flex-wrap gap-3">
         <div>
-          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Ziyaretçi Kayıtları</h1>
-          <p className="text-gray-500 text-sm mt-1">{items.length} kayıt · Zirveye katılmak için başvuran ziyaretçiler</p>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Fuar Stant Başvuruları</h1>
+          <p className="text-gray-500 text-sm mt-1">{items.length} başvuru · Şirket stant alanı talepleri</p>
         </div>
         <div className="flex gap-3 flex-wrap">
           <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm hover:border-summit-navy/30">
             <Download size={14} /> CSV İndir
           </button>
-          <button onClick={() => setEmailModal(true)} className="btn-navy flex items-center gap-2 px-4 py-2 text-sm" data-testid="send-guest-email-btn">
+          <button onClick={() => setEmailModal(true)} className="btn-navy flex items-center gap-2 px-4 py-2 text-sm">
             <Send size={14} /> Toplu Email
           </button>
         </div>
@@ -121,18 +119,14 @@ export default function GuestList() {
         </div>
       )}
 
-      {/* Status filters */}
       <div className="bg-white border border-gray-200 rounded-md p-3 mb-4 flex items-center gap-2 flex-wrap">
         <Filter size={15} className="text-gray-400 ml-1" />
         {STATUS_OPTIONS.map(o => (
-          <button
-            key={o.value}
-            onClick={() => setStatusFilter(o.value)}
+          <button key={o.value} onClick={() => setStatusFilter(o.value)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
               statusFilter === o.value ? "bg-summit-navy text-white" : "text-gray-600 hover:bg-gray-100"
             }`}
-            data-testid={`filter-status-${o.value}`}
-          >
+            data-testid={`filter-status-${o.value}`}>
             {o.label} <span className="opacity-70">({counts[o.value] || 0})</span>
           </button>
         ))}
@@ -142,13 +136,11 @@ export default function GuestList() {
         <div className="p-4 border-b border-gray-100">
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input
-              placeholder="İsim, email, şirket, telefon ara..."
+            <input placeholder="Firma, yetkili, email, sektör ara..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full bg-white border border-gray-200 rounded-md pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none max-w-md"
-              data-testid="guest-search-input"
-            />
+              data-testid="exhibitor-search-input" />
           </div>
         </div>
 
@@ -161,10 +153,11 @@ export default function GuestList() {
             <table className="w-full admin-table">
               <thead>
                 <tr>
-                  <th>Ad Soyad</th>
-                  <th>E-posta</th>
+                  <th>Firma</th>
+                  <th>Yetkili</th>
                   <th className="hidden md:table-cell">Telefon</th>
-                  <th className="hidden lg:table-cell">Şirket</th>
+                  <th className="hidden lg:table-cell">Sektör</th>
+                  <th className="hidden lg:table-cell">Stant</th>
                   <th>Durum</th>
                   <th className="hidden sm:table-cell">Tarih</th>
                   <th>İşlem</th>
@@ -172,37 +165,25 @@ export default function GuestList() {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={8} className="text-center py-10 text-gray-500">Başvuru bulunamadı</td></tr>
                 )}
                 {items.map(g => (
-                  <tr key={g.id} data-testid={`guest-row-${g.id}`}>
-                    <td className="text-summit-navy font-medium">{g.name}</td>
-                    <td className="text-gray-600">{g.email}</td>
-                    <td className="hidden md:table-cell">{g.phone || "-"}</td>
-                    <td className="hidden lg:table-cell">{g.company || "-"}</td>
+                  <tr key={g.id} data-testid={`exhibitor-row-${g.id}`}>
+                    <td className="text-summit-navy font-medium">{g.company_name}</td>
+                    <td className="text-gray-700">{g.contact_name}</td>
+                    <td className="hidden md:table-cell">{g.phone}</td>
+                    <td className="hidden lg:table-cell">{g.sector || "-"}</td>
+                    <td className="hidden lg:table-cell">{g.stand_preference || "-"}</td>
                     <td><StatusBadge status={g.status || "new"} /></td>
                     <td className="hidden sm:table-cell">{g.created_at?.slice(0,10)}</td>
                     <td>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setDetail(g)}
-                          className="w-7 h-7 flex items-center justify-center rounded bg-summit-navy/10 text-summit-navy hover:bg-summit-navy/20 transition-colors"
-                          title="Detay"
-                          data-testid={`view-guest-${g.id}`}
-                        ><Eye size={13} /></button>
-                        <a
-                          href={`${BACKEND}/api/badge/${g.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-7 h-7 flex items-center justify-center rounded bg-summit-navy/10 text-summit-navy hover:bg-summit-navy/20 transition-colors"
-                          title="Yaka Kartı"
-                          data-testid={`badge-btn-${g.id}`}
-                        ><ExternalLink size={13} /></a>
-                        <button
-                          onClick={() => handleDelete(g.id)}
-                          className="w-7 h-7 flex items-center justify-center rounded bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
-                          data-testid={`delete-guest-${g.id}`}
-                        ><Trash2 size={13} /></button>
+                        <button onClick={() => setDetail(g)} className="w-7 h-7 flex items-center justify-center rounded bg-summit-navy/10 text-summit-navy hover:bg-summit-navy/20 transition-colors" title="Detay" data-testid={`view-exh-${g.id}`}>
+                          <Eye size={13} />
+                        </button>
+                        <button onClick={() => handleDelete(g.id)} className="w-7 h-7 flex items-center justify-center rounded bg-red-50 text-red-500 hover:bg-red-100 transition-colors" data-testid={`delete-exh-${g.id}`}>
+                          <Trash2 size={13} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -215,52 +196,51 @@ export default function GuestList() {
 
       {/* Detail Drawer */}
       {detail && (
-        <div className="fixed inset-0 z-50 flex" data-testid="guest-detail-drawer">
+        <div className="fixed inset-0 z-50 flex" data-testid="exh-detail-drawer">
           <div className="absolute inset-0 bg-summit-navy/40" onClick={() => setDetail(null)} />
           <div className="relative ml-auto h-full w-full max-w-xl bg-white shadow-xl overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="font-heading text-summit-navy text-xl">Ziyaretçi Detayı</h3>
+              <h3 className="font-heading text-summit-navy text-xl">Stant Başvuru Detayı</h3>
               <button onClick={() => setDetail(null)}><X size={20} className="text-gray-500" /></button>
             </div>
             <div className="p-6 space-y-5">
               {[
-                ["Ad Soyad", detail.name],
+                ["Firma", detail.company_name],
+                ["Yetkili Kişi", detail.contact_name],
                 ["E-posta", detail.email],
                 ["Telefon", detail.phone],
-                ["Şirket", detail.company],
-                ["Unvan", detail.title],
-                ["Şehir", detail.city],
-                ["Katılımcı Türü", detail.participant_type],
-                ["İlgi Alanı", detail.interest_area],
-                ["Beklentiler", detail.expectations],
-                ["Kayıt Tarihi", detail.created_at?.slice(0,16).replace("T", " ")],
+                ["Vergi Dairesi", detail.tax_office],
+                ["Vergi No", detail.tax_number],
+                ["Sektör", detail.sector],
+                ["Stant Tercihi", detail.stand_preference],
+                ["Sergilenecek Ürün / Hizmet", detail.products_services],
+                ["Web Sitesi", detail.website],
+                ["Sosyal Medya", detail.social_media],
+                ["Notlar", detail.notes],
+                ["Başvuru Tarihi", detail.created_at?.slice(0,16).replace("T", " ")],
               ].filter(([, v]) => v).map(([k, v]) => (
                 <div key={k}>
                   <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{k}</div>
-                  <div className="text-summit-navy text-sm">{v}</div>
+                  <div className="text-summit-navy text-sm whitespace-pre-wrap">{v}</div>
                 </div>
               ))}
-
               <div className="pt-4 border-t border-gray-200">
                 <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">Durum</label>
                 <select value={detail.status || "new"}
-                  onChange={(e) => handleUpdateStatus(detail.id, e.target.value, detail.admin_notes || "")}
-                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none"
-                  data-testid="detail-status-select">
+                  onChange={(e) => handleUpdate(detail.id, e.target.value, detail.admin_notes || "")}
+                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none">
                   {STATUS_OPTIONS.filter(o => o.value !== "all").map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">Admin Notları</label>
                 <textarea rows={4} value={detail.admin_notes || ""}
                   onChange={(e) => setDetail({...detail, admin_notes: e.target.value})}
                   className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none resize-none"
-                  placeholder="Notlarınızı buraya yazın..."
-                  data-testid="detail-notes-input" />
-                <button onClick={() => handleUpdateStatus(detail.id, detail.status || "new", detail.admin_notes || "")}
+                  placeholder="Notlarınız..." />
+                <button onClick={() => handleUpdate(detail.id, detail.status || "new", detail.admin_notes || "")}
                   className="btn-navy px-5 py-2 mt-3 text-sm">
                   Notları Kaydet
                 </button>
@@ -275,28 +255,26 @@ export default function GuestList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
           <div className="bg-white border border-gray-200 rounded-md p-6 w-full max-w-lg shadow-xl">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-heading text-summit-navy text-lg">Ziyaretçilere Email Gönder</h3>
+              <h3 className="font-heading text-summit-navy text-lg">Stant Başvuru Sahiplerine Email</h3>
               <button onClick={() => setEmailModal(false)}><X size={18} className="text-gray-500" /></button>
             </div>
-            <p className="text-gray-500 text-xs mb-5">{items.length} ziyaretçiye email gönderilecektir.</p>
+            <p className="text-gray-500 text-xs mb-5">{items.length} kişiye email gönderilecektir.</p>
             <div className="space-y-4">
               <div>
                 <label className="text-gray-600 text-xs uppercase tracking-wider mb-2 block font-semibold">Konu</label>
-                <input type="text" placeholder="Email konusu" value={emailForm.subject}
+                <input type="text" value={emailForm.subject}
                   onChange={e => setEmailForm({...emailForm, subject: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none"
-                  data-testid="guest-email-subject" />
+                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none" />
               </div>
               <div>
                 <label className="text-gray-600 text-xs uppercase tracking-wider mb-2 block font-semibold">İçerik (HTML)</label>
-                <textarea placeholder="Email içeriği..." rows={6} value={emailForm.content}
+                <textarea rows={6} value={emailForm.content}
                   onChange={e => setEmailForm({...emailForm, content: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none resize-none"
-                  data-testid="guest-email-content" />
+                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none resize-none" />
               </div>
               <div className="flex gap-3 justify-end">
                 <button onClick={() => setEmailModal(false)} className="btn-outline-navy px-5 py-2.5">İptal</button>
-                <button onClick={handleSendBulk} disabled={sending} className="btn-navy px-5 py-2.5 flex items-center gap-2" data-testid="confirm-guest-email-btn">
+                <button onClick={handleSendBulk} disabled={sending} className="btn-navy px-5 py-2.5 flex items-center gap-2">
                   <Send size={14} />{sending ? "Gönderiliyor..." : "Gönder"}
                 </button>
               </div>

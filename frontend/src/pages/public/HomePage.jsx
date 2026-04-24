@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { MapPin, Calendar, Users, Award, ChevronRight, Star, Check, ArrowRight } from "lucide-react";
+import { MapPin, Calendar, Users, Award, ChevronRight, Star, Check, ArrowRight, Ticket, Building2, Mic2 } from "lucide-react";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
 
@@ -48,97 +48,97 @@ export default function HomePage() {
     <div className="bg-white min-h-screen font-body">
       <Navbar />
 
-      {/* ===== HERO (Corporate AK Parti style) ===== */}
+      {/* ===== HERO (GYODER style) ===== */}
       <section
-        className="relative min-h-screen flex items-center overflow-hidden pt-24"
+        className="relative min-h-[90vh] flex items-center overflow-hidden pt-24"
         data-testid="hero-section"
       >
-        {/* Split background */}
-        <div className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12">
-          <div className="lg:col-span-7 bg-white relative">
-            {/* Decorative grid */}
-            <svg className="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0F2C5C" strokeWidth="1"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#hero-grid)"/>
-            </svg>
-            <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-summit-orange/10 blur-3xl" />
-          </div>
-          <div className="lg:col-span-5 bg-summit-paper hidden lg:block" />
+        {/* Subtle pattern bg */}
+        <div className="absolute inset-0 bg-summit-paper">
+          <svg className="absolute inset-0 w-full h-full opacity-[0.035]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#22316a" strokeWidth="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hero-grid)"/>
+          </svg>
+          <div className="absolute top-20 -right-32 w-[500px] h-[500px] rounded-full bg-summit-navy/5 blur-3xl" />
+          <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-summit-accent/10 blur-3xl" />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             {/* Left: Text */}
             <div className="lg:col-span-7">
               {/* Date stamp */}
-              <div className="inline-flex items-center gap-3 mb-6 animate-fade-in stagger-1 opacity-0">
-                <div className="w-12 h-0.5 bg-summit-orange" />
-                <span className="text-summit-orange text-xs font-bold uppercase tracking-[0.3em]">
+              <div className="inline-flex items-center gap-3 mb-7 animate-fade-in stagger-1 opacity-0">
+                <div className="w-10 h-0.5 bg-summit-navy" />
+                <span className="text-summit-navy text-xs font-semibold uppercase tracking-[0.25em]">
                   21 Mayıs 2026 · Perşembe
                 </span>
               </div>
 
-              <h1 className="font-display text-summit-navy text-6xl sm:text-7xl lg:text-8xl leading-[0.9] tracking-wide animate-slide-up stagger-2 opacity-0">
-                ARSA YATIRIM
+              <h1 className="font-heading text-summit-navy text-4xl sm:text-5xl lg:text-6xl leading-[1.1] animate-slide-up stagger-2 opacity-0">
+                Arsa Yatırım{" "}
+                <span className="text-summit-accent">Zirvesi</span>
                 <br />
-                <span className="text-orange-gradient">ZİRVESİ</span>
-                <br />
-                <span className="text-summit-navy">2026</span>
+                2026
               </h1>
 
-              <p className="text-gray-600 text-base sm:text-lg mt-8 max-w-xl leading-relaxed animate-slide-up stagger-3 opacity-0">
+              <p className="text-gray-600 text-base sm:text-lg mt-6 max-w-xl leading-relaxed animate-slide-up stagger-3 opacity-0">
                 Türkiye'nin en kapsamlı arsa yatırım buluşmasında uzman konuşmacılar, stratejik içgörüler ve güçlü networking fırsatları sizi bekliyor.
               </p>
 
               {/* Location pill */}
-              <div className="inline-flex items-center gap-2 mt-6 bg-summit-paper border-l-4 border-summit-orange px-4 py-2.5 animate-slide-up stagger-4 opacity-0">
-                <MapPin size={15} className="text-summit-orange" />
-                <span className="text-summit-navy text-sm font-semibold">Hilton İstanbul Bosphorus · Zirve Salonu</span>
+              <div className="inline-flex items-center gap-2 mt-6 bg-white border border-gray-200 rounded-md px-4 py-2.5 shadow-sm animate-slide-up stagger-4 opacity-0">
+                <MapPin size={15} className="text-summit-navy" />
+                <span className="text-summit-navy text-sm font-medium">Hilton İstanbul Bosphorus · Zirve Salonu</span>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start gap-4 mt-10 animate-slide-up stagger-5 opacity-0">
-                <Link to="/uyelik" className="btn-gold px-8 py-4" data-testid="hero-register-btn">
-                  Ücretsiz Üye Ol
+              <div className="flex flex-col sm:flex-row items-start gap-3 mt-10 animate-slide-up stagger-5 opacity-0">
+                <Link to="/ziyaretci-kaydi" className="btn-navy px-7 py-3.5 inline-flex items-center gap-2" data-testid="hero-visitor-btn">
+                  Ziyaretçi Kaydı <ArrowRight size={15} />
                 </Link>
-                <Link to="/zirve-kaydi" className="btn-outline-navy px-8 py-4 inline-flex items-center gap-2" data-testid="hero-guest-btn">
-                  Zirveye Katıl <ArrowRight size={15} />
+                <Link to="/fuar-stant-kaydi" className="btn-outline-navy px-7 py-3.5" data-testid="hero-exhibitor-btn">
+                  Stant Başvurusu
+                </Link>
+                <Link to="/konusmaci-basvuru" className="btn-outline-navy px-7 py-3.5" data-testid="hero-speaker-btn">
+                  Konuşmacı / Sponsor
                 </Link>
               </div>
             </div>
 
             {/* Right: Countdown card */}
             <div className="lg:col-span-5">
-              <div className="bg-white border-t-4 border-summit-orange shadow-2xl p-8 rounded-sm">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white border border-gray-200 shadow-xl p-7 rounded-md relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
+                <div className="flex items-center justify-between mb-6 mt-1">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">Geri Sayım</p>
-                    <h3 className="font-display text-summit-navy text-2xl tracking-wide mt-1">ZİRVEYE KALAN</h3>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500">Geri Sayım</p>
+                    <h3 className="font-heading text-summit-navy text-xl mt-1">Zirveye Kalan Süre</h3>
                   </div>
-                  <div className="w-10 h-10 rounded bg-summit-orange/10 flex items-center justify-center">
-                    <Calendar size={18} className="text-summit-orange" />
+                  <div className="w-11 h-11 rounded-md bg-summit-navy/10 flex items-center justify-center">
+                    <Calendar size={18} className="text-summit-navy" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-4 gap-2" data-testid="countdown-timer">
                   {[["days", "Gün"], ["hours", "Saat"], ["minutes", "Dk"], ["seconds", "Sn"]].map(([key, label]) => (
-                    <div key={key} className="text-center bg-summit-paper border border-gray-200 py-4 rounded-sm">
-                      <div className="font-display text-3xl sm:text-4xl font-bold text-summit-navy leading-none tracking-wider">
+                    <div key={key} className="text-center bg-summit-paper border border-gray-100 py-4 rounded-md">
+                      <div className="font-heading text-3xl sm:text-4xl font-bold text-summit-navy leading-none">
                         {String(countdown[key] ?? 0).padStart(2, "0")}
                       </div>
-                      <div className="text-gray-500 text-[0.6rem] uppercase tracking-widest mt-2 font-bold">{label}</div>
+                      <div className="text-gray-500 text-[0.65rem] uppercase tracking-widest mt-2 font-medium">{label}</div>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-3 gap-3">
-                  {[["4", "KONUŞMACI"], ["12", "OTURUM"], ["600+", "KATILIMCI"]].map(([n, l]) => (
+                  {[["4", "Konuşmacı"], ["12", "Oturum"], ["600+", "Katılımcı"]].map(([n, l]) => (
                     <div key={l} className="text-center">
-                      <div className="font-display text-summit-orange text-2xl font-bold tracking-wider">{n}</div>
-                      <div className="text-gray-500 text-[0.6rem] uppercase tracking-widest mt-1 font-bold">{l}</div>
+                      <div className="font-heading text-summit-navy text-2xl font-bold">{n}</div>
+                      <div className="text-gray-500 text-[0.65rem] uppercase tracking-widest mt-1 font-medium">{l}</div>
                     </div>
                   ))}
                 </div>
@@ -146,23 +146,79 @@ export default function HomePage() {
 
               <div className="mt-4 flex items-center gap-2 text-gray-600 text-xs justify-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="font-semibold uppercase tracking-widest">Kayıtlar Açık · Katılım Ücretsiz</span>
+                <span className="font-medium uppercase tracking-widest text-[0.65rem]">Kayıtlar Açık · Katılım Ücretsiz</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* ===== 3 KAYIT TÜRÜ CARDS ===== */}
+      <section className="py-20 bg-white border-t border-gray-100" data-testid="registrations-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="section-overline">Kayıt Türleri</span>
+            <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Zirveye Nasıl Katılabilirsiniz?</h2>
+            <p className="text-gray-600 mt-6 max-w-2xl mx-auto">
+              Zirvemize 3 farklı başvuru türü ile katılabilirsiniz. Size en uygun olanı seçerek hemen başvurunuzu tamamlayın.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Ticket,
+                label: "Ziyaretçi Kaydı",
+                desc: "Zirveye katılarak oturumları dinleyin, networking yapın. Ücretsiz katılım.",
+                href: "/ziyaretci-kaydi",
+                cta: "Ziyaretçi Olarak Kaydol",
+                testid: "card-visitor",
+                popular: true,
+              },
+              {
+                icon: Building2,
+                label: "Fuar Stant Kaydı",
+                desc: "Şirketinizi zirvede tanıtın. Stant alanı başvurusu ile ürün/hizmetlerinizi sergileyin.",
+                href: "/fuar-stant-kaydi",
+                cta: "Stant Başvurusu",
+                testid: "card-exhibitor",
+              },
+              {
+                icon: Mic2,
+                label: "Konuşmacı / Panel / Sponsor",
+                desc: "Zirvede konuşmacı, panelist veya sponsor olarak yer almak için başvurun.",
+                href: "/konusmaci-basvuru",
+                cta: "Başvuru Yap",
+                testid: "card-speaker",
+              },
+            ].map(({ icon: Icon, label, desc, href, cta, testid, popular }) => (
+              <div key={href} className="group relative bg-white border border-gray-200 rounded-md p-7 card-hover" data-testid={testid}>
+                {popular && (
+                  <div className="absolute -top-3 left-7 px-3 py-1 bg-summit-accent text-summit-navy text-xs font-bold uppercase tracking-wider rounded">
+                    En Popüler
+                  </div>
+                )}
+                <div className="w-14 h-14 rounded-md bg-summit-navy/8 flex items-center justify-center mb-5 group-hover:bg-summit-navy group-hover:text-white transition-colors">
+                  <Icon size={24} className="text-summit-navy group-hover:text-white transition-colors" />
+                </div>
+                <h3 className="font-heading text-summit-navy text-xl mb-3">{label}</h3>
+                <p className="text-gray-600 text-sm mb-6 leading-relaxed">{desc}</p>
+                <Link to={href} className="inline-flex items-center gap-2 text-summit-navy font-semibold text-sm hover:gap-3 transition-all">
+                  {cta} <ArrowRight size={15} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== ABOUT ===== */}
-      <section className="py-20 sm:py-28 bg-white border-t border-gray-100" data-testid="about-section">
+      <section className="py-20 sm:py-28 bg-summit-paper" data-testid="about-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <div>
               <span className="section-overline">Zirve Hakkında</span>
-              <h2 className="font-display text-summit-navy text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-wide">
-                NEDEN ARSA YATIRIM <br />
-                <span className="text-orange-gradient">ZİRVESİ</span>?
-              </h2>
+              <h2 className="gyoder-section-title inline-block">Neden Arsa Yatırım Zirvesi?</h2>
               <p className="text-gray-600 text-base mt-6 leading-relaxed">
                 Arsa Yatırım Zirvesi 2026, Türkiye'nin önde gelen gayrimenkul uzmanlarını, hukukçuları ve piyasa analistlerini bir araya getiren prestijli bir platform sunmaktadır.
               </p>
@@ -173,8 +229,8 @@ export default function HomePage() {
               <ul className="mt-8 space-y-3">
                 {["Uzman konuşmacılardan birebir bilgi", "Hukuki sorularınıza cevaplar", "Yatırım fırsatlarını keşfedin", "Sektör profesyonelleriyle networking"].map(item => (
                   <li key={item} className="flex items-center gap-3 text-gray-700 text-sm">
-                    <div className="w-6 h-6 rounded-sm bg-summit-orange/10 flex items-center justify-center shrink-0">
-                      <Check size={13} className="text-summit-orange" />
+                    <div className="w-6 h-6 rounded-full bg-summit-navy/10 flex items-center justify-center shrink-0">
+                      <Check size={13} className="text-summit-navy" />
                     </div>
                     <span className="font-medium">{item}</span>
                   </li>
@@ -182,31 +238,27 @@ export default function HomePage() {
               </ul>
 
               <div className="flex gap-4 mt-10">
-                <Link to="/zirve-kaydi" className="btn-gold px-6 py-3" data-testid="about-register-btn">Zirveye Katıl</Link>
+                <Link to="/ziyaretci-kaydi" className="btn-navy px-6 py-3">Ziyaretçi Kaydı</Link>
                 <Link to="/program" className="btn-outline-navy px-6 py-3">Programı İncele</Link>
               </div>
             </div>
 
             <div className="relative">
               <div
-                className="w-full h-80 lg:h-[480px] rounded-sm overflow-hidden shadow-2xl"
+                className="w-full h-80 lg:h-[480px] rounded-md overflow-hidden shadow-xl"
                 style={{
                   backgroundImage: "url(https://images.pexels.com/photos/30584407/pexels-photo-30584407.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940)",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}
               />
-              {/* Orange accent stripe */}
-              <div className="absolute -top-5 -right-5 w-32 h-32 border-t-4 border-r-4 border-summit-orange rounded-tr-sm" />
-              <div className="absolute -bottom-5 -left-5 w-32 h-32 border-b-4 border-l-4 border-summit-orange rounded-bl-sm" />
-
               {/* Floating stats */}
-              <div className="absolute -bottom-10 right-5 bg-white border-l-4 border-summit-orange p-5 shadow-2xl">
+              <div className="absolute -bottom-8 right-5 bg-white border-l-4 border-summit-navy p-5 shadow-2xl rounded-md">
                 <div className="grid grid-cols-3 gap-5">
-                  {[["600+", "KATILIMCI"], ["4", "KONUŞMACI"], ["12", "OTURUM"]].map(([num, label]) => (
+                  {[["600+", "Katılımcı"], ["4", "Konuşmacı"], ["12", "Oturum"]].map(([num, label]) => (
                     <div key={label} className="text-center">
-                      <div className="font-display text-summit-orange text-2xl font-bold tracking-wide">{num}</div>
-                      <div className="text-gray-500 text-[0.6rem] uppercase tracking-widest mt-0.5 font-bold">{label}</div>
+                      <div className="font-heading text-summit-navy text-2xl font-bold">{num}</div>
+                      <div className="text-gray-500 text-[0.65rem] uppercase tracking-widest mt-0.5 font-medium">{label}</div>
                     </div>
                   ))}
                 </div>
@@ -218,15 +270,14 @@ export default function HomePage() {
 
       {/* ===== FEATURED SPEAKER ===== */}
       {featured && (
-        <section className="py-20 sm:py-28 bg-summit-paper" data-testid="featured-speaker-section">
+        <section className="py-20 sm:py-28 bg-white" data-testid="featured-speaker-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="section-overline section-overline-center">Zirve Sahibi</span>
-              <h2 className="font-display text-summit-navy text-4xl sm:text-5xl lg:text-6xl tracking-wide">ÖNE ÇIKAN KONUŞMACI</h2>
+              <span className="section-overline">Zirve Sahibi</span>
+              <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Öne Çıkan Konuşmacı</h2>
             </div>
 
-            <div className="bg-white shadow-xl border border-gray-200 relative" data-testid="featured-speaker-card">
-              <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-summit-orange to-summit-yellow" />
+            <div className="bg-white shadow-xl border border-gray-200 rounded-md overflow-hidden" data-testid="featured-speaker-card">
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div
                   className="h-64 lg:h-auto min-h-96"
@@ -237,15 +288,15 @@ export default function HomePage() {
                   }}
                 />
                 <div className="p-8 sm:p-12 flex flex-col justify-center">
-                  <span className="featured-badge mb-4 inline-block w-fit">ZİRVE SAHİBİ & ORGANİZATÖR</span>
+                  <span className="featured-badge mb-4 inline-block w-fit">Zirve Sahibi & Organizatör</span>
                   <div className="flex items-center gap-1 mb-3">
-                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="text-summit-orange fill-summit-orange" />)}
+                    {[1,2,3,4,5].map(i => <Star key={i} size={16} className="text-summit-accent fill-summit-accent" />)}
                   </div>
-                  <h2 className="font-display text-summit-navy text-3xl sm:text-4xl lg:text-5xl font-bold tracking-wide uppercase">{featured.name}</h2>
-                  <p className="text-summit-orange text-lg mt-2 font-bold uppercase tracking-wider">{featured.title}</p>
+                  <h2 className="font-heading text-summit-navy text-3xl sm:text-4xl">{featured.name}</h2>
+                  <p className="text-summit-navy text-base mt-2 font-semibold">{featured.title}</p>
                   <p className="text-gray-600 text-sm mt-5 leading-relaxed">{featured.bio}</p>
                   <div className="mt-8">
-                    <Link to="/zirve-kaydi" className="btn-gold px-6 py-3" data-testid="featured-register-btn">
+                    <Link to="/ziyaretci-kaydi" className="btn-navy px-6 py-3">
                       Zirveye Katıl
                     </Link>
                   </div>
@@ -256,11 +307,11 @@ export default function HomePage() {
             {/* Other speakers */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
               {others.map((sp) => (
-                <div key={sp.id} className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover" data-testid={`speaker-card-${sp.name}`}>
+                <div key={sp.id} className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md" data-testid={`speaker-card-${sp.name}`}>
                   <div className="h-48 bg-cover bg-top" style={{ backgroundImage: `url(${sp.image_url})` }} />
-                  <div className="p-5 border-l-4 border-summit-orange">
-                    <h4 className="font-display text-summit-navy text-lg font-bold tracking-wide uppercase">{sp.name}</h4>
-                    <p className="text-summit-orange text-xs mt-1.5 font-bold uppercase tracking-wider">{sp.title}</p>
+                  <div className="p-5">
+                    <h4 className="font-heading text-summit-navy text-lg">{sp.name}</h4>
+                    <p className="text-summit-navy text-xs mt-1.5 font-medium">{sp.title}</p>
                   </div>
                 </div>
               ))}
@@ -276,42 +327,42 @@ export default function HomePage() {
       )}
 
       {/* ===== PROGRAM PREVIEW ===== */}
-      <section className="py-20 sm:py-28 bg-white" data-testid="program-section">
+      <section className="py-20 sm:py-28 bg-summit-paper" data-testid="program-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="section-overline section-overline-center">Zirve Programı</span>
-            <h2 className="font-display text-summit-navy text-4xl sm:text-5xl lg:text-6xl tracking-wide">GÜNÜN AKIŞI</h2>
-            <p className="text-gray-500 mt-3 text-sm font-semibold uppercase tracking-widest">21 Mayıs 2026 · 09:00 - 15:30</p>
+            <span className="section-overline">Zirve Programı</span>
+            <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Günün Akışı</h2>
+            <p className="text-gray-500 mt-6 text-sm">21 Mayıs 2026 · 09:00 - 15:30</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {program.map((session, i) => (
               <div
                 key={session.id}
-                className={`bg-white border border-gray-200 p-5 card-hover shadow-sm border-l-4 ${
+                className={`bg-white border border-gray-200 p-5 card-hover shadow-sm rounded-md border-l-4 ${
                   session.session_type === "panel" ? "border-l-purple-500" :
                   session.session_type === "break" || session.session_type === "networking" ? "border-l-gray-300" :
-                  "border-l-summit-orange"
+                  "border-l-summit-navy"
                 }`}
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-summit-orange text-xs font-mono font-bold bg-summit-orange/10 px-2 py-1">
+                  <span className="text-summit-navy text-xs font-mono font-semibold bg-summit-navy/8 px-2 py-1 rounded">
                     {session.time_start}
                   </span>
                   <span className="text-gray-400 text-xs">→</span>
                   <span className="text-gray-500 text-xs font-mono">{session.time_end}</span>
                 </div>
-                <h4 className="font-display text-summit-navy text-base tracking-wide uppercase leading-snug">{session.title}</h4>
+                <h4 className="font-heading text-summit-navy text-base leading-snug">{session.title}</h4>
                 {session.speaker_name && (
-                  <p className="text-summit-orange text-xs mt-2 font-bold uppercase tracking-wider">{session.speaker_name}</p>
+                  <p className="text-summit-navy text-xs mt-2 font-medium">{session.speaker_name}</p>
                 )}
               </div>
             ))}
           </div>
 
           <div className="text-center mt-10">
-            <Link to="/program" className="btn-navy px-8 py-3" data-testid="view-full-program-btn">
+            <Link to="/program" className="btn-navy px-8 py-3">
               Tüm Programı Gör
             </Link>
           </div>
@@ -319,13 +370,13 @@ export default function HomePage() {
       </section>
 
       {/* ===== SPONSORS ===== */}
-      <div className="bg-summit-paper py-12 border-y border-gray-200">
+      <div className="bg-white py-16 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4">
-          <p className="text-center text-gray-500 text-xs uppercase tracking-[0.3em] mb-8 font-bold">Destekçilerimiz</p>
+          <p className="text-center text-gray-500 text-xs uppercase tracking-[0.2em] mb-8 font-semibold">Destekçilerimiz</p>
           <div className="flex flex-wrap items-center justify-center gap-8">
             {sponsors.map((sp) => (
               <div key={sp.id} className="flex flex-col items-center gap-2">
-                <div className={`px-8 py-4 border font-display text-base font-bold tracking-wide uppercase ${sp.tier === "main" ? "bg-summit-orange/8 border-summit-orange/30 text-summit-navy" : "bg-white border-gray-200 text-gray-600"}`}>
+                <div className={`px-8 py-4 rounded-md border font-heading text-base font-bold ${sp.tier === "main" ? "bg-summit-navy/5 border-summit-navy/30 text-summit-navy" : "bg-white border-gray-200 text-gray-600"}`}>
                   {sp.name}
                 </div>
                 {sp.tier === "main" && <span className="tier-main">Ana Sponsor</span>}
@@ -338,12 +389,12 @@ export default function HomePage() {
 
       {/* ===== PAST EVENTS PREVIEW ===== */}
       {events.length > 0 && (
-        <section className="py-20 sm:py-28 bg-white" data-testid="past-events-section">
+        <section className="py-20 sm:py-28 bg-summit-paper" data-testid="past-events-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-14">
               <div>
                 <span className="section-overline">Geçmiş Etkinlikler</span>
-                <h2 className="font-display text-summit-navy text-4xl sm:text-5xl lg:text-6xl tracking-wide">BÜYÜYEN BİR GELENEK</h2>
+                <h2 className="gyoder-section-title inline-block">Büyüyen Bir Gelenek</h2>
               </div>
               <Link to="/etkinlikler" className="btn-outline-navy px-5 py-2.5 hidden sm:block">
                 Tümünü Gör
@@ -352,18 +403,18 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {events.map((ev) => (
-                <div key={ev.id} className="group bg-white border border-gray-200 overflow-hidden card-hover shadow-sm" data-testid={`event-card-${ev.year}`}>
+                <div key={ev.id} className="group bg-white border border-gray-200 overflow-hidden card-hover shadow-sm rounded-md" data-testid={`event-card-${ev.year}`}>
                   <div
                     className="h-44 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                     style={{ backgroundImage: `url(${ev.image_url})` }}
                   />
-                  <div className="p-5 border-l-4 border-summit-orange">
+                  <div className="p-5">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-summit-orange text-lg font-display font-bold tracking-wider">{ev.year}</span>
-                      {ev.attendee_count && <span className="text-gray-400 text-xs font-semibold">{ev.attendee_count}+ Katılımcı</span>}
+                      <span className="text-summit-navy text-lg font-heading font-bold">{ev.year}</span>
+                      {ev.attendee_count && <span className="text-gray-400 text-xs">{ev.attendee_count}+ Katılımcı</span>}
                     </div>
-                    <h4 className="font-display text-summit-navy text-base tracking-wide uppercase">{ev.title}</h4>
-                    <p className="text-gray-500 text-xs mt-1 font-medium">{ev.venue}</p>
+                    <h4 className="font-heading text-summit-navy text-base">{ev.title}</h4>
+                    <p className="text-gray-500 text-xs mt-1">{ev.venue}</p>
                   </div>
                 </div>
               ))}
@@ -373,26 +424,25 @@ export default function HomePage() {
       )}
 
       {/* ===== CTA ===== */}
-      <section className="relative bg-summit-navy py-24 sm:py-32 overflow-hidden" data-testid="cta-section">
-        <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
+      <section className="relative bg-summit-navy py-20 sm:py-28 overflow-hidden" data-testid="cta-section">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-summit-orange/10 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-white/3 blur-3xl" />
         </div>
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block text-summit-orange text-xs font-bold uppercase tracking-[0.3em] mb-4">Sınırlı Kontenjan</span>
-          <h2 className="font-display text-white text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-wide">YERİNİZİ AYIRTIN</h2>
-          <p className="text-white/70 text-base mt-5 leading-relaxed max-w-xl mx-auto">
+          <span className="inline-block text-summit-accent text-xs font-bold uppercase tracking-[0.25em] mb-4">Sınırlı Kontenjan</span>
+          <h2 className="font-heading text-white text-4xl sm:text-5xl leading-tight">Yerinizi Ayırtın</h2>
+          <p className="text-white/75 text-base mt-5 leading-relaxed max-w-xl mx-auto">
             Arsa yatırımı dünyasının zirvesinde yerinizi alın. Ücretsiz kayıt ile tüm oturumları ve networking etkinliğini keşfedin.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
-            <Link to="/uyelik" className="btn-gold px-10 py-4" data-testid="cta-member-btn">
-              Üyelik Oluştur
+            <Link to="/ziyaretci-kaydi" className="btn-accent px-10 py-4" data-testid="cta-visitor-btn">
+              Ziyaretçi Kaydı
             </Link>
-            <Link to="/zirve-kaydi" className="btn-outline-gold px-10 py-4" data-testid="cta-guest-btn">
-              Zirve Kaydı
+            <Link to="/konusmaci-basvuru" className="btn-outline-gold px-10 py-4" data-testid="cta-speaker-btn">
+              Konuşmacı / Sponsor Başvurusu
             </Link>
           </div>
-          <p className="text-white/40 text-xs mt-5 uppercase tracking-widest font-semibold">Katılım Tamamen Ücretsizdir</p>
+          <p className="text-white/50 text-xs mt-5 uppercase tracking-widest font-semibold">Katılım Ücretsizdir · Yerler Sınırlıdır</p>
         </div>
       </section>
 

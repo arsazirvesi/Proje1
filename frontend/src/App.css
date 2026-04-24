@@ -1,212 +1,214 @@
-/* ===== BUTTONS (AK Parti inspired) ===== */
+/* ===== BUTTONS (GYODER style navy) ===== */
 .btn-gold {
-  background: linear-gradient(135deg, #F39200 0%, #FFCD00 100%);
+  background: #22316a;
   color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   padding: 12px 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   text-decoration: none;
   display: inline-block;
-  box-shadow: 0 4px 14px rgba(243,146,0,0.3);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(34,49,106,0.15);
 }
 .btn-gold:hover {
+  background: #1A264F;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(243,146,0,0.45);
-  background: linear-gradient(135deg, #FFCD00 0%, #F39200 100%);
+  box-shadow: 0 8px 24px rgba(34,49,106,0.3);
 }
 
 .btn-navy {
-  background: #0F2C5C;
+  background: #22316a;
   color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   padding: 12px 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   text-decoration: none;
   display: inline-block;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 .btn-navy:hover {
-  background: #1A3E7A;
+  background: #1A264F;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15,44,92,0.3);
+  box-shadow: 0 8px 24px rgba(34,49,106,0.3);
 }
 
 .btn-outline-navy {
   background: transparent;
-  color: #0F2C5C;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
+  color: #22316a;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   padding: 12px 32px;
-  border-radius: 4px;
-  border: 2px solid #0F2C5C;
+  border-radius: 6px;
+  border: 2px solid #22316a;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   text-decoration: none;
   display: inline-block;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 .btn-outline-navy:hover {
-  background: #0F2C5C;
+  background: #22316a;
   color: #FFFFFF;
   transform: translateY(-2px);
 }
 
 .btn-outline-gold {
   background: transparent;
-  color: #F39200;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
+  color: #FFFFFF;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   padding: 12px 32px;
-  border-radius: 4px;
-  border: 2px solid #F39200;
+  border-radius: 6px;
+  border: 2px solid #FFFFFF;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   text-decoration: none;
   display: inline-block;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 .btn-outline-gold:hover {
-  background: #F39200;
-  color: white;
+  background: #FFFFFF;
+  color: #22316a;
   transform: translateY(-2px);
+}
+
+.btn-accent {
+  background: #F5B800;
+  color: #22316a;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+.btn-accent:hover {
+  background: #E0A600;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245,184,0,0.35);
 }
 
 /* ===== COUNTDOWN ===== */
 .countdown-box {
   background: #FFFFFF;
   border: 1px solid #E5E7EB;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 16px 20px;
   text-align: center;
   min-width: 76px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(34,49,106,0.06);
 }
 .countdown-number {
-  font-family: 'Bebas Neue', 'Oswald', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 2.4rem;
   font-weight: 700;
-  color: #0F2C5C;
+  color: #22316a;
   line-height: 1;
-  letter-spacing: 0.04em;
 }
 .countdown-label {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   color: #6B7280;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   margin-top: 6px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ===== SECTION LABELS ===== */
 .section-overline {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.25em;
-  color: #F39200;
+  letter-spacing: 0.2em;
+  color: #22316a;
   margin-bottom: 10px;
   display: block;
-  font-weight: 700;
-  position: relative;
-  padding-left: 32px;
-}
-.section-overline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 2px;
-  background: #F39200;
-}
-
-.section-overline-center {
-  padding-left: 0;
-}
-.section-overline-center::before {
-  display: none;
+  font-weight: 600;
 }
 
 /* ===== FEATURED BADGE ===== */
 .featured-badge {
-  background: linear-gradient(135deg, #F39200 0%, #FFCD00 100%);
+  background: #22316a;
   color: #FFFFFF;
   font-size: 0.65rem;
-  font-weight: 800;
-  padding: 4px 12px;
-  border-radius: 2px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.08em;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* ===== BLOG CARD ===== */
 .blog-card {
   background: #FFFFFF;
   border: 1px solid #E5E7EB;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 .blog-card:hover {
-  border-color: #F39200;
+  border-color: #22316a;
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(15,44,92,0.10);
+  box-shadow: 0 14px 40px rgba(34,49,106,0.12);
 }
 
 /* ===== SPONSOR TIERS ===== */
 .tier-main {
-  background: linear-gradient(135deg, #F39200 0%, #FFCD00 100%);
+  background: #22316a;
   color: #FFFFFF;
   font-size: 0.65rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 3px 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   text-transform: uppercase;
-  font-family: 'Inter', sans-serif;
-  letter-spacing: 0.08em;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.06em;
 }
 .tier-organization {
-  background: #F3F4F6;
-  color: #0F2C5C;
+  background: #EDF0F5;
+  color: #22316a;
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 3px 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   text-transform: uppercase;
-  font-family: 'Inter', sans-serif;
-  letter-spacing: 0.08em;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.06em;
 }
 
 /* ===== INPUT FOCUS ===== */
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: #F39200 !important;
-  box-shadow: 0 0 0 3px rgba(243,146,0,0.12);
+  border-color: #22316a !important;
+  box-shadow: 0 0 0 3px rgba(34,49,106,0.10);
 }
 
-/* Heading display utility */
-.font-display {
-  font-family: 'Bebas Neue', 'Oswald', sans-serif;
-  letter-spacing: 0.04em;
+/* Status badges for CRM */
+.status-badge {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
 }
+.status-new { background: #DBEAFE; color: #1E40AF; }
+.status-contacted { background: #FEF3C7; color: #92400E; }
+.status-approved { background: #D1FAE5; color: #065F46; }
+.status-rejected { background: #FEE2E2; color: #991B1B; }

@@ -6,7 +6,9 @@ import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
 import ProgramPage from "./pages/public/ProgramPage";
 import RegisterPage from "./pages/public/RegisterPage";
-import GuestRegisterPage from "./pages/public/GuestRegisterPage";
+import VisitorRegisterPage from "./pages/public/VisitorRegisterPage";
+import ExhibitorRegisterPage from "./pages/public/ExhibitorRegisterPage";
+import SpeakerApplicationPage from "./pages/public/SpeakerApplicationPage";
 import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
@@ -16,6 +18,8 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import MemberList from "./pages/admin/MemberList";
 import GuestList from "./pages/admin/GuestList";
+import ExhibitorList from "./pages/admin/ExhibitorList";
+import SpeakerApplicationList from "./pages/admin/SpeakerApplicationList";
 import SpeakerManagement from "./pages/admin/SpeakerManagement";
 import SponsorManagement from "./pages/admin/SponsorManagement";
 import BannerManagement from "./pages/admin/BannerManagement";
@@ -26,8 +30,8 @@ import ProgramManagement from "./pages/admin/ProgramManagement";
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
-    <div className="min-h-screen bg-summit-navy flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-summit-gold border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-summit-navy border-t-transparent rounded-full animate-spin" />
     </div>
   );
   if (!user || user.role !== "admin") return <Navigate to="/admin/login" replace />;
@@ -44,24 +48,37 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/konusmacilar" element={<SpeakersPage />} />
             <Route path="/program" element={<ProgramPage />} />
-            <Route path="/uyelik" element={<RegisterPage />} />
-            <Route path="/zirve-kaydi" element={<GuestRegisterPage />} />
             <Route path="/etkinlikler" element={<PastEventsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
+
+            {/* Registration Forms */}
+            <Route path="/ziyaretci-kaydi" element={<VisitorRegisterPage />} />
+            <Route path="/fuar-stant-kaydi" element={<ExhibitorRegisterPage />} />
+            <Route path="/konusmaci-basvuru" element={<SpeakerApplicationPage />} />
+            <Route path="/bulten" element={<RegisterPage />} />
+
+            {/* Backward compat redirects */}
+            <Route path="/zirve-kaydi" element={<Navigate to="/ziyaretci-kaydi" replace />} />
+            <Route path="/uyelik" element={<Navigate to="/ziyaretci-kaydi" replace />} />
 
             {/* Admin */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
-              <Route path="uyeler" element={<MemberList />} />
-              <Route path="misafirler" element={<GuestList />} />
+              <Route path="ziyaretciler" element={<GuestList />} />
+              <Route path="fuar-stant" element={<ExhibitorList />} />
+              <Route path="konusmaci-basvuru" element={<SpeakerApplicationList />} />
+              <Route path="bulten-uyeleri" element={<MemberList />} />
               <Route path="konusmacilar" element={<SpeakerManagement />} />
               <Route path="sponsorlar" element={<SponsorManagement />} />
               <Route path="bannerlar" element={<BannerManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="etkinlikler" element={<EventManagement />} />
               <Route path="program" element={<ProgramManagement />} />
+              {/* Backward compat for old URLs */}
+              <Route path="uyeler" element={<Navigate to="/admin/bulten-uyeleri" replace />} />
+              <Route path="misafirler" element={<Navigate to="/admin/ziyaretciler" replace />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

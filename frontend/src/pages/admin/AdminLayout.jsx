@@ -8,10 +8,12 @@ import {
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Üyeler", href: "/admin/uyeler", icon: Users },
-  { label: "Zirve Misafirleri", href: "/admin/misafirler", icon: UserCheck },
-  { label: "Konuşmacılar", href: "/admin/konusmacilar", icon: Mic2 },
-  { label: "Sponsorlar", href: "/admin/sponsorlar", icon: Award },
+  { label: "Ziyaretçiler", href: "/admin/ziyaretciler", icon: Users },
+  { label: "Fuar Stant Başvuruları", href: "/admin/fuar-stant", icon: UserCheck },
+  { label: "Konuşmacı / Sponsor Başvuruları", href: "/admin/konusmaci-basvuru", icon: Mic2 },
+  { label: "Bülten Üyeleri", href: "/admin/bulten-uyeleri", icon: Users },
+  { label: "Konuşmacılar (Site)", href: "/admin/konusmacilar", icon: Mic2 },
+  { label: "Sponsorlar (Site)", href: "/admin/sponsorlar", icon: Award },
   { label: "Banner Yönetimi", href: "/admin/bannerlar", icon: Image },
   { label: "Blog", href: "/admin/blog", icon: FileText },
   { label: "Geçmiş Etkinlikler", href: "/admin/etkinlikler", icon: Calendar },

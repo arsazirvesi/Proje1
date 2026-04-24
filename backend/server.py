@@ -121,6 +121,40 @@ class GuestCreate(BaseModel):
     title: Optional[str] = None
     city: Optional[str] = None
     expectations: Optional[str] = None
+    interest_area: Optional[str] = None
+    participant_type: Optional[str] = None
+
+class ExhibitorCreate(BaseModel):
+    company_name: str
+    contact_name: str
+    email: EmailStr
+    phone: str
+    tax_office: Optional[str] = None
+    tax_number: Optional[str] = None
+    sector: Optional[str] = None
+    stand_preference: Optional[str] = None
+    products_services: Optional[str] = None
+    website: Optional[str] = None
+    social_media: Optional[str] = None
+    notes: Optional[str] = None
+
+class SpeakerApplicationCreate(BaseModel):
+    application_type: str  # konusmaci | panelist | sponsor
+    name: str
+    email: EmailStr
+    phone: str
+    company: Optional[str] = None
+    expertise: Optional[str] = None
+    topic: Optional[str] = None
+    bio: Optional[str] = None
+    sponsor_package: Optional[str] = None
+    linkedin: Optional[str] = None
+    website: Optional[str] = None
+    additional_notes: Optional[str] = None
+
+class StatusUpdate(BaseModel):
+    status: str  # new | contacted | approved | rejected
+    admin_notes: Optional[str] = None
 
 class SpeakerCreate(BaseModel):
     name: str
@@ -338,25 +372,104 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
         **body.model_dump(),
         "email": body.email.lower(),
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "badge_printed": False
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "badge_printed": False,
+        "status": "new",
+        "admin_notes": "",
     }
     result = await db.guests.insert_one(doc)
     guest_id = str(result.inserted_id)
     html = f"""
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0A1128;color:#fff;padding:40px;border-radius:8px;border:1px solid rgba(212,175,55,0.3)">
-      <h1 style="color:#D4AF37;font-size:22px;margin-bottom:16px">Arsa Yatırım Zirvesi 2026</h1>
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;color:#1F2937;padding:40px;border-radius:8px;border:1px solid #E5E7EB">
+      <div style="border-top:3px solid #22316a;padding-top:24px">
+      <h1 style="color:#22316a;font-size:22px;margin-bottom:16px">Arsa Yatırım Zirvesi 2026</h1>
       <p>Sayın <strong>{body.name}</strong>,</p>
-      <p style="margin-top:12px">Zirve kaydınız başarıyla alınmıştır. Sizi aramızda görmekten mutluluk duyacağız.</p>
-      <div style="background:#14213D;border-radius:8px;padding:16px;margin:20px 0;border-left:4px solid #D4AF37">
-        <p style="color:#D4AF37;margin:4px 0"><strong>Tarih:</strong> 21 Mayıs 2026, Perşembe</p>
-        <p style="color:#D4AF37;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus - Zirve Salonu</p>
-        <p style="color:#D4AF37;margin:4px 0"><strong>Adres:</strong> Harbiye, Cumhuriyet Cd. No:50, 34367 Şişli/İstanbul</p>
+      <p style="margin-top:12px">Zirve ziyaretçi kaydınız başarıyla alınmıştır. Sizi aramızda görmekten mutluluk duyacağız.</p>
+      <div style="background:#F8F9FB;border-radius:6px;padding:16px;margin:20px 0;border-left:4px solid #22316a">
+        <p style="color:#22316a;margin:4px 0"><strong>Tarih:</strong> 21 Mayıs 2026, Perşembe</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus - Zirve Salonu</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Adres:</strong> Harbiye, Cumhuriyet Cd. No:50, 34367 Şişli/İstanbul</p>
       </div>
       <p>Yaka kartınız etkinlik günü kayıt masasında teslim edilecektir.</p>
-      <p style="color:#B0B8C8;font-size:12px;margin-top:24px">© 2026 Arsa Yatırım Zirvesi</p>
+      <p style="color:#9CA3AF;font-size:12px;margin-top:24px">© 2026 Arsa Yatırım Zirvesi</p>
+      </div>
     </div>"""
-    background_tasks.add_task(send_email, body.email.lower(), "Arsa Yatırım Zirvesi 2026 - Zirve Kaydı Onayı", html)
-    return {"id": guest_id, "message": "Zirve kaydınız alınmıştır", "badge_url": f"/api/badge/{guest_id}"}
+    background_tasks.add_task(send_email, body.email.lower(), "Arsa Yatırım Zirvesi 2026 - Ziyaretçi Kayıt Onayı", html)
+    return {"id": guest_id, "message": "Ziyaretçi kaydınız alınmıştır", "badge_url": f"/api/badge/{guest_id}"}
+
+
+@api_router.post("/register/exhibitor")
+async def register_exhibitor(body: ExhibitorCreate, background_tasks: BackgroundTasks):
+    existing = await db.exhibitors.find_one({"email": body.email.lower()})
+    if existing:
+        raise HTTPException(400, "Bu email ile zaten başvuru yapılmış")
+    doc = {
+        **body.model_dump(),
+        "email": body.email.lower(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "status": "new",
+        "admin_notes": "",
+        "price_quoted": None,
+    }
+    result = await db.exhibitors.insert_one(doc)
+    app_id = str(result.inserted_id)
+    html = f"""
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;color:#1F2937;padding:40px;border-radius:8px;border:1px solid #E5E7EB">
+      <div style="border-top:3px solid #22316a;padding-top:24px">
+      <h1 style="color:#22316a;font-size:22px;margin-bottom:16px">Arsa Yatırım Zirvesi 2026 - Stant Başvurusu</h1>
+      <p>Sayın <strong>{body.contact_name}</strong>,</p>
+      <p style="margin-top:12px"><strong>{body.company_name}</strong> firması adına yaptığınız fuar stant başvurusu tarafımıza ulaşmıştır. En kısa sürede sizinle iletişime geçeceğiz.</p>
+      <div style="background:#F8F9FB;border-radius:6px;padding:16px;margin:20px 0;border-left:4px solid #22316a">
+        <p style="color:#22316a;margin:4px 0"><strong>Tarih:</strong> 21 Mayıs 2026, Perşembe</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus - Zirve Salonu</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Stant Tercihiniz:</strong> {body.stand_preference or '—'}</p>
+      </div>
+      <p>Stant alanı, fiyatlandırma ve detaylı bilgi için ekibimiz kısa süre içinde iletişime geçecektir.</p>
+      <p style="color:#9CA3AF;font-size:12px;margin-top:24px">© 2026 Arsa Yatırım Zirvesi</p>
+      </div>
+    </div>"""
+    background_tasks.add_task(send_email, body.email.lower(), "Arsa Yatırım Zirvesi 2026 - Stant Başvurunuz Alındı", html)
+    return {"id": app_id, "message": "Fuar stant başvurunuz alındı. Ekibimiz en kısa sürede sizinle iletişime geçecektir."}
+
+
+@api_router.post("/register/speaker-application")
+async def register_speaker_application(body: SpeakerApplicationCreate, background_tasks: BackgroundTasks):
+    existing = await db.speaker_applications.find_one({
+        "email": body.email.lower(),
+        "application_type": body.application_type,
+    })
+    if existing:
+        raise HTTPException(400, "Bu email ile bu kategoride zaten başvuru yapılmış")
+    doc = {
+        **body.model_dump(),
+        "email": body.email.lower(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "status": "new",
+        "admin_notes": "",
+        "price_quoted": None,
+    }
+    result = await db.speaker_applications.insert_one(doc)
+    app_id = str(result.inserted_id)
+    type_label = {"konusmaci": "Konuşmacı", "panelist": "Panelist", "sponsor": "Sponsor"}.get(body.application_type, "Başvuru")
+    html = f"""
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;color:#1F2937;padding:40px;border-radius:8px;border:1px solid #E5E7EB">
+      <div style="border-top:3px solid #22316a;padding-top:24px">
+      <h1 style="color:#22316a;font-size:22px;margin-bottom:16px">Arsa Yatırım Zirvesi 2026 - {type_label} Başvurusu</h1>
+      <p>Sayın <strong>{body.name}</strong>,</p>
+      <p style="margin-top:12px">{type_label} başvurunuz başarıyla alınmıştır. Değerlendirme sürecinin ardından ekibimiz sizinle iletişime geçecektir.</p>
+      <div style="background:#F8F9FB;border-radius:6px;padding:16px;margin:20px 0;border-left:4px solid #22316a">
+        <p style="color:#22316a;margin:4px 0"><strong>Başvuru Tipi:</strong> {type_label}</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Etkinlik Tarihi:</strong> 21 Mayıs 2026</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus</p>
+      </div>
+      <p>İlginize teşekkür ederiz.</p>
+      <p style="color:#9CA3AF;font-size:12px;margin-top:24px">© 2026 Arsa Yatırım Zirvesi</p>
+      </div>
+    </div>"""
+    background_tasks.add_task(send_email, body.email.lower(), f"Arsa Yatırım Zirvesi 2026 - {type_label} Başvurunuz Alındı", html)
+    return {"id": app_id, "message": f"{type_label} başvurunuz alındı. Ekibimiz en kısa sürede sizinle iletişime geçecektir."}
 
 
 # ==================== BADGE ====================
@@ -432,17 +545,30 @@ body{{font-family:'Outfit',sans-serif;background:#f5f5f5;display:flex;justify-co
 # ==================== ADMIN DASHBOARD ====================
 
 @api_router.get("/admin/dashboard")
-async def get_dashboard(admin: dict = Depends(get_admin_user)):
+async def admin_dashboard(admin: dict = Depends(get_admin_user)):
     members_count = await db.members.count_documents({})
     guests_count = await db.guests.count_documents({})
+    exhibitors_count = await db.exhibitors.count_documents({})
+    speaker_apps_count = await db.speaker_applications.count_documents({})
     blog_count = await db.blog_posts.count_documents({})
     events_count = await db.past_events.count_documents({})
     recent_members = await db.members.find({}).sort("created_at", -1).limit(5).to_list(5)
     recent_guests = await db.guests.find({}).sort("created_at", -1).limit(5).to_list(5)
+    recent_exhibitors = await db.exhibitors.find({}).sort("created_at", -1).limit(5).to_list(5)
+    recent_speaker_apps = await db.speaker_applications.find({}).sort("created_at", -1).limit(5).to_list(5)
     return {
-        "stats": {"members": members_count, "guests": guests_count, "blog_posts": blog_count, "events": events_count},
+        "stats": {
+            "members": members_count,
+            "guests": guests_count,
+            "exhibitors": exhibitors_count,
+            "speaker_applications": speaker_apps_count,
+            "blog_posts": blog_count,
+            "events": events_count,
+        },
         "recent_members": [clean_doc(d) for d in recent_members],
-        "recent_guests": [clean_doc(d) for d in recent_guests]
+        "recent_guests": [clean_doc(d) for d in recent_guests],
+        "recent_exhibitors": [clean_doc(d) for d in recent_exhibitors],
+        "recent_speaker_applications": [clean_doc(d) for d in recent_speaker_apps],
     }
 
 
@@ -461,19 +587,118 @@ async def admin_delete_member(member_id: str, admin: dict = Depends(get_admin_us
     return {"message": "Üye silindi"}
 
 
-# ==================== ADMIN GUESTS ====================
+# ==================== ADMIN GUESTS (VISITORS) ====================
 
 @api_router.get("/admin/guests")
-async def admin_get_guests(admin: dict = Depends(get_admin_user)):
-    docs = await db.guests.find({}).sort("created_at", -1).to_list(1000)
+async def admin_get_guests(status: Optional[str] = None, q: Optional[str] = None, admin: dict = Depends(get_admin_user)):
+    query: dict = {}
+    if status and status != "all":
+        query["status"] = status
+    if q:
+        query["$or"] = [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"email": {"$regex": q, "$options": "i"}},
+            {"company": {"$regex": q, "$options": "i"}},
+            {"phone": {"$regex": q, "$options": "i"}},
+        ]
+    docs = await db.guests.find(query).sort("created_at", -1).to_list(5000)
     return [clean_doc(d) for d in docs]
+
+@api_router.patch("/admin/guests/{guest_id}")
+async def admin_update_guest(guest_id: str, body: StatusUpdate, admin: dict = Depends(get_admin_user)):
+    update = {"status": body.status, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if body.admin_notes is not None:
+        update["admin_notes"] = body.admin_notes
+    result = await db.guests.update_one({"_id": ObjectId(guest_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+    return {"message": "Güncellendi"}
 
 @api_router.delete("/admin/guests/{guest_id}")
 async def admin_delete_guest(guest_id: str, admin: dict = Depends(get_admin_user)):
     result = await db.guests.delete_one({"_id": ObjectId(guest_id)})
     if result.deleted_count == 0:
-        raise HTTPException(404, "Misafir bulunamadı")
-    return {"message": "Misafir silindi"}
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+    return {"message": "Ziyaretçi silindi"}
+
+
+# ==================== ADMIN EXHIBITORS ====================
+
+@api_router.get("/admin/exhibitors")
+async def admin_get_exhibitors(status: Optional[str] = None, q: Optional[str] = None, admin: dict = Depends(get_admin_user)):
+    query: dict = {}
+    if status and status != "all":
+        query["status"] = status
+    if q:
+        query["$or"] = [
+            {"company_name": {"$regex": q, "$options": "i"}},
+            {"contact_name": {"$regex": q, "$options": "i"}},
+            {"email": {"$regex": q, "$options": "i"}},
+            {"phone": {"$regex": q, "$options": "i"}},
+            {"sector": {"$regex": q, "$options": "i"}},
+        ]
+    docs = await db.exhibitors.find(query).sort("created_at", -1).to_list(5000)
+    return [clean_doc(d) for d in docs]
+
+@api_router.patch("/admin/exhibitors/{app_id}")
+async def admin_update_exhibitor(app_id: str, body: StatusUpdate, admin: dict = Depends(get_admin_user)):
+    update = {"status": body.status, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if body.admin_notes is not None:
+        update["admin_notes"] = body.admin_notes
+    result = await db.exhibitors.update_one({"_id": ObjectId(app_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Stant başvurusu bulunamadı")
+    return {"message": "Güncellendi"}
+
+@api_router.delete("/admin/exhibitors/{app_id}")
+async def admin_delete_exhibitor(app_id: str, admin: dict = Depends(get_admin_user)):
+    result = await db.exhibitors.delete_one({"_id": ObjectId(app_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Stant başvurusu bulunamadı")
+    return {"message": "Stant başvurusu silindi"}
+
+
+# ==================== ADMIN SPEAKER APPLICATIONS ====================
+
+@api_router.get("/admin/speaker-applications")
+async def admin_get_speaker_applications(
+    status: Optional[str] = None,
+    application_type: Optional[str] = None,
+    q: Optional[str] = None,
+    admin: dict = Depends(get_admin_user),
+):
+    query: dict = {}
+    if status and status != "all":
+        query["status"] = status
+    if application_type and application_type != "all":
+        query["application_type"] = application_type
+    if q:
+        query["$or"] = [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"email": {"$regex": q, "$options": "i"}},
+            {"company": {"$regex": q, "$options": "i"}},
+            {"phone": {"$regex": q, "$options": "i"}},
+            {"expertise": {"$regex": q, "$options": "i"}},
+        ]
+    docs = await db.speaker_applications.find(query).sort("created_at", -1).to_list(5000)
+    return [clean_doc(d) for d in docs]
+
+@api_router.patch("/admin/speaker-applications/{app_id}")
+async def admin_update_speaker_application(app_id: str, body: StatusUpdate, admin: dict = Depends(get_admin_user)):
+    update = {"status": body.status, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if body.admin_notes is not None:
+        update["admin_notes"] = body.admin_notes
+    result = await db.speaker_applications.update_one({"_id": ObjectId(app_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Başvuru bulunamadı")
+    return {"message": "Güncellendi"}
+
+@api_router.delete("/admin/speaker-applications/{app_id}")
+async def admin_delete_speaker_application(app_id: str, admin: dict = Depends(get_admin_user)):
+    result = await db.speaker_applications.delete_one({"_id": ObjectId(app_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Başvuru bulunamadı")
+    return {"message": "Başvuru silindi"}
 
 
 # ==================== ADMIN EMAIL ====================
@@ -484,6 +709,10 @@ async def send_broadcast(body: EmailBroadcast, background_tasks: BackgroundTasks
         docs = await db.members.find({}, {"email": 1, "name": 1}).to_list(1000)
     elif body.recipient_type == "guests":
         docs = await db.guests.find({}, {"email": 1, "name": 1}).to_list(1000)
+    elif body.recipient_type == "exhibitors":
+        docs = await db.exhibitors.find({}, {"email": 1, "contact_name": 1}).to_list(1000)
+    elif body.recipient_type == "speaker_applications":
+        docs = await db.speaker_applications.find({}, {"email": 1, "name": 1}).to_list(1000)
     else:
         raise HTTPException(400, "Geçersiz alıcı tipi")
 
