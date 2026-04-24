@@ -1,0 +1,147 @@
+{
+  "theme_and_archetype": {
+    "domain": "Corporate Summit / Real Estate Investment Website",
+    "theme": "DARK",
+    "archetype": "5 (Jewel & Luxury)",
+    "rationale": "Arsa Yatırım Zirvesi 2026 targets high-net-worth individuals, real estate investors, and corporate professionals. A deep navy blue and gold palette conveys prestige, trust, and exclusivity, aligning with the luxurious feel of a premium corporate event at Hilton Istanbul Bosphorus."
+  },
+  "colors": {
+    "primary": {
+      "DEFAULT": "#D4AF37",
+      "foreground": "#0A1128",
+      "light": "#FDB813",
+      "dark": "#997A00"
+    },
+    "background": {
+      "DEFAULT": "#0A1128",
+      "paper": "#14213D",
+      "surface": "#1E2A4F",
+      "card": "#14213D"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#B0B8C8",
+      "muted": "#7A849C",
+      "gold": "#D4AF37"
+    },
+    "border": {
+      "subtle": "rgba(255, 255, 255, 0.1)",
+      "gold": "rgba(212, 175, 55, 0.4)",
+      "glow": "rgba(212, 175, 55, 0.2)"
+    },
+    "gradients": {
+      "gold_text": "bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] bg-clip-text text-transparent",
+      "hero_overlay": "bg-gradient-to-b from-transparent to-[#0A1128]",
+      "card_border": "bg-gradient-to-br from-[#D4AF37]/50 via-transparent to-[#D4AF37]/20",
+      "dark_gradient": "bg-gradient-to-br from-[#14213D] to-[#0A1128]"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Playfair Display, serif",
+      "body": "Outfit, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "sizing": {
+      "h1": "text-5xl sm:text-6xl+ tracking-tight font-bold",
+      "h2": "text-4xl sm:text-5xl tracking-tight font-semibold",
+      "h3": "text-2xl sm:text-3xl font-semibold",
+      "h4": "text-xl sm:text-2xl font-medium",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm text-secondary uppercase tracking-[0.2em]"
+    },
+    "rules": [
+      "Headings (Playfair Display) must use tight letter spacing (tracking-tight).",
+      "Labels and overlines must be uppercase, tiny, and widely spaced.",
+      "Never center paragraphs. Left-align dense content.",
+      "The 'Inter' font is banned. Use 'Outfit' for all body text."
+    ]
+  },
+  "layout_and_spacing": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "spacing": {
+      "section_y": "py-24 sm:py-32",
+      "gap_bento": "gap-8 lg:gap-12"
+    },
+    "bento_grid": {
+      "mode": "MODE A: THE 'TETRIS' GRID (For Speakers and Agenda)",
+      "base": "grid grid-cols-1 md:grid-cols-8 lg:grid-cols-12 gap-8",
+      "featured_item": "col-span-full md:col-span-8 lg:col-span-8 row-span-2",
+      "supporting_item": "col-span-full md:col-span-4 lg:col-span-4 row-span-1"
+    }
+  },
+  "surfaces_and_effects": {
+    "glassmorphism": {
+      "header": "backdrop-blur-xl bg-[#0A1128]/80 border-b border-white/10",
+      "card": "backdrop-blur-md bg-white/5 border border-white/10"
+    },
+    "cards": {
+      "default": "bg-[#14213D] border border-white/10 rounded-xl overflow-hidden shadow-lg",
+      "hover": "hover:-translate-y-1 hover:border-[#D4AF37]/50 transition-all duration-300 hover:shadow-[0_8px_32px_rgba(212,175,55,0.15)]"
+    },
+    "borders": {
+      "tracing_beam": "use framer-motion to create a glowing border effect around the main registration card or featured speaker."
+    }
+  },
+  "components_strategy": {
+    "marketing_pages": {
+      "structure": "Custom HTML/Tailwind. Avoid standard Shadcn layout containers for the main site.",
+      "hero": "Cinematic full-width background image with maximum bg-[#0A1128]/60 overlay. Playfair Display heading, gold CTA.",
+      "speakers": "Bento grid layout. Muhammet Özdemir (Zirve Sahibi) must take the dominant 'Hero' span (col-span-8). Other speakers take standard spans.",
+      "marquee": "Use an 'Editorial Ribbon' for sponsors or past event highlights. Slow, smooth drift. Pale gold background with deep navy text."
+    },
+    "admin_dashboard": {
+      "structure": "Shadcn UI heavily customized. Dark mode by default to match the brand.",
+      "tables": "Shadcn Data Tables for Members, Guests, Speakers.",
+      "forms": "Shadcn Forms with React Hook Form for Registration, Settings.",
+      "charts": "Shadcn Charts (Recharts) for Dashboard statistics."
+    }
+  },
+  "icons_and_assets": {
+    "icon_library": "@phosphor-icons/react",
+    "installation_command": "npm install @phosphor-icons/react",
+    "usage": "Use Duotone weight for marketing pages, Regular weight for admin dashboard."
+  },
+  "media": {
+    "images": [
+      {
+        "category": "hero_background",
+        "url": "https://images.unsplash.com/photo-1646523773249-23fea630a7a5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjByZWFsJTIwZXN0YXRlJTIwYnVpbGRpbmclMjBnb2xkJTIwYW5kJTIwbmF2eXxlbnwwfHx8fDE3NzcwMjY1MjZ8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Luxurious navy and gold architectural background."
+      },
+      {
+        "category": "event_location",
+        "url": "https://images.pexels.com/photos/30584407/pexels-photo-30584407.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Hilton Istanbul Bosphorus style luxury conference hall."
+      },
+      {
+        "category": "audience_crowd",
+        "url": "https://images.pexels.com/photos/26202153/pexels-photo-26202153.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Corporate business summit audience engaged."
+      },
+      {
+        "category": "speaker_featured",
+        "url": "https://images.pexels.com/photos/8761319/pexels-photo-8761319.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Professional speaker representing Muhammet Özdemir."
+      },
+      {
+        "category": "real_estate_city",
+        "url": "https://images.pexels.com/photos/3167175/pexels-photo-3167175.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Modern urban real estate skyline for thematic backgrounds."
+      }
+    ],
+    "rules": "All images MUST use the provided URLs. DO NOT use placeholders. Keep hero overlays between 30% and 60% opacity to ensure text readability without hiding the image."
+  },
+  "accessibility_and_testing": {
+    "testing_attributes": "All interactive elements (buttons, inputs, links) MUST include data-testid attributes (e.g., data-testid='register-button').",
+    "contrast": "Ensure text contrast over images using text-shadow or gradient overlays. Gold text must have sufficient contrast against navy background."
+  },
+  "specific_instructions_for_main_agent": {
+    "1": "Use React + Tailwind CSS. Set the global background color to #0A1128 and text color to white.",
+    "2": "For the marketing frontend, build custom layouts without Shadcn containers to allow overlapping elements and creative grids.",
+    "3": "For the Admin Panel, utilize Shadcn UI components extensively to ensure rapid, accessible development of tables, dialogs, and forms.",
+    "4": "Make sure Muhammet Özdemir is highlighted prominently on the homepage, significantly larger than other speakers (e.g., span 8 out of 12 columns in a grid).",
+    "5": "Registration must be clearly marked as 'Ücretsiz' (Free).",
+    "6": "Integrate @phosphor-icons/react for high-end iconography."
+  }
+}
