@@ -973,19 +973,19 @@ async def startup():
         speakers = [
             {"name": "Muhammet Özdemir", "title": "Zirve Sahibi & Gayrimenkul Yatırım Uzmanı",
              "bio": "Türkiye'nin önde gelen gayrimenkul yatırım uzmanlarından olan Muhammet Özdemir, 15 yılı aşkın deneyimiyle arsa yatırımı konusunda binlerce yatırımcıya rehberlik etmiştir. Arsa Yatırım Zirvesi'nin kurucusu ve organizatörü olarak yatırımcılara kapsamlı eğitimler vermektedir.",
-             "image_url": "https://images.pexels.com/photos/8761319/pexels-photo-8761319.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/x4sqnjpl_muhammet%20%C3%B6zdemir.jpeg",
              "order": 0, "is_featured": True, "social_linkedin": "", "created_at": datetime.now(timezone.utc).isoformat()},
             {"name": "Büşra Kiraz", "title": "Gayrimenkul Hukuku Uzmanı",
              "bio": "Gayrimenkul hukuku alanında uzmanlaşmış avukat Büşra Kiraz, arsa tapusu yorumlama, imar durumu değerlendirmesi ve tapu işlemleri konularında binlerce danışmanlık hizmeti vermiştir.",
-             "image_url": "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/opwzx5vk_B%C3%BC%C5%9Fra%20Kiraz.jpeg",
              "order": 1, "is_featured": False, "social_linkedin": "", "created_at": datetime.now(timezone.utc).isoformat()},
             {"name": "Murat Gültekin", "title": "Bölgesel Gayrimenkul Danışmanı",
              "bio": "Yenişehir ve çevre bölgelerinde uzmanlaşmış danışman Murat Gültekin, e-İpat platformunun tanıtımcısı olarak dijital gayrimenkul işlemlerinde öncü bir rol üstlenmektedir.",
-             "image_url": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/0h2lrfqd_Murat%20G%C3%BCltekin.jpeg",
              "order": 2, "is_featured": False, "social_linkedin": "", "created_at": datetime.now(timezone.utc).isoformat()},
             {"name": "Oğuzhan Öztürk", "title": "Yatırım Danışmanı & Psikolog",
              "bio": "Gayrimenkul yatırım psikolojisi alanında çalışmalarıyla tanınan Oğuzhan Öztürk, yatırımcıların doğru kararlar almasını engelleyen faktörleri analiz ederek etkili stratejiler geliştirmektedir.",
-             "image_url": "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/irdc8yo6_O%C4%9Fuzhan%20%C3%96zt%C3%BCrk.PNG",
              "order": 3, "is_featured": False, "social_linkedin": "", "created_at": datetime.now(timezone.utc).isoformat()},
         ]
         await db.speakers.insert_many(speakers)

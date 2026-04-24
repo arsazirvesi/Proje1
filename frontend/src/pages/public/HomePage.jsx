@@ -50,7 +50,7 @@ export default function HomePage() {
 
       {/* ===== HERO (GYODER style - mobile optimized) ===== */}
       <section
-        className="relative flex items-center overflow-hidden pt-16 sm:pt-20 lg:min-h-[92vh] lg:pt-24"
+        className="relative flex items-center overflow-hidden pt-16 sm:pt-20 lg:pt-20"
         data-testid="hero-section"
       >
         {/* Subtle pattern bg */}
@@ -67,7 +67,7 @@ export default function HomePage() {
           <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-summit-accent/10 blur-3xl" />
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-16">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
             {/* Left: Text */}
             <div className="lg:col-span-7">
@@ -189,9 +189,9 @@ export default function HomePage() {
       </section>
 
       {/* ===== 3 KAYIT TÜRÜ CARDS ===== */}
-      <section className="py-20 bg-white border-t border-gray-100" data-testid="registrations-section">
+      <section className="py-12 bg-white border-t border-gray-100" data-testid="registrations-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="section-overline">Kayıt Türleri</span>
             <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Zirveye Nasıl Katılabilirsiniz?</h2>
             <p className="text-gray-600 mt-6 max-w-2xl mx-auto">
@@ -248,7 +248,7 @@ export default function HomePage() {
       </section>
 
       {/* ===== ABOUT ===== */}
-      <section className="py-20 sm:py-28 bg-summit-paper" data-testid="about-section">
+      <section className="py-12 sm:py-16 bg-summit-paper" data-testid="about-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <div>
@@ -280,7 +280,7 @@ export default function HomePage() {
 
             <div className="relative">
               <div
-                className="w-full h-80 lg:h-[480px] rounded-md overflow-hidden shadow-xl"
+                className="w-full h-72 lg:h-[380px] rounded-md overflow-hidden shadow-xl"
                 style={{
                   backgroundImage: "url(https://images.pexels.com/photos/30584407/pexels-photo-30584407.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940)",
                   backgroundSize: "cover",
@@ -305,9 +305,9 @@ export default function HomePage() {
 
       {/* ===== FEATURED SPEAKER ===== */}
       {featured && (
-        <section className="py-20 sm:py-28 bg-white" data-testid="featured-speaker-section">
+        <section className="py-12 sm:py-16 bg-white" data-testid="featured-speaker-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-14">
+            <div className="text-center mb-10">
               <span className="section-overline">Zirve Sahibi</span>
               <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Öne Çıkan Konuşmacı</h2>
             </div>
@@ -343,7 +343,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
               {others.map((sp) => (
                 <div key={sp.id} className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md" data-testid={`speaker-card-${sp.name}`}>
-                  <div className="h-48 bg-cover bg-top" style={{ backgroundImage: `url(${sp.image_url})` }} />
+                  <div className="h-64 bg-cover bg-center" style={{ backgroundImage: `url(${sp.image_url})` }} />
                   <div className="p-5">
                     <h4 className="font-heading text-summit-navy text-lg">{sp.name}</h4>
                     <p className="text-summit-navy text-xs mt-1.5 font-medium">{sp.title}</p>
@@ -362,9 +362,9 @@ export default function HomePage() {
       )}
 
       {/* ===== PROGRAM PREVIEW ===== */}
-      <section className="py-20 sm:py-28 bg-summit-paper" data-testid="program-section">
+      <section className="py-12 sm:py-16 bg-summit-paper" data-testid="program-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="section-overline">Zirve Programı</span>
             <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Günün Akışı</h2>
             <p className="text-gray-500 mt-6 text-sm">21 Mayıs 2026 · 09:00 - 15:30</p>
@@ -405,7 +405,7 @@ export default function HomePage() {
       </section>
 
       {/* ===== SPONSORS ===== */}
-      <div className="bg-white py-16 border-y border-gray-200">
+      <div className="bg-white py-10 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-center text-gray-500 text-xs uppercase tracking-[0.2em] mb-8 font-semibold">Destekçilerimiz</p>
           <div className="flex flex-wrap items-center justify-center gap-8">
@@ -435,9 +435,9 @@ export default function HomePage() {
 
       {/* ===== PAST EVENTS PREVIEW ===== */}
       {events.length > 0 && (
-        <section className="py-20 sm:py-28 bg-summit-paper" data-testid="past-events-section">
+        <section className="py-12 sm:py-16 bg-summit-paper" data-testid="past-events-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-14">
+            <div className="flex items-end justify-between mb-10">
               <div>
                 <span className="section-overline">Geçmiş Etkinlikler</span>
                 <h2 className="gyoder-section-title inline-block">Büyüyen Bir Gelenek</h2>
@@ -470,7 +470,7 @@ export default function HomePage() {
       )}
 
       {/* ===== CTA ===== */}
-      <section className="relative bg-summit-navy py-20 sm:py-28 overflow-hidden" data-testid="cta-section">
+      <section className="relative bg-summit-navy py-12 sm:py-16 overflow-hidden" data-testid="cta-section">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-white/3 blur-3xl" />
         </div>
