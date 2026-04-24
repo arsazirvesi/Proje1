@@ -48,9 +48,9 @@ export default function HomePage() {
     <div className="bg-white min-h-screen font-body">
       <Navbar />
 
-      {/* ===== HERO (GYODER style) ===== */}
+      {/* ===== HERO (GYODER style - mobile optimized) ===== */}
       <section
-        className="relative min-h-[90vh] flex items-center overflow-hidden pt-24"
+        className="relative flex items-center overflow-hidden pt-16 sm:pt-20 lg:min-h-[92vh] lg:pt-24"
         data-testid="hero-section"
       >
         {/* Subtle pattern bg */}
@@ -67,50 +67,85 @@ export default function HomePage() {
           <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-summit-accent/10 blur-3xl" />
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
             {/* Left: Text */}
             <div className="lg:col-span-7">
               {/* Date stamp */}
-              <div className="inline-flex items-center gap-3 mb-7 animate-fade-in stagger-1 opacity-0">
-                <div className="w-10 h-0.5 bg-summit-navy" />
-                <span className="text-summit-navy text-xs font-semibold uppercase tracking-[0.25em]">
+              <div className="inline-flex items-center gap-3 mb-4 sm:mb-7 animate-fade-in stagger-1 opacity-0">
+                <div className="w-8 sm:w-10 h-0.5 bg-summit-navy" />
+                <span className="text-summit-navy text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em]">
                   21 Mayıs 2026 · Perşembe
                 </span>
               </div>
 
-              <h1 className="font-heading text-summit-navy text-4xl sm:text-5xl lg:text-6xl leading-[1.1] animate-slide-up stagger-2 opacity-0">
+              <h1 className="font-heading text-summit-navy text-[2rem] sm:text-5xl lg:text-6xl leading-[1.05] animate-slide-up stagger-2 opacity-0">
                 Arsa Yatırım{" "}
                 <span className="text-summit-accent">Zirvesi</span>
                 <br />
                 2026
               </h1>
 
-              <p className="text-gray-600 text-base sm:text-lg mt-6 max-w-xl leading-relaxed animate-slide-up stagger-3 opacity-0">
-                Türkiye'nin en kapsamlı arsa yatırım buluşmasında uzman konuşmacılar, stratejik içgörüler ve güçlü networking fırsatları sizi bekliyor.
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-4 sm:mt-6 max-w-xl leading-relaxed animate-slide-up stagger-3 opacity-0">
+                Türkiye'nin en kapsamlı arsa yatırım buluşmasında uzman konuşmacılar, stratejik içgörüler ve güçlü networking fırsatları.
               </p>
 
               {/* Location pill */}
-              <div className="inline-flex items-center gap-2 mt-6 bg-white border border-gray-200 rounded-md px-4 py-2.5 shadow-sm animate-slide-up stagger-4 opacity-0">
-                <MapPin size={15} className="text-summit-navy" />
-                <span className="text-summit-navy text-sm font-medium">Hilton İstanbul Bosphorus · Zirve Salonu</span>
+              <div className="inline-flex items-center gap-2 mt-4 sm:mt-6 bg-white border border-gray-200 rounded-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm animate-slide-up stagger-4 opacity-0">
+                <MapPin size={13} className="text-summit-navy shrink-0" />
+                <span className="text-summit-navy text-xs sm:text-sm font-medium">Hilton İstanbul Bosphorus</span>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start gap-3 mt-10 animate-slide-up stagger-5 opacity-0">
-                <Link to="/ziyaretci-kaydi" className="btn-navy px-7 py-3.5 inline-flex items-center gap-2" data-testid="hero-visitor-btn">
-                  Ziyaretçi Kaydı <ArrowRight size={15} />
+              {/* Compact countdown (mobile-only visible) */}
+              <div className="lg:hidden mt-5 bg-white border border-gray-200 shadow-sm rounded-md p-4 relative overflow-hidden" data-testid="countdown-timer-mobile">
+                <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
+                <div className="flex items-center justify-between mb-3 mt-1">
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-gray-500">Zirveye Kalan</p>
+                  <Calendar size={13} className="text-summit-navy" />
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[["days", "Gün"], ["hours", "Saat"], ["minutes", "Dk"], ["seconds", "Sn"]].map(([key, label]) => (
+                    <div key={key} className="text-center bg-summit-paper rounded">
+                      <div className="font-heading text-xl sm:text-2xl font-bold text-summit-navy leading-none py-2">
+                        {String(countdown[key] ?? 0).padStart(2, "0")}
+                      </div>
+                      <div className="text-gray-500 text-[0.55rem] uppercase tracking-widest pb-1.5 font-medium">{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2 sm:gap-3 mt-5 sm:mt-8 animate-slide-up stagger-5 opacity-0">
+                <Link to="/ziyaretci-kaydi" className="btn-navy px-5 sm:px-7 py-3 sm:py-3.5 inline-flex items-center justify-center gap-2 text-sm" data-testid="hero-visitor-btn">
+                  Ziyaretçi Kaydı <ArrowRight size={14} />
                 </Link>
-                <Link to="/fuar-stant-kaydi" className="btn-outline-navy px-7 py-3.5" data-testid="hero-exhibitor-btn">
+                <Link to="/fuar-stant-kaydi" className="btn-outline-navy px-5 sm:px-7 py-3 sm:py-3.5 text-center text-sm" data-testid="hero-exhibitor-btn">
                   Stant Başvurusu
                 </Link>
-                <Link to="/konusmaci-basvuru" className="btn-outline-navy px-7 py-3.5" data-testid="hero-speaker-btn">
+                <Link to="/konusmaci-basvuru" className="btn-outline-navy px-5 sm:px-7 py-3 sm:py-3.5 text-center text-sm" data-testid="hero-speaker-btn">
                   Konuşmacı / Sponsor
                 </Link>
               </div>
+
+              {/* At-a-glance stats (mobile only) */}
+              <div className="lg:hidden mt-5 grid grid-cols-3 gap-2" data-testid="hero-stats-mobile">
+                {[["4", "Konuşmacı"], ["12", "Oturum"], ["600+", "Katılımcı"]].map(([n, l]) => (
+                  <div key={l} className="bg-white border border-gray-200 rounded-md py-3 text-center">
+                    <div className="font-heading text-summit-navy text-xl font-bold">{n}</div>
+                    <div className="text-gray-500 text-[0.6rem] uppercase tracking-widest mt-0.5 font-medium">{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Live indicator (mobile) */}
+              <div className="lg:hidden mt-4 flex items-center gap-2 text-gray-600 text-[0.65rem] justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="font-medium uppercase tracking-widest">Kayıtlar Açık · Katılım Ücretsiz</span>
+              </div>
             </div>
 
-            {/* Right: Countdown card */}
-            <div className="lg:col-span-5">
+            {/* Right: Countdown card (desktop only) */}
+            <div className="hidden lg:block lg:col-span-5">
               <div className="bg-white border border-gray-200 shadow-xl p-7 rounded-md relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
                 <div className="flex items-center justify-between mb-6 mt-1">
