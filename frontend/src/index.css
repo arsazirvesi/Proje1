@@ -1,15 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --navy: #1A2744;
-  --paper: #F7F8FA;
-  --surface: #EEF0F5;
-  --gold: #C9941A;
-  --gold-light: #E8AE20;
+  --navy: #0F2C5C;
+  --paper: #FAFAFA;
+  --surface: #F3F4F6;
+  --gold: #F39200;          /* AK Parti turuncu */
+  --gold-light: #FFCD00;    /* AK Parti sarı */
+  --gold-dark: #D97706;
   --text: #111827;
   --text-secondary: #4B5563;
   --text-muted: #9CA3AF;
@@ -22,23 +23,32 @@ body {
   margin: 0;
   background-color: #FFFFFF;
   color: #111827;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', 'Work Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01", "ss03";
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
-  color: #1A2744;
+  font-family: 'Bebas Neue', 'Oswald', sans-serif;
+  color: #0F2C5C;
+  letter-spacing: 0.02em;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #F7F8FA; }
-::-webkit-scrollbar-thumb { background: #C9941A; border-radius: 3px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F3F4F6; }
+::-webkit-scrollbar-thumb { background: #F39200; border-radius: 3px; }
 
-/* Gold text */
+/* Gold/Orange gradient text */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #C9941A, #E8AE20);
+  background: linear-gradient(135deg, #F39200 0%, #FFCD00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-orange-gradient {
+  background: linear-gradient(135deg, #F39200 0%, #FFCD00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -50,10 +60,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+  box-shadow: 0 12px 40px rgba(15,44,92,0.10);
 }
 
-/* Glass (for hero overlay) */
+/* Glass */
 .glass {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(12px);
@@ -64,10 +74,6 @@ h1, h2, h3, h4, h5, h6 {
   height: 1px;
   background: linear-gradient(90deg, transparent, #E5E7EB, transparent);
 }
-
-/* Ticker */
-.ticker-wrap { overflow: hidden; white-space: nowrap; }
-.ticker-content { display: inline-block; animation: ticker 40s linear infinite; }
 
 /* Stagger delays */
 .stagger-1 { animation-delay: 0.1s; }
@@ -86,36 +92,52 @@ h1, h2, h3, h4, h5, h6 {
   border-left: 3px solid transparent;
 }
 .admin-nav-item:hover {
-  background: rgba(201,148,26,0.08);
-  border-left-color: rgba(201,148,26,0.4);
-  color: #1A2744;
+  background: rgba(243,146,0,0.08);
+  border-left-color: rgba(243,146,0,0.4);
+  color: #0F2C5C;
 }
 .admin-nav-item.active {
-  background: rgba(201,148,26,0.12);
-  border-left-color: #C9941A;
-  color: #1A2744;
+  background: rgba(243,146,0,0.12);
+  border-left-color: #F39200;
+  color: #0F2C5C;
 }
 
-/* Admin table - Light theme */
+/* Admin table */
 .admin-table th {
-  background: #F7F8FA;
+  background: #FAFAFA;
   color: #4B5563;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 12px 16px;
   border-bottom: 1px solid #E5E7EB;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
 }
 .admin-table td {
   padding: 12px 16px;
   border-bottom: 1px solid #F1F3F5;
-  color: #1A2744;
+  color: #0F2C5C;
   font-size: 0.875rem;
 }
-.admin-table tr:hover td { background: rgba(201,148,26,0.04); }
+.admin-table tr:hover td { background: rgba(243,146,0,0.04); }
+
+/* Drawer animation */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.drawer-enter {
+  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Corporate top accent bar */
+.corp-accent-bar {
+  height: 3px;
+  background: linear-gradient(90deg, #F39200 0%, #FFCD00 50%, #F39200 100%);
+}
 
 @layer base {
   body { background-color: #ffffff; color: #111827; }
+  h1, h2, h3, h4 { font-family: 'Bebas Neue', 'Oswald', sans-serif; letter-spacing: 0.02em; }
 }

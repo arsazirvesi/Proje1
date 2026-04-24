@@ -486,14 +486,34 @@ async def send_broadcast(body: EmailBroadcast, background_tasks: BackgroundTasks
         docs = await db.guests.find({}, {"email": 1, "name": 1}).to_list(1000)
     else:
         raise HTTPException(400, "Geçersiz alıcı tipi")
+
+    sendgrid_configured = bool(os.environ.get("SENDGRID_API_KEY", "").strip())
+    if not sendgrid_configured:
+        return {
+            "message": "SendGrid API anahtarı yapılandırılmamış. Gönderim yapılamadı.",
+            "count": 0,
+            "queued": len(docs),
+            "sendgrid_configured": False,
+        }
+
     for doc in docs:
         background_tasks.add_task(send_email, doc["email"], body.subject, body.content)
-    return {"message": f"{len(docs)} alıcıya email gönderildi", "count": len(docs)}
+    return {
+        "message": f"{len(docs)} alıcıya email kuyruğa alındı",
+        "count": len(docs),
+        "sendgrid_configured": True,
+    }
 
 @api_router.post("/admin/email/individual")
 async def send_individual_email(body: EmailIndividual, background_tasks: BackgroundTasks, admin: dict = Depends(get_admin_user)):
+    sendgrid_configured = bool(os.environ.get("SENDGRID_API_KEY", "").strip())
+    if not sendgrid_configured:
+        return {
+            "message": "SendGrid API anahtarı yapılandırılmamış. Gönderim yapılamadı.",
+            "sendgrid_configured": False,
+        }
     background_tasks.add_task(send_email, body.to_email, body.subject, body.content)
-    return {"message": "Email gönderildi"}
+    return {"message": "Email kuyruğa alındı", "sendgrid_configured": True}
 
 
 # ==================== ADMIN SPEAKERS ====================

@@ -3,21 +3,24 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "summit-navy": "#1A2744",
-        "summit-paper": "#F7F8FA",
-        "summit-surface": "#EEF0F5",
+        "summit-navy": "#0F2C5C",
+        "summit-paper": "#FAFAFA",
+        "summit-surface": "#F3F4F6",
         "summit-card": "#FFFFFF",
-        "summit-gold": "#C9941A",
-        "summit-gold-light": "#E8AE20",
-        "summit-gold-dark": "#A07410",
+        "summit-gold": "#F39200",
+        "summit-gold-light": "#FFCD00",
+        "summit-gold-dark": "#D97706",
+        "summit-orange": "#F39200",
+        "summit-yellow": "#FFCD00",
         "summit-text": "#111827",
         "summit-text-secondary": "#4B5563",
         "summit-text-muted": "#9CA3AF",
         "summit-border": "#E5E7EB",
       },
       fontFamily: {
-        heading: ['"Playfair Display"', "serif"],
-        body: ["Outfit", "sans-serif"],
+        heading: ['"Bebas Neue"', '"Oswald"', "sans-serif"],
+        display: ['"Bebas Neue"', "sans-serif"],
+        body: ['Inter', '"Work Sans"', "sans-serif"],
       },
       backgroundImage: {
         "hero-gradient":
