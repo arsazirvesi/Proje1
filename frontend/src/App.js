@@ -2,6 +2,9 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
+import Analytics from "./components/Analytics";
+import CookieConsent from "./components/CookieConsent";
+
 import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
 import ProgramPage from "./pages/public/ProgramPage";
@@ -12,6 +15,7 @@ import SpeakerApplicationPage from "./pages/public/SpeakerApplicationPage";
 import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
+import PrivacyPage from "./pages/public/PrivacyPage";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -43,6 +47,7 @@ function App() {
     <AuthProvider>
       <div className="App">
         <BrowserRouter>
+          <Analytics />
           <Routes>
             {/* Public */}
             <Route path="/" element={<HomePage />} />
@@ -51,6 +56,7 @@ function App() {
             <Route path="/etkinlikler" element={<PastEventsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
+            <Route path="/gizlilik" element={<PrivacyPage />} />
 
             {/* Registration Forms */}
             <Route path="/ziyaretci-kaydi" element={<VisitorRegisterPage />} />
@@ -83,6 +89,7 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <CookieConsent />
         </BrowserRouter>
       </div>
     </AuthProvider>

@@ -57,7 +57,10 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-white/50 text-xs">© 2026 Arsa Yatırım Zirvesi. Tüm hakları saklıdır.</p>
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <p className="text-white/50 text-xs">© 2026 Arsa Yatırım Zirvesi. Tüm hakları saklıdır.</p>
+            <Link to="/gizlilik" className="text-white/60 hover:text-summit-accent text-xs transition-colors">Gizlilik & Çerez Politikası</Link>
+          </div>
           <div className="flex items-center gap-2 text-white/50 text-xs flex-wrap justify-center">
             <span>Ana Sponsor:</span>
             <span className="text-summit-accent font-semibold">Fırat İnşaat & Gayrimenkul</span>
