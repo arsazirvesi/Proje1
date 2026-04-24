@@ -1,41 +1,26 @@
-/* App-level overrides */
-.App {
-  background-color: #0A1128;
-  min-height: 100vh;
-  font-family: 'Outfit', sans-serif;
-}
-
-/* Countdown box */
-.countdown-box {
-  background: rgba(212,175,55,0.08);
-  border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 12px;
-  padding: 16px 24px;
-  text-align: center;
-  min-width: 80px;
-}
-
-.countdown-number {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #D4AF37;
-  line-height: 1;
-}
-
-.countdown-label {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.65rem;
-  color: #B0B8C8;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-top: 6px;
-}
-
-/* Gold button */
+/* ===== BUTTONS ===== */
 .btn-gold {
-  background: linear-gradient(135deg, #D4AF37, #FDB813);
-  color: #0A1128;
+  background: linear-gradient(135deg, #C9941A, #E8AE20);
+  color: #FFFFFF;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 14px rgba(201,148,26,0.3);
+}
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(201,148,26,0.45);
+}
+
+.btn-navy {
+  background: #1A2744;
+  color: #FFFFFF;
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   padding: 12px 32px;
@@ -46,48 +31,90 @@
   text-decoration: none;
   display: inline-block;
 }
-
-.btn-gold:hover {
+.btn-navy:hover {
+  background: #243560;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212,175,55,0.4);
+  box-shadow: 0 8px 24px rgba(26,39,68,0.3);
 }
 
-/* Outline gold button */
-.btn-outline-gold {
+.btn-outline-navy {
   background: transparent;
-  color: #D4AF37;
+  color: #1A2744;
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   padding: 12px 32px;
   border-radius: 8px;
-  border: 1px solid rgba(212,175,55,0.5);
+  border: 2px solid #1A2744;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
 }
-
-.btn-outline-gold:hover {
-  background: rgba(212,175,55,0.1);
-  border-color: #D4AF37;
+.btn-outline-navy:hover {
+  background: #1A2744;
+  color: #FFFFFF;
   transform: translateY(-2px);
 }
 
-/* Section header */
-.section-overline {
+.btn-outline-gold {
+  background: transparent;
+  color: #C9941A;
   font-family: 'Outfit', sans-serif;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-  color: #D4AF37;
-  margin-bottom: 12px;
-  display: block;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 8px;
+  border: 2px solid #C9941A;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-outline-gold:hover {
+  background: #C9941A;
+  color: white;
+  transform: translateY(-2px);
 }
 
-/* Featured speaker badge */
+/* ===== COUNTDOWN ===== */
+.countdown-box {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: center;
+  min-width: 76px;
+}
+.countdown-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1;
+}
+.countdown-label {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 6px;
+}
+
+/* ===== SECTION LABELS ===== */
+.section-overline {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: #C9941A;
+  margin-bottom: 10px;
+  display: block;
+  font-weight: 600;
+}
+
+/* ===== FEATURED BADGE ===== */
 .featured-badge {
-  background: linear-gradient(135deg, #D4AF37, #FDB813);
-  color: #0A1128;
+  background: linear-gradient(135deg, #C9941A, #E8AE20);
+  color: #FFFFFF;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 3px 10px;
@@ -96,62 +123,44 @@
   letter-spacing: 0.1em;
 }
 
-/* Admin table */
-.admin-table th {
-  background: rgba(212,175,55,0.08);
-  color: #D4AF37;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(212,175,55,0.15);
-}
-
-.admin-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  color: #B0B8C8;
-  font-size: 0.875rem;
-}
-
-.admin-table tr:hover td {
-  background: rgba(212,175,55,0.03);
-}
-
-/* Blog card */
+/* ===== BLOG CARD ===== */
 .blog-card {
-  background: #14213D;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
   cursor: pointer;
 }
-
 .blog-card:hover {
-  border-color: rgba(212,175,55,0.4);
+  border-color: #C9941A;
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.10);
 }
 
-/* Sponsor tier badge */
+/* ===== SPONSOR TIERS ===== */
 .tier-main {
-  background: linear-gradient(135deg, #D4AF37, #FDB813);
-  color: #0A1128;
+  background: linear-gradient(135deg, #C9941A, #E8AE20);
+  color: #FFFFFF;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 4px;
   text-transform: uppercase;
 }
-
 .tier-organization {
-  background: rgba(212,175,55,0.15);
-  color: #D4AF37;
+  background: #EEF0F5;
+  color: #1A2744;
   font-size: 0.65rem;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 4px;
   text-transform: uppercase;
+}
+
+/* ===== INPUT FOCUS ===== */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #C9941A !important;
+  box-shadow: 0 0 0 3px rgba(201,148,26,0.12);
 }

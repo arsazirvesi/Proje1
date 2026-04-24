@@ -3,15 +3,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "summit-navy": "#0A1128",
-        "summit-paper": "#14213D",
-        "summit-surface": "#1E2A4F",
-        "summit-gold": "#D4AF37",
-        "summit-gold-light": "#FDB813",
-        "summit-gold-dark": "#997A00",
-        "summit-text": "#FFFFFF",
-        "summit-text-secondary": "#B0B8C8",
-        "summit-text-muted": "#7A849C",
+        "summit-navy": "#1A2744",
+        "summit-paper": "#F7F8FA",
+        "summit-surface": "#EEF0F5",
+        "summit-card": "#FFFFFF",
+        "summit-gold": "#C9941A",
+        "summit-gold-light": "#E8AE20",
+        "summit-gold-dark": "#A07410",
+        "summit-text": "#111827",
+        "summit-text-secondary": "#4B5563",
+        "summit-text-muted": "#9CA3AF",
+        "summit-border": "#E5E7EB",
       },
       fontFamily: {
         heading: ['"Playfair Display"', "serif"],
