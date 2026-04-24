@@ -26,6 +26,24 @@
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
 
+        <!-- Google Consent Mode v2 (KVKK/GDPR) - defaults to denied -->
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          (function(){
+            var stored = null;
+            try { stored = localStorage.getItem('cookie_consent'); } catch(e) {}
+            var granted = stored === 'accepted';
+            gtag('consent', 'default', {
+              'ad_storage': granted ? 'granted' : 'denied',
+              'ad_user_data': granted ? 'granted' : 'denied',
+              'ad_personalization': granted ? 'granted' : 'denied',
+              'analytics_storage': granted ? 'granted' : 'denied',
+              'wait_for_update': 500
+            });
+          })();
+        </script>
+
         <!-- Google Tag Manager -->
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -33,6 +51,17 @@
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
         })(window,document,'script','dataLayer','GTM-TCJD6TXD');</script>
         <!-- End Google Tag Manager -->
+
+        <!-- Google Analytics 4 (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2BZWL02BBS"></script>
+        <script>
+          gtag('js', new Date());
+          gtag('config', 'G-2BZWL02BBS', {
+            'anonymize_ip': true,
+            'send_page_view': true
+          });
+        </script>
+        <!-- End Google Analytics 4 -->
     </head>
     <body>
         <!-- Google Tag Manager (noscript) -->
