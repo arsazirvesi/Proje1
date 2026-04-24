@@ -788,6 +788,48 @@ async def startup():
         ])
         logger.info("Past events seeded")
 
+    # Seed blog post
+    if await db.blog_posts.count_documents({}) == 0:
+        await db.blog_posts.insert_many([
+            {
+                "title": "2026 Yılında Arsa Yatırımı: Fırsatlar ve Riskler",
+                "slug": "2026-arsa-yatirimi-firsatlar-riskler",
+                "content": "Türkiye gayrimenkul piyasası 2026 yılında önemli bir dönüşüm geçirmektedir. Faiz oranlarındaki değişimler, kentsel dönüşüm projeleri ve altyapı yatırımları arsa değerlerini doğrudan etkilemektedir.\n\nÖzellikle İstanbul çevresindeki bölgelerde imar planı değişikliklerinin yarattığı fırsatlar, yatırımcıların dikkatini çekmektedir. Ancak her yatırım fırsatı gibi, arsa yatırımında da dikkat edilmesi gereken önemli noktalar bulunmaktadır.\n\nDoğru konumda, doğru zamanda yapılan bir arsa yatırımı, uzun vadede yüksek getiri sağlayabilir. Bu değerlendirmeyi yapabilmek için imar durumu, tapu kaydı, altyapı olanakları ve bölgesel gelişim projelerinin detaylı analiz edilmesi gerekmektedir.\n\nArsa Yatırım Zirvesi 2026'da tüm bu konuları uzman konuşmacılarımızla detaylı şekilde ele alacağız.",
+                "excerpt": "Türkiye'de 2026 arsa yatırımı fırsatları ve dikkat edilmesi gereken kritik noktalar.",
+                "image_url": "https://images.pexels.com/photos/3167175/pexels-photo-3167175.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+                "author": "Muhammet Özdemir",
+                "tags": ["arsa", "yatırım", "2026", "gayrimenkul"],
+                "is_published": True,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "title": "Arsa Tapusunu Doğru Okumak: Tarla mı, Arsa mı?",
+                "slug": "arsa-tapusunu-dogru-okumak",
+                "content": "Gayrimenkul yatırımlarında en kritik belgelerden biri tapu senetidir. Tapu üzerindeki bilgilerin doğru okunması, yatırım kararını büyük ölçüde etkiler.\n\nTarla ile arsa arasındaki temel fark nedir? Tarla, tarım arazisi olarak kayıtlı ve üzerine yapı inşa edilmesi kısıtlı olan taşınmazlardır. Arsa ise imar planı içinde kalan ve üzerine yapı yapılabilecek parselleri ifade eder.\n\nİmar durumu, tapunun üzerinde görülebilen ve hangi amaçlarla kullanılabileceğini belirleyen önemli bir bilgidir. Yatırım yapmadan önce ilgili belediyeden imar durumu belgesi alınması büyük önem taşır.\n\n21 Mayıs 2026 tarihinde gerçekleşecek Arsa Yatırım Zirvesi'nde Büşra Kiraz, bu konuları tüm detaylarıyla ele alacaktır.",
+                "excerpt": "Tapu belgelerini doğru okumak ve tarla ile arsa arasındaki hukuki farkları anlamak.",
+                "image_url": "https://images.pexels.com/photos/26202153/pexels-photo-26202153.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+                "author": "Büşra Kiraz",
+                "tags": ["tapu", "arsa", "hukuk", "imar"],
+                "is_published": True,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+        ])
+        logger.info("Blog posts seeded")
+
+    # Seed banner
+    if await db.banners.count_documents({}) == 0:
+        await db.banners.insert_one({
+            "title": "Arsa Yatırım Zirvesi 2026",
+            "subtitle": "21 Mayıs 2026 | Hilton İstanbul Bosphorus | Ücretsiz Katılım",
+            "image_url": "",
+            "cta_text": "Ücretsiz Kaydol",
+            "cta_url": "/uyelik",
+            "is_active": True,
+            "order": 0,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        logger.info("Banner seeded")
+
     # Write test credentials
     creds_path = Path("/app/memory/test_credentials.md")
     creds_path.parent.mkdir(parents=True, exist_ok=True)

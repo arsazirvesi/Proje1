@@ -61,7 +61,7 @@ export default function HomePage() {
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
         data-testid="hero-section"
         style={{
-          backgroundImage: "url(https://images.unsplash.com/photo-1646523773249-23fea630a7a5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjByZWFsJTIwZXN0YXRlJTIwYnVpbGRpbmclMjBnb2xkJTIwYW5kJTIwbmF2eXxlbnwwfHx8fDE3NzcwMjY1MjZ8MA&ixlib=rb-4.1.0&q=85)",
+          backgroundImage: "url(https://images.pexels.com/photos/32990165/pexels-photo-32990165.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940)",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
