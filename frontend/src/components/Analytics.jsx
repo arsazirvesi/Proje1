@@ -1,45 +1,38 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-const GA_ID = process.env.REACT_APP_GA_MEASUREMENT_ID;
-
-function loadGoogleAnalytics() {
-  if (!GA_ID || window.__gaLoaded) return;
-  window.__gaLoaded = true;
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
-
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { window.dataLayer.push(arguments); };
-  window.gtag("js", new Date());
-  window.gtag("config", GA_ID, { anonymize_ip: true });
-}
-
+/**
+ * Analytics helper for Google Tag Manager (GTM-TCJD6TXD).
+ *
+ * - GTM base snippet is loaded in /public/index.html (head + body noscript).
+ * - This component pushes SPA route changes + consent state into dataLayer
+ *   so GTM-based tags (GA4, Facebook Pixel, etc.) can react.
+ */
 export default function Analytics() {
   const location = useLocation();
 
+  // Push consent state on mount + whenever it changes
   useEffect(() => {
-    const consent = localStorage.getItem("cookie_consent");
-    if (consent === "accepted") {
-      loadGoogleAnalytics();
-    }
+    window.dataLayer = window.dataLayer || [];
 
-    const onConsent = () => {
-      if (localStorage.getItem("cookie_consent") === "accepted") {
-        loadGoogleAnalytics();
-      }
+    const pushConsent = () => {
+      const consent = localStorage.getItem("cookie_consent");
+      window.dataLayer.push({
+        event: "cookie_consent_update",
+        consent_state: consent || "pending",
+      });
     };
-    window.addEventListener("cookie-consent-change", onConsent);
-    return () => window.removeEventListener("cookie-consent-change", onConsent);
+
+    pushConsent();
+    window.addEventListener("cookie-consent-change", pushConsent);
+    return () => window.removeEventListener("cookie-consent-change", pushConsent);
   }, []);
 
-  // Track SPA route changes
+  // Push virtual page view on route change (SPA tracking)
   useEffect(() => {
-    if (!GA_ID || !window.gtag) return;
-    window.gtag("event", "page_view", {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "page_view",
       page_path: location.pathname + location.search,
       page_location: window.location.href,
       page_title: document.title,
