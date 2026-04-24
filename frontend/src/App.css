@@ -1,34 +1,157 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* App-level overrides */
+.App {
+  background-color: #0A1128;
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+/* Countdown box */
+.countdown-box {
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 12px;
+  padding: 16px 24px;
+  text-align: center;
+  min-width: 80px;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.countdown-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #D4AF37;
+  line-height: 1;
 }
 
-.App-link {
-    color: #61dafb;
+.countdown-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem;
+  color: #B0B8C8;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 6px;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Gold button */
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37, #FDB813);
+  color: #0A1128;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212,175,55,0.4);
+}
+
+/* Outline gold button */
+.btn-outline-gold {
+  background: transparent;
+  color: #D4AF37;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(212,175,55,0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(212,175,55,0.1);
+  border-color: #D4AF37;
+  transform: translateY(-2px);
+}
+
+/* Section header */
+.section-overline {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: #D4AF37;
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* Featured speaker badge */
+.featured-badge {
+  background: linear-gradient(135deg, #D4AF37, #FDB813);
+  color: #0A1128;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Admin table */
+.admin-table th {
+  background: rgba(212,175,55,0.08);
+  color: #D4AF37;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(212,175,55,0.15);
+}
+
+.admin-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: #B0B8C8;
+  font-size: 0.875rem;
+}
+
+.admin-table tr:hover td {
+  background: rgba(212,175,55,0.03);
+}
+
+/* Blog card */
+.blog-card {
+  background: #14213D;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.blog-card:hover {
+  border-color: rgba(212,175,55,0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+/* Sponsor tier badge */
+.tier-main {
+  background: linear-gradient(135deg, #D4AF37, #FDB813);
+  color: #0A1128;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.tier-organization {
+  background: rgba(212,175,55,0.15);
+  color: #D4AF37;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }
