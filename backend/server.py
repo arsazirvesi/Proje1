@@ -994,7 +994,7 @@ async def startup():
     # Seed sponsors
     if await db.sponsors.count_documents({}) == 0:
         await db.sponsors.insert_many([
-            {"name": "Fırat İnşaat & Gayrimenkul", "logo_url": "", "website_url": "", "tier": "main", "order": 0, "created_at": datetime.now(timezone.utc).isoformat()},
+            {"name": "FIRAT CONSTRUCTION YAPI A.Ş.", "logo_url": "", "website_url": "", "tier": "main", "order": 0, "created_at": datetime.now(timezone.utc).isoformat()},
             {"name": "JNR Fuarcılık", "logo_url": "", "website_url": "", "tier": "organization", "order": 1, "created_at": datetime.now(timezone.utc).isoformat()},
         ])
         logger.info("Sponsors seeded")

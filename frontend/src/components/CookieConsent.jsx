@@ -47,7 +47,7 @@ export default function CookieConsent() {
               <p className="text-gray-600 text-xs leading-relaxed">
                 Deneyiminizi iyileştirmek ve site istatistiklerini toplamak için çerez kullanıyoruz. "Kabul Et" butonuna tıklayarak çerez kullanımını onaylamış olursunuz.
                 {" "}
-                <a href="/gizlilik" className="text-summit-navy font-semibold underline hover:text-summit-navy-dark">Detaylı bilgi</a>
+                <a href="/kvkk" className="text-summit-navy font-semibold underline hover:text-summit-navy-dark">KVKK metni</a>
               </p>
             </div>
           </div>

@@ -16,6 +16,7 @@ import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
 import PrivacyPage from "./pages/public/PrivacyPage";
+import KvkkPage from "./pages/public/KvkkPage";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -57,6 +58,7 @@ function App() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/gizlilik" element={<PrivacyPage />} />
+            <Route path="/kvkk" element={<KvkkPage />} />
 
             {/* Registration Forms */}
             <Route path="/ziyaretci-kaydi" element={<VisitorRegisterPage />} />

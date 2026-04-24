@@ -59,11 +59,12 @@ export default function Footer() {
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-4 flex-wrap justify-center">
             <p className="text-white/50 text-xs">© 2026 Arsa Yatırım Zirvesi. Tüm hakları saklıdır.</p>
-            <Link to="/gizlilik" className="text-white/60 hover:text-summit-accent text-xs transition-colors">Gizlilik & Çerez Politikası</Link>
+            <Link to="/gizlilik" className="text-white/60 hover:text-summit-accent text-xs transition-colors">Gizlilik</Link>
+            <Link to="/kvkk" className="text-white/60 hover:text-summit-accent text-xs transition-colors">KVKK</Link>
           </div>
           <div className="flex items-center gap-2 text-white/50 text-xs flex-wrap justify-center">
             <span>Ana Sponsor:</span>
-            <span className="text-summit-accent font-semibold">Fırat İnşaat & Gayrimenkul</span>
+            <span className="text-summit-accent font-semibold">FIRAT CONSTRUCTION YAPI A.Ş.</span>
             <span>|</span>
             <span>Organizasyon:</span>
             <span className="text-summit-accent font-semibold">JNR Fuarcılık</span>

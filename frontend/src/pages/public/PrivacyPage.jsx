@@ -26,7 +26,7 @@ export default function PrivacyPage() {
                 <Lock size={18} /> Veri Sorumlusu
               </h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Bu site, Arsa Yatırım Zirvesi 2026 organizasyonu adına Fırat İnşaat & Gayrimenkul tarafından yönetilmektedir. Kişisel verileriniz 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında işlenir.
+                Bu site, Arsa Yatırım Zirvesi 2026 organizasyonu adına <strong>FIRAT CONSTRUCTION YAPI A.Ş.</strong> tarafından yönetilmektedir. Kişisel verileriniz 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında işlenir. Detaylı KVKK aydınlatma metni için <a href="/kvkk" className="text-summit-navy font-semibold underline">KVKK Sayfamızı</a> inceleyebilirsiniz.
               </p>
             </section>
 
