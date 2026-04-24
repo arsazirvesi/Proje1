@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 /**
- * Analytics helper - works with GTM (GTM-TCJD6TXD) + GA4 (G-2BZWL02BBS).
+ * Analytics helper - works with GTM (GTM-TCJD6TXD) + GA4 (G-K6R7RGP5S9).
  * Both are loaded directly in /public/index.html so they work on any deployment.
  *
  * This component handles:
@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom";
  * - Consent mode updates when user clicks Accept / Reject
  */
 
-const GA_ID = "G-2BZWL02BBS";
+const GA_ID = "G-K6R7RGP5S9";
 
 function updateConsent(granted) {
   if (typeof window.gtag !== "function") return;
