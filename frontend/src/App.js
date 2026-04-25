@@ -25,6 +25,7 @@ import MemberList from "./pages/admin/MemberList";
 import GuestList from "./pages/admin/GuestList";
 import ExhibitorList from "./pages/admin/ExhibitorList";
 import SpeakerApplicationList from "./pages/admin/SpeakerApplicationList";
+import AdminUsers from "./pages/admin/AdminUsers";
 import SpeakerManagement from "./pages/admin/SpeakerManagement";
 import SponsorManagement from "./pages/admin/SponsorManagement";
 import BannerManagement from "./pages/admin/BannerManagement";
@@ -84,6 +85,7 @@ function App() {
               <Route path="blog" element={<BlogManagement />} />
               <Route path="etkinlikler" element={<EventManagement />} />
               <Route path="program" element={<ProgramManagement />} />
+              <Route path="kullanicilar" element={<AdminUsers />} />
               {/* Backward compat for old URLs */}
               <Route path="uyeler" element={<Navigate to="/admin/bulten-uyeleri" replace />} />
               <Route path="misafirler" element={<Navigate to="/admin/ziyaretciler" replace />} />

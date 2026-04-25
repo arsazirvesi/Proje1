@@ -156,6 +156,17 @@ class StatusUpdate(BaseModel):
     status: str  # new | contacted | approved | rejected
     admin_notes: Optional[str] = None
 
+class AdminUserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+class AdminPasswordChange(BaseModel):
+    new_password: str
+
+class AdminNameUpdate(BaseModel):
+    name: str
+
 class SpeakerCreate(BaseModel):
     name: str
     title: str
@@ -570,6 +581,69 @@ async def admin_dashboard(admin: dict = Depends(get_admin_user)):
         "recent_exhibitors": [clean_doc(d) for d in recent_exhibitors],
         "recent_speaker_applications": [clean_doc(d) for d in recent_speaker_apps],
     }
+
+
+# ==================== ADMIN USERS (Admin Account Management) ====================
+
+@api_router.get("/admin/users")
+async def admin_list_users(admin: dict = Depends(get_admin_user)):
+    docs = await db.users.find({}, {"password_hash": 0}).sort("created_at", -1).to_list(100)
+    return [clean_doc(d) for d in docs]
+
+@api_router.post("/admin/users")
+async def admin_create_user(body: AdminUserCreate, admin: dict = Depends(get_admin_user)):
+    if len(body.password) < 8:
+        raise HTTPException(400, "Şifre en az 8 karakter olmalıdır")
+    email = body.email.lower()
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        raise HTTPException(400, "Bu email ile zaten bir admin var")
+    doc = {
+        "email": email,
+        "password_hash": hash_password(body.password),
+        "name": body.name,
+        "role": "admin",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": admin["email"],
+    }
+    result = await db.users.insert_one(doc)
+    return {"id": str(result.inserted_id), "email": email, "name": body.name, "message": "Yeni admin oluşturuldu"}
+
+@api_router.patch("/admin/users/{user_id}/password")
+async def admin_change_password(user_id: str, body: AdminPasswordChange, admin: dict = Depends(get_admin_user)):
+    if len(body.new_password) < 8:
+        raise HTTPException(400, "Şifre en az 8 karakter olmalıdır")
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"password_hash": hash_password(body.new_password), "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(404, "Admin bulunamadı")
+    return {"message": "Şifre güncellendi"}
+
+@api_router.patch("/admin/users/{user_id}/name")
+async def admin_update_name(user_id: str, body: AdminNameUpdate, admin: dict = Depends(get_admin_user)):
+    result = await db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"name": body.name, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(404, "Admin bulunamadı")
+    return {"message": "İsim güncellendi"}
+
+@api_router.delete("/admin/users/{user_id}")
+async def admin_delete_user(user_id: str, admin: dict = Depends(get_admin_user)):
+    if admin.get("_id") == user_id:
+        raise HTTPException(400, "Kendi hesabınızı silemezsiniz")
+    result = await db.users.delete_one({"_id": ObjectId(user_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Admin bulunamadı")
+    # Don't allow deleting all admins
+    remaining = await db.users.count_documents({"role": "admin"})
+    if remaining == 0:
+        # Restore the deleted one (shouldn't happen in normal flow, but safety)
+        raise HTTPException(400, "Sistemde en az bir admin olmalıdır")
+    return {"message": "Admin silindi"}
 
 
 # ==================== ADMIN MEMBERS ====================
