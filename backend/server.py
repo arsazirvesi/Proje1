@@ -1076,18 +1076,17 @@ async def startup():
     # Seed program
     if await db.program.count_documents({}) == 0:
         sessions = [
-            {"time_start": "09:00", "time_end": "09:30", "title": "Kayıt ve Ağırlama", "speaker_name": None, "session_type": "networking", "description": "Katılımcı kaydı ve kahvaltı ikramı", "order": 0},
-            {"time_start": "09:30", "time_end": "09:45", "title": "Açılış Konuşması", "speaker_name": "Muhammet Özdemir", "session_type": "talk", "description": "Zirve sahibi Muhammet Özdemir'in açılış konuşması", "order": 1},
-            {"time_start": "09:45", "time_end": "10:15", "title": "2026'da Arsa mı? Daire mi? Altın mı? Döviz mi?", "speaker_name": "Muhammet Özdemir", "session_type": "talk", "description": "Farklı yatırım araçlarının karşılaştırmalı analizi ve 2026 için en karlı yatırım seçenekleri", "order": 2},
-            {"time_start": "10:15", "time_end": "10:45", "title": "Arsa Tapusu Nasıl Yorumlanır? Tarla mı, Arsa mı?", "speaker_name": "Büşra Kiraz", "session_type": "talk", "description": "Tapu belgeleri üzerindeki kritik bilgiler ve hukuki farklar", "order": 3},
-            {"time_start": "10:45", "time_end": "11:15", "title": "Yenişehir Bölge Sunumu", "speaker_name": "Murat Gültekin", "session_type": "talk", "description": "Yenişehir ve çevre bölgelerinin yatırım potansiyeli ve gelişim projeleri", "order": 4},
-            {"time_start": "11:15", "time_end": "11:45", "title": "İmar Durumu Nasıl Değerlendirilir?", "speaker_name": "Büşra Kiraz", "session_type": "talk", "description": "İmar planları, yapılaşma koşulları ve yatırım kararında imar durumunun rolü", "order": 5},
-            {"time_start": "11:45", "time_end": "12:15", "title": "Gayrimenkul Yatırım Psikolojisi", "speaker_name": "Oğuzhan Öztürk", "session_type": "talk", "description": "Yatırım kararlarını etkileyen psikolojik faktörler ve başarılı yatırımcı psikolojisi", "order": 6},
-            {"time_start": "12:15", "time_end": "13:15", "title": "Öğle Yemeği & Networking", "speaker_name": None, "session_type": "break", "description": "Öğle yemeği arası ve networking fırsatı", "order": 7},
-            {"time_start": "13:15", "time_end": "13:45", "title": "Atasözleri ve Hadisler Işığında Arsa Yatırımı", "speaker_name": "Muhammet Özdemir", "session_type": "talk", "description": "Kültürel ve dini perspektiften arsa yatırımının önemi", "order": 8},
-            {"time_start": "13:45", "time_end": "14:40", "title": "e-İpat Platform Tanıtımı", "speaker_name": "Murat Gültekin", "session_type": "talk", "description": "Dijital gayrimenkul işlem platformu e-İpat'ın özellikleri ve kullanım avantajları", "order": 9},
-            {"time_start": "14:40", "time_end": "15:15", "title": "Panel: 10 Milyon TL'm Olsa Nereye Yatırım Yapardım?", "speaker_name": "Tüm Konuşmacılar", "session_type": "panel", "description": "Soru-Cevap + Konuşmacıların 10 milyon TL'lik yatırım değerlendirmeleri", "order": 10},
-            {"time_start": "15:15", "time_end": "15:30", "title": "Kapanış Töreni", "speaker_name": "Muhammet Özdemir", "session_type": "talk", "description": "Zirvenin kapanış konuşması", "order": 11},
+            {"time_start": "12:00", "time_end": "12:10", "title": "Açılış ve Hoşgeldiniz", "speaker_name": "Muhammet Özdemir", "session_type": "session", "description": "", "order": 0},
+            {"time_start": "12:10", "time_end": "12:30", "title": "Konut Bitti, Sıra Toprakta: 2026 Fırsat Haritası", "speaker_name": "Murat Gültekin", "session_type": "session", "description": "", "order": 1},
+            {"time_start": "12:30", "time_end": "12:50", "title": "Yenişehir Sunumu", "speaker_name": "Muhammet Özdemir", "session_type": "session", "description": "", "order": 2},
+            {"time_start": "12:50", "time_end": "13:05", "title": "Kahve Arası", "speaker_name": "", "session_type": "break", "description": "", "order": 3},
+            {"time_start": "13:05", "time_end": "13:25", "title": "Arsa Yatırımında: Bütçe? Zaman? Beklenti?", "speaker_name": "Oğuzhan Öztürk", "session_type": "session", "description": "", "order": 4},
+            {"time_start": "13:25", "time_end": "13:45", "title": "Arazi Yatırım Semineri", "speaker_name": "Muhammet Özdemir", "session_type": "session", "description": "", "order": 5},
+            {"time_start": "13:45", "time_end": "14:05", "title": "Arazide Hukuk", "speaker_name": "Büşra Kiraz", "session_type": "session", "description": "", "order": 6},
+            {"time_start": "14:05", "time_end": "14:40", "title": "e-İpat Platform Tanıtımı", "speaker_name": "Muhammet Özdemir", "session_type": "session", "description": "", "order": 7},
+            {"time_start": "14:40", "time_end": "15:15", "title": "Soru - Cevap + 10 Milyon TL Değerlendirmeleri", "speaker_name": "Tüm Katılımcılar", "session_type": "panel", "description": "", "order": 8},
+            {"time_start": "15:15", "time_end": "15:30", "title": "Plaket Takdimi ve Kapanış", "speaker_name": "Muhammet Özdemir", "session_type": "session", "description": "", "order": 9},
+            {"time_start": "15:30", "time_end": "19:00", "title": "8. Gayrimenkul Proje Yatırım Fuarı - Stand Ziyaretleri", "speaker_name": "", "session_type": "networking", "description": "", "order": 10},
         ]
         for s in sessions:
             s["created_at"] = datetime.now(timezone.utc).isoformat()
