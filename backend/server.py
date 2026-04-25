@@ -1060,6 +1060,7 @@ async def startup():
             {"name": "Oğuzhan Öztürk", "title": "Re/Max Master · Broker",
              "bio": "Re/Max Master'ın sahibi ve broker'ı. Uluslararası portföy yönetimi, yabancıya satış ve alıcı-satıcı psikolojisi alanlarında uzmanlaşmıştır.",
              "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/irdc8yo6_O%C4%9Fuzhan%20%C3%96zt%C3%BCrk.PNG",
+             "image_position": "center 35%",
              "order": 3, "is_featured": False, "social_linkedin": "", "created_at": datetime.now(timezone.utc).isoformat()},
         ]
         await db.speakers.insert_many(speakers)
