@@ -81,9 +81,8 @@ memory/test_credentials.md
 # Mobile development
 android-sdk/-e 
 # Environment and credential files
-.env
-.env.*
-*.env
+# NOTE: backend/.env and frontend/.env MUST be committed for Emergent deployment.
+# They will be auto-updated with production values at deploy time.
 credentials.json
 *.pem
 *.key
