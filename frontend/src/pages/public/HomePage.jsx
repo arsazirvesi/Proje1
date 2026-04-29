@@ -32,6 +32,7 @@ export default function HomePage() {
   const [program, setProgram] = useState([]);
   const [events, setEvents] = useState([]);
   const [sponsors, setSponsors] = useState([]);
+  const [registerOpen, setRegisterOpen] = useState(false);
   const countdown = useCountdown("2026-05-21T09:00:00+03:00");
 
   useEffect(() => {
@@ -112,16 +113,53 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2 sm:gap-3 mt-5 sm:mt-8 animate-slide-up stagger-5 opacity-0">
-                <Link to="/ziyaretci-kaydi" className="btn-navy px-5 sm:px-7 py-3 sm:py-3.5 inline-flex items-center justify-center gap-2 text-sm" data-testid="hero-visitor-btn">
-                  Ziyaretçi Kaydı <ArrowRight size={14} />
-                </Link>
-                <Link to="/fuar-stant-kaydi" className="btn-outline-navy px-5 sm:px-7 py-3 sm:py-3.5 text-center text-sm" data-testid="hero-exhibitor-btn">
-                  Stant Başvurusu
-                </Link>
-                <Link to="/konusmaci-basvuru" className="btn-outline-navy px-5 sm:px-7 py-3 sm:py-3.5 text-center text-sm" data-testid="hero-speaker-btn">
-                  Konuşmacı / Sponsor
-                </Link>
+              <div className="flex flex-col items-stretch gap-2.5 mt-5 sm:mt-8 animate-slide-up stagger-5 opacity-0" data-testid="hero-register-cta">
+                {!registerOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setRegisterOpen(true)}
+                    className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 sm:py-4 bg-summit-accent text-summit-navy font-heading font-bold text-base sm:text-lg rounded-md shadow-lg hover:shadow-xl hover:bg-summit-accent/90 transition-all overflow-hidden"
+                    data-testid="hero-register-btn"
+                  >
+                    <span className="absolute -left-1 top-0 h-full w-1.5 bg-summit-navy" />
+                    <span className="relative z-10">Kayıt Yap</span>
+                    <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
+                    <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors pointer-events-none" />
+                  </button>
+                )}
+
+                {registerOpen && (
+                  <div className="bg-white border-2 border-summit-accent rounded-md p-3 sm:p-4 shadow-xl animate-slide-up" data-testid="hero-register-options">
+                    <div className="flex items-center justify-between mb-3 px-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-summit-navy">Kayıt Türünüzü Seçin</p>
+                      <button
+                        type="button"
+                        onClick={() => setRegisterOpen(false)}
+                        className="text-gray-400 hover:text-summit-navy text-xs"
+                        aria-label="Kapat"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <Link to="/ziyaretci-kaydi" className="group flex items-center gap-3 px-4 py-3 bg-summit-navy text-white rounded-md hover:bg-summit-navy/90 transition-colors" data-testid="hero-visitor-btn">
+                        <Ticket size={18} className="shrink-0" />
+                        <span className="text-sm font-semibold">Ziyaretçi Kaydı</span>
+                        <ArrowRight size={14} className="ml-auto opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                      <Link to="/fuar-stant-kaydi" className="group flex items-center gap-3 px-4 py-3 border-2 border-summit-navy text-summit-navy rounded-md hover:bg-summit-navy hover:text-white transition-colors" data-testid="hero-exhibitor-btn">
+                        <Building2 size={18} className="shrink-0" />
+                        <span className="text-sm font-semibold">Stant Başvurusu</span>
+                        <ArrowRight size={14} className="ml-auto opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                      <Link to="/konusmaci-basvuru" className="group flex items-center gap-3 px-4 py-3 border-2 border-summit-navy text-summit-navy rounded-md hover:bg-summit-navy hover:text-white transition-colors" data-testid="hero-speaker-btn">
+                        <Mic2 size={18} className="shrink-0" />
+                        <span className="text-sm font-semibold">Konuşmacı / Sponsor</span>
+                        <ArrowRight size={14} className="ml-auto opacity-70 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* At-a-glance stats (mobile only) */}
