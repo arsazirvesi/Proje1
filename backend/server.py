@@ -231,6 +231,35 @@ class EmailIndividual(BaseModel):
     content: str
 
 
+class SeoSettings(BaseModel):
+    site_name: Optional[str] = None
+    site_url: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    keywords: Optional[str] = None
+    author: Optional[str] = None
+    og_title: Optional[str] = None
+    og_description: Optional[str] = None
+    og_image: Optional[str] = None
+    twitter_title: Optional[str] = None
+    twitter_description: Optional[str] = None
+    twitter_image: Optional[str] = None
+    twitter_card: Optional[str] = "summary_large_image"
+    google_site_verification: Optional[str] = None
+    canonical_url: Optional[str] = None
+    robots: Optional[str] = "index, follow"
+    favicon_url: Optional[str] = None
+    # Event-specific JSON-LD fields
+    event_name: Optional[str] = None
+    event_start_date: Optional[str] = None
+    event_end_date: Optional[str] = None
+    event_location_name: Optional[str] = None
+    event_location_address: Optional[str] = None
+    event_organizer: Optional[str] = None
+    event_organizer_url: Optional[str] = None
+    custom_head_html: Optional[str] = None
+
+
 # --- Email Helper ---
 def send_email(to: str, subject: str, html: str) -> bool:
     api_key = os.environ.get("SENDGRID_API_KEY", "")
@@ -340,6 +369,14 @@ async def get_events():
 async def get_program():
     docs = await db.program.find({}).sort("order", 1).to_list(50)
     return [clean_doc(d) for d in docs]
+
+
+@api_router.get("/seo")
+async def get_seo_settings():
+    doc = await db.seo_settings.find_one({"key": "main"})
+    if not doc:
+        return {}
+    return clean_doc(doc)
 
 
 # ==================== REGISTRATION ====================
@@ -977,6 +1014,26 @@ async def admin_delete_event(event_id: str, admin: dict = Depends(get_admin_user
     return {"message": "Etkinlik silindi"}
 
 
+@api_router.get("/admin/seo")
+async def admin_get_seo(admin: dict = Depends(get_admin_user)):
+    doc = await db.seo_settings.find_one({"key": "main"})
+    if not doc:
+        return {}
+    return clean_doc(doc)
+
+@api_router.put("/admin/seo")
+async def admin_update_seo(body: SeoSettings, admin: dict = Depends(get_admin_user)):
+    update = {k: v for k, v in body.model_dump().items() if v is not None}
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.seo_settings.update_one(
+        {"key": "main"},
+        {"$set": update, "$setOnInsert": {"key": "main", "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    doc = await db.seo_settings.find_one({"key": "main"})
+    return clean_doc(doc)
+
+
 # ==================== ADMIN PROGRAM ====================
 
 @api_router.get("/admin/program")
@@ -1011,6 +1068,46 @@ async def admin_delete_session(session_id: str, admin: dict = Depends(get_admin_
 # ==================== APP SETUP ====================
 
 app.include_router(api_router)
+
+
+# Dynamic SEO endpoints (also exposed under /api for ingress routing)
+@api_router.get("/seo/robots.txt", response_class=Response)
+async def robots_txt_api():
+    seo = await db.seo_settings.find_one({"key": "main"}) or {}
+    site_url = (seo.get("site_url") or "https://arsayatirimzirvesi.com").rstrip("/")
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin\n"
+        "Disallow: /admin/\n"
+        f"\nSitemap: {site_url}/sitemap.xml\n"
+    )
+    return Response(content=body, media_type="text/plain")
+
+
+@api_router.get("/seo/sitemap.xml", response_class=Response)
+async def sitemap_xml_api():
+    seo = await db.seo_settings.find_one({"key": "main"}) or {}
+    site_url = (seo.get("site_url") or "https://arsayatirimzirvesi.com").rstrip("/")
+    paths = [
+        "/", "/konusmacilar", "/program", "/etkinlikler", "/blog",
+        "/ziyaretci-kaydi", "/fuar-stant-kaydi", "/konusmaci-basvuru",
+        "/kvkk", "/gizlilik",
+    ]
+    blog_docs = await db.blog_posts.find({"is_published": True}).to_list(200)
+    for b in blog_docs:
+        slug = b.get("slug")
+        if slug:
+            paths.append(f"/blog/{slug}")
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    items = "".join(
+        f"<url><loc>{site_url}{p}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>{'1.0' if p == '/' else '0.8'}</priority></url>"
+        for p in paths
+    )
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{items}</urlset>'
+    return Response(content=xml, media_type="application/xml")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -1153,6 +1250,39 @@ async def startup():
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         logger.info("Banner seeded")
+
+    # Seed SEO settings
+    if await db.seo_settings.count_documents({"key": "main"}) == 0:
+        await db.seo_settings.insert_one({
+            "key": "main",
+            "site_name": "Arsa Yatırım Zirvesi",
+            "site_url": "https://arsayatirimzirvesi.com",
+            "title": "Arsa Yatırım Zirvesi 2026 | 21 Mayıs · Hilton İstanbul Bosphorus",
+            "description": "Türkiye'nin en kapsamlı arsa yatırımı zirvesi. 21 Mayıs 2026, Hilton İstanbul Bosphorus. Uzman konuşmacılar, networking, ücretsiz katılım. Hemen kaydolun.",
+            "keywords": "arsa yatırım zirvesi, arsa yatırımı, arsa yatırım 2026, gayrimenkul yatırımı, arazi yatırımı, istanbul arsa, arsa zirvesi, arsa yatırım fuarı, gayrimenkul zirvesi, hilton bosphorus zirve",
+            "author": "FIRAT CONSTRUCTION YAPI A.Ş.",
+            "og_title": "Arsa Yatırım Zirvesi 2026 — 21 Mayıs · Hilton İstanbul Bosphorus",
+            "og_description": "Türkiye'nin en kapsamlı arsa yatırımı buluşması. Uzman konuşmacılar, sektör liderleri, fuar ve networking. Ücretsiz kayıt.",
+            "og_image": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/x4sqnjpl_muhammet%20%C3%B6zdemir.jpeg",
+            "twitter_title": "Arsa Yatırım Zirvesi 2026",
+            "twitter_description": "Türkiye'nin en kapsamlı arsa yatırımı zirvesi · 21 Mayıs 2026 · Hilton İstanbul Bosphorus",
+            "twitter_image": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/x4sqnjpl_muhammet%20%C3%B6zdemir.jpeg",
+            "twitter_card": "summary_large_image",
+            "google_site_verification": "",
+            "canonical_url": "https://arsayatirimzirvesi.com/",
+            "robots": "index, follow",
+            "favicon_url": "",
+            "event_name": "Arsa Yatırım Zirvesi 2026",
+            "event_start_date": "2026-05-21T09:00:00+03:00",
+            "event_end_date": "2026-05-21T19:00:00+03:00",
+            "event_location_name": "Hilton İstanbul Bosphorus",
+            "event_location_address": "Cumhuriyet Cd. No:50, 34367 Şişli/İstanbul",
+            "event_organizer": "FIRAT CONSTRUCTION YAPI A.Ş.",
+            "event_organizer_url": "https://firatconstruction.com",
+            "custom_head_html": "",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("SEO settings seeded")
 
     # Write test credentials
     creds_path = Path("/app/memory/test_credentials.md")

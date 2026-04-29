@@ -1,9 +1,11 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 import Analytics from "./components/Analytics";
 import CookieConsent from "./components/CookieConsent";
+import SEOHead from "./components/SEOHead";
 
 import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
@@ -32,6 +34,7 @@ import BannerManagement from "./pages/admin/BannerManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import ProgramManagement from "./pages/admin/ProgramManagement";
+import AdminSEO from "./pages/admin/AdminSEO";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -46,11 +49,13 @@ function AdminRoute({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <div className="App">
-        <BrowserRouter>
-          <Analytics />
-          <Routes>
+    <HelmetProvider>
+      <AuthProvider>
+        <div className="App">
+          <BrowserRouter>
+            <Analytics />
+            <SEOHead />
+            <Routes>
             {/* Public */}
             <Route path="/" element={<HomePage />} />
             <Route path="/konusmacilar" element={<SpeakersPage />} />
@@ -86,6 +91,7 @@ function App() {
               <Route path="etkinlikler" element={<EventManagement />} />
               <Route path="program" element={<ProgramManagement />} />
               <Route path="kullanicilar" element={<AdminUsers />} />
+              <Route path="seo" element={<AdminSEO />} />
               {/* Backward compat for old URLs */}
               <Route path="uyeler" element={<Navigate to="/admin/bulten-uyeleri" replace />} />
               <Route path="misafirler" element={<Navigate to="/admin/ziyaretciler" replace />} />
@@ -97,6 +103,7 @@ function App() {
         </BrowserRouter>
       </div>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 
