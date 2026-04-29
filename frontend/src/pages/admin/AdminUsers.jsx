@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 import { Trash2, Plus, Lock, X, UserCircle, ShieldCheck, Eye, EyeOff } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();

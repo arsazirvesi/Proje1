@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { API_BASE as API } from "../../lib/api";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const empty = { time_start: "", time_end: "", title: "", speaker_name: "", session_type: "talk", description: "", order: 0 };
 const types = [["talk","Sunum"], ["panel","Panel"], ["break","Ara / Yemek"], ["networking","Networking"]];
 

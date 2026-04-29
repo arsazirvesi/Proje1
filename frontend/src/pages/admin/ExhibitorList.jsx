@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Trash2, Search, Download, Send, X, Eye, Filter } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tümü", cls: "" },

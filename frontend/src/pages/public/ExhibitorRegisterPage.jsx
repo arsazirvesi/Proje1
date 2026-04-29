@@ -3,8 +3,7 @@ import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { CheckCircle, User, Mail, Phone, Building2, Globe, FileText, Hash, Briefcase, Layers } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 const standOptions = [
   { value: "6m2", label: "6 m² Standart Stant" },

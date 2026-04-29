@@ -4,8 +4,7 @@ import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Calendar, Tag, ChevronRight } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState([]);

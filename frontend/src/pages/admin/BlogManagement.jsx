@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, X, Eye, EyeOff } from "lucide-react";
+import { API_BASE as API } from "../../lib/api";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const empty = { title: "", slug: "", content: "", excerpt: "", image_url: "", author: "Admin", tags: [], is_published: false };
 
 export default function BlogManagement() {

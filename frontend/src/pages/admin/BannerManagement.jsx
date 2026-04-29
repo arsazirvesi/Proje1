@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, X, Image } from "lucide-react";
+import { API_BASE as API } from "../../lib/api";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const empty = { title: "", subtitle: "", image_url: "", cta_text: "", cta_url: "", is_active: true, order: 0 };
 
 export default function BannerManagement() {

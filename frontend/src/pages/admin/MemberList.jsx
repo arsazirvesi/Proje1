@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Trash2, Mail, Search, Download, Send, X } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 export default function MemberList() {
   const [members, setMembers] = useState([]);

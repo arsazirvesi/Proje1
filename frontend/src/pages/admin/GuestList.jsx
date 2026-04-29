@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tümü", cls: "" },
@@ -90,7 +89,7 @@ export default function GuestList() {
     const a = document.createElement("a"); a.href = url; a.download = "ziyaretciler.csv"; a.click();
   };
 
-  const BACKEND = process.env.REACT_APP_BACKEND_URL;
+  const BACKEND = API.replace(/\/api$/, "");
 
   const counts = STATUS_OPTIONS.reduce((acc, o) => {
     acc[o.value] = o.value === "all" ? items.length : items.filter(i => (i.status || "new") === o.value).length;

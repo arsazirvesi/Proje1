@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { Users, UserCheck, FileText, Calendar, Ticket, Building2, Megaphone, Mail, ArrowRight } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);

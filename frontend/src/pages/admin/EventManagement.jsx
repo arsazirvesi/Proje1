@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { API_BASE as API } from "../../lib/api";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const empty = { title: "", year: new Date().getFullYear(), venue: "", description: "", image_url: "", attendee_count: "", speakers_count: "" };
 
 export default function EventManagement() {

@@ -3,8 +3,7 @@ import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { CheckCircle, User, Mail, Phone, Building2, Globe, FileText, Megaphone, Award, MessageSquare } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 const applicationTypes = [
   { value: "konusmaci", label: "Konuşmacı", desc: "Bireysel oturum / sunum yapmak istiyorum" },

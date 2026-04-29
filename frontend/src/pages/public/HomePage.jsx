@@ -4,8 +4,7 @@ import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2 } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 function useCountdown(targetDate) {
   const [timeLeft, setTimeLeft] = useState({});

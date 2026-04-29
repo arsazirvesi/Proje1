@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { API_BASE as API } from "../../lib/api";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const empty = { name: "", logo_url: "", website_url: "", tier: "standard", order: 0 };
 const tiers = [["main","Ana Sponsor"], ["organization","Organizasyon Sponsoru"], ["standard","Standart Sponsor"]];
 

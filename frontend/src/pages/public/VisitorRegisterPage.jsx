@@ -3,8 +3,7 @@ import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { CheckCircle, User, Mail, Phone, Building2, MapPin, Briefcase, FileText, ExternalLink, Ticket } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 const interestAreas = [
   { value: "arsa", label: "Arsa Yatırımı" },
@@ -48,7 +47,7 @@ export default function VisitorRegisterPage() {
   };
 
   if (result) {
-    const badgeUrl = `${process.env.REACT_APP_BACKEND_URL}${result.badge_url}`;
+    const badgeUrl = `${API.replace(/\/api$/, "")}${result.badge_url}`;
     return (
       <div className="bg-white min-h-screen font-body">
         <Navbar />

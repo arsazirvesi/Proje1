@@ -3,8 +3,7 @@ import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Clock, Users, Coffee, MessageSquare } from "lucide-react";
-
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+import { API_BASE as API } from "../../lib/api";
 
 const SESSION_TYPES = {
   talk: { label: "Sunum", color: "bg-summit-gold text-summit-navy", border: "border-l-summit-gold" },
