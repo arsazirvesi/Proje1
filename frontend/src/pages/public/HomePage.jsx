@@ -84,12 +84,12 @@ export default function HomePage() {
                 className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1500ms] ease-in-out"
                 style={{
                   backgroundImage: `url(${s.image_url})`,
-                  opacity: i === activeSlide ? 0.18 : 0,
+                  opacity: i === activeSlide ? 0.45 : 0,
                 }}
               />
             ))}
             {/* Soft white wash to keep text readable */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/55 via-white/50 to-white/65" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/35 to-white/55" />
           </div>
         )}
 
@@ -425,7 +425,7 @@ export default function HomePage() {
               <div
                 className="w-full h-72 lg:h-[380px] rounded-md overflow-hidden shadow-xl"
                 style={{
-                  backgroundImage: "url(https://images.pexels.com/photos/30584407/pexels-photo-30584407.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940)",
+                  backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg)",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}

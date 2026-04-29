@@ -42,7 +42,7 @@ export default function PastEventsPage() {
                 <div className="relative h-52 overflow-hidden">
                   <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${ev.image_url || "https://images.pexels.com/photos/26202153/pexels-photo-26202153.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"})` }}
+                    style={{ backgroundImage: `url(${ev.image_url || "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg"})` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-summit-navy/80 to-transparent" />
                   <div className="absolute top-4 left-4">

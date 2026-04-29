@@ -1240,15 +1240,15 @@ async def startup():
         await db.past_events.insert_many([
             {"title": "1. Arsa Yatırım Zirvesi", "year": 2023, "venue": "Crowne Plaza Istanbul Asia",
              "description": "İlk Arsa Yatırım Zirvesi'nde 200'den fazla yatırımcı bir araya geldi. Arsa yatırımının temellerini ele alan bu zirve büyük ilgi gördü.",
-             "image_url": "https://images.pexels.com/photos/26202153/pexels-photo-26202153.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg",
              "attendee_count": 200, "speakers_count": 5, "created_at": datetime.now(timezone.utc).isoformat()},
             {"title": "2. Arsa Yatırım Zirvesi", "year": 2024, "venue": "Wyndham Grand Istanbul",
              "description": "İkinci zirve 400'ü aşkın katılımcıyla gerçekleşti. Bölgesel analizler ve hukuki konular detaylı olarak ele alındı.",
-             "image_url": "https://images.pexels.com/photos/3167175/pexels-photo-3167175.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/z1u1rnwp_6bdf1e85-1707-4c85-80f4-e6574aab5a21.jpeg",
              "attendee_count": 400, "speakers_count": 8, "created_at": datetime.now(timezone.utc).isoformat()},
             {"title": "3. Arsa Yatırım Zirvesi", "year": 2025, "venue": "Marriott Istanbul Asia",
              "description": "Üçüncü zirve 600'den fazla yatırımcının katılımıyla en büyük buluşmaya ev sahipliği yaptı. Dijital araçlar gündemin merkezindeydi.",
-             "image_url": "https://images.pexels.com/photos/30584407/pexels-photo-30584407.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+             "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/8bgxo9f8_34e45b4c-4905-428c-8be7-bb3fc0c4ed87.jpeg",
              "attendee_count": 600, "speakers_count": 12, "created_at": datetime.now(timezone.utc).isoformat()},
         ])
         logger.info("Past events seeded")
@@ -1261,7 +1261,7 @@ async def startup():
                 "slug": "2026-arsa-yatirimi-firsatlar-riskler",
                 "content": "Türkiye gayrimenkul piyasası 2026 yılında önemli bir dönüşüm geçirmektedir. Faiz oranlarındaki değişimler, kentsel dönüşüm projeleri ve altyapı yatırımları arsa değerlerini doğrudan etkilemektedir.\n\nÖzellikle İstanbul çevresindeki bölgelerde imar planı değişikliklerinin yarattığı fırsatlar, yatırımcıların dikkatini çekmektedir. Ancak her yatırım fırsatı gibi, arsa yatırımında da dikkat edilmesi gereken önemli noktalar bulunmaktadır.\n\nDoğru konumda, doğru zamanda yapılan bir arsa yatırımı, uzun vadede yüksek getiri sağlayabilir. Bu değerlendirmeyi yapabilmek için imar durumu, tapu kaydı, altyapı olanakları ve bölgesel gelişim projelerinin detaylı analiz edilmesi gerekmektedir.\n\nArsa Yatırım Zirvesi 2026'da tüm bu konuları uzman konuşmacılarımızla detaylı şekilde ele alacağız.",
                 "excerpt": "Türkiye'de 2026 arsa yatırımı fırsatları ve dikkat edilmesi gereken kritik noktalar.",
-                "image_url": "https://images.pexels.com/photos/3167175/pexels-photo-3167175.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+                "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/z1u1rnwp_6bdf1e85-1707-4c85-80f4-e6574aab5a21.jpeg",
                 "author": "Muhammet Özdemir",
                 "tags": ["arsa", "yatırım", "2026", "gayrimenkul"],
                 "is_published": True,
@@ -1272,7 +1272,7 @@ async def startup():
                 "slug": "arsa-tapusunu-dogru-okumak",
                 "content": "Gayrimenkul yatırımlarında en kritik belgelerden biri tapu senetidir. Tapu üzerindeki bilgilerin doğru okunması, yatırım kararını büyük ölçüde etkiler.\n\nTarla ile arsa arasındaki temel fark nedir? Tarla, tarım arazisi olarak kayıtlı ve üzerine yapı inşa edilmesi kısıtlı olan taşınmazlardır. Arsa ise imar planı içinde kalan ve üzerine yapı yapılabilecek parselleri ifade eder.\n\nİmar durumu, tapunun üzerinde görülebilen ve hangi amaçlarla kullanılabileceğini belirleyen önemli bir bilgidir. Yatırım yapmadan önce ilgili belediyeden imar durumu belgesi alınması büyük önem taşır.\n\n21 Mayıs 2026 tarihinde gerçekleşecek Arsa Yatırım Zirvesi'nde Büşra Kiraz, bu konuları tüm detaylarıyla ele alacaktır.",
                 "excerpt": "Tapu belgelerini doğru okumak ve tarla ile arsa arasındaki hukuki farkları anlamak.",
-                "image_url": "https://images.pexels.com/photos/26202153/pexels-photo-26202153.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+                "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg",
                 "author": "Büşra Kiraz",
                 "tags": ["tapu", "arsa", "hukuk", "imar"],
                 "is_published": True,
@@ -1295,17 +1295,12 @@ async def startup():
         })
         logger.info("Banner seeded")
 
-    # Seed hero slides (3 photos)
+    # Seed hero slides (1 photo - real event)
     if await db.hero_slides.count_documents({}) == 0:
         slides = [
-            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg",
-             "title": "Zirveden", "order": 0, "is_active": True,
-             "created_at": datetime.now(timezone.utc).isoformat()},
-            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/z1u1rnwp_6bdf1e85-1707-4c85-80f4-e6574aab5a21.jpeg",
-             "title": "Katılımcılar", "order": 1, "is_active": True,
-             "created_at": datetime.now(timezone.utc).isoformat()},
-            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/8bgxo9f8_34e45b4c-4905-428c-8be7-bb3fc0c4ed87.jpeg",
-             "title": "Panel", "order": 2, "is_active": True,
+            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/ukxr6ozq_IMG_4962.jpeg",
+             "title": "Yenişehir Detaylı Sunum · FIRAT",
+             "order": 0, "is_active": True,
              "created_at": datetime.now(timezone.utc).isoformat()},
         ]
         await db.hero_slides.insert_many(slides)
