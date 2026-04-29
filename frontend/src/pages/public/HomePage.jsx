@@ -185,6 +185,86 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ===== SPEAKERS (moved up - prominent on mobile) ===== */}
+      {speakers.length > 0 && (
+        <section className="py-12 sm:py-16 bg-white border-t border-gray-100" data-testid="speakers-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <span className="section-overline">Konuşmacılar</span>
+              <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Zirvenin Uzman İsimleri</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {speakers.map((sp) => (
+                <div
+                  key={sp.id}
+                  className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
+                  data-testid={`speaker-card-${sp.name}`}
+                >
+                  <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
+                  <div className="p-5 flex-1 flex flex-col">
+                    <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
+                    <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
+                    {sp.bio && (
+                      <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link to="/konusmacilar" className="btn-outline-navy px-7 py-3 inline-flex items-center gap-2">
+                Tüm Konuşmacı Detayları <ChevronRight size={15} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== PROGRAM PREVIEW (moved up) ===== */}
+      <section className="py-12 sm:py-16 bg-summit-paper" data-testid="program-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="section-overline">Zirve Programı</span>
+            <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Günün Akışı</h2>
+            <p className="text-gray-500 mt-6 text-sm">21 Mayıs 2026 · 12:00 - 19:00</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {program.map((session, i) => (
+              <div
+                key={session.id}
+                className={`bg-white border border-gray-200 p-5 card-hover shadow-sm rounded-md border-l-4 ${
+                  session.session_type === "panel" ? "border-l-purple-500" :
+                  session.session_type === "break" || session.session_type === "networking" ? "border-l-gray-300" :
+                  "border-l-summit-navy"
+                }`}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-summit-navy text-xs font-mono font-semibold bg-summit-navy/8 px-2 py-1 rounded">
+                    {session.time_start}
+                  </span>
+                  <span className="text-gray-400 text-xs">→</span>
+                  <span className="text-gray-500 text-xs font-mono">{session.time_end}</span>
+                </div>
+                <h4 className="font-heading text-summit-navy text-base leading-snug">{session.title}</h4>
+                {session.speaker_name && (
+                  <p className="text-summit-navy text-xs mt-2 font-medium">{session.speaker_name}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link to="/program" className="btn-navy px-8 py-3">
+              Tüm Programı Gör
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ===== 3 KAYIT TÜRÜ CARDS ===== */}
       <section className="py-12 bg-white border-t border-gray-100" data-testid="registrations-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -296,86 +376,6 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SPEAKERS (equal grid - no featured) ===== */}
-      {speakers.length > 0 && (
-        <section className="py-12 sm:py-16 bg-white" data-testid="speakers-section">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <span className="section-overline">Konuşmacılar</span>
-              <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Zirvenin Uzman İsimleri</h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {speakers.map((sp) => (
-                <div
-                  key={sp.id}
-                  className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
-                  data-testid={`speaker-card-${sp.name}`}
-                >
-                  <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
-                    <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
-                    {sp.bio && (
-                      <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mt-8">
-              <Link to="/konusmacilar" className="btn-outline-navy px-7 py-3 inline-flex items-center gap-2">
-                Tüm Konuşmacı Detayları <ChevronRight size={15} />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ===== PROGRAM PREVIEW ===== */}
-      <section className="py-12 sm:py-16 bg-summit-paper" data-testid="program-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <span className="section-overline">Zirve Programı</span>
-            <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Günün Akışı</h2>
-            <p className="text-gray-500 mt-6 text-sm">21 Mayıs 2026 · 09:00 - 15:30</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {program.map((session, i) => (
-              <div
-                key={session.id}
-                className={`bg-white border border-gray-200 p-5 card-hover shadow-sm rounded-md border-l-4 ${
-                  session.session_type === "panel" ? "border-l-purple-500" :
-                  session.session_type === "break" || session.session_type === "networking" ? "border-l-gray-300" :
-                  "border-l-summit-navy"
-                }`}
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-summit-navy text-xs font-mono font-semibold bg-summit-navy/8 px-2 py-1 rounded">
-                    {session.time_start}
-                  </span>
-                  <span className="text-gray-400 text-xs">→</span>
-                  <span className="text-gray-500 text-xs font-mono">{session.time_end}</span>
-                </div>
-                <h4 className="font-heading text-summit-navy text-base leading-snug">{session.title}</h4>
-                {session.speaker_name && (
-                  <p className="text-summit-navy text-xs mt-2 font-medium">{session.speaker_name}</p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-10">
-            <Link to="/program" className="btn-navy px-8 py-3">
-              Tüm Programı Gör
-            </Link>
           </div>
         </div>
       </section>
