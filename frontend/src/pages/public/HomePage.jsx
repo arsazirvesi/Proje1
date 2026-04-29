@@ -84,7 +84,7 @@ export default function HomePage() {
                 className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1500ms] ease-in-out"
                 style={{
                   backgroundImage: `url(${s.image_url})`,
-                  opacity: i === activeSlide ? 0.45 : 0,
+                  opacity: i === activeSlide ? (typeof s.opacity === "number" ? s.opacity / 100 : 0.45) : 0,
                 }}
               />
             ))}

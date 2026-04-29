@@ -7,7 +7,7 @@ export default function HeroSlidesManagement() {
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ image_url: "", title: "", order: 0, is_active: true });
+  const [form, setForm] = useState({ image_url: "", title: "", order: 0, is_active: true, opacity: 45 });
   const [editing, setEditing] = useState(null);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
@@ -40,7 +40,7 @@ export default function HeroSlidesManagement() {
         await axios.post(`${API}/admin/hero-slides`, form, { withCredentials: true });
         setMsg("Slide eklendi");
       }
-      setForm({ image_url: "", title: "", order: 0, is_active: true });
+      setForm({ image_url: "", title: "", order: 0, is_active: true, opacity: 45 });
       setShowAdd(false);
       setEditing(null);
       load();
@@ -67,6 +67,7 @@ export default function HeroSlidesManagement() {
       title: slide.title || "",
       order: slide.order || 0,
       is_active: slide.is_active !== false,
+      opacity: typeof slide.opacity === "number" ? slide.opacity : 45,
     });
     setShowAdd(true);
   };
@@ -104,7 +105,7 @@ export default function HeroSlidesManagement() {
   const cancelForm = () => {
     setShowAdd(false);
     setEditing(null);
-    setForm({ image_url: "", title: "", order: 0, is_active: true });
+    setForm({ image_url: "", title: "", order: 0, is_active: true, opacity: 45 });
   };
 
   return (
@@ -178,6 +179,32 @@ export default function HeroSlidesManagement() {
               />
             </div>
             <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                Şeffaflık (Opacity): <span className="text-summit-navy font-bold">%{form.opacity}</span>
+                <span className="text-gray-400 font-normal ml-2">
+                  ({form.opacity < 25 ? "Çok şeffaf" : form.opacity < 50 ? "Şeffaf" : form.opacity < 75 ? "Yarı net" : "Net"})
+                </span>
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={form.opacity}
+                onChange={(e) => setForm(p => ({ ...p, opacity: parseInt(e.target.value, 10) }))}
+                className="w-full accent-summit-navy"
+                data-testid="slide-opacity-slider"
+              />
+              <div className="flex justify-between text-[0.65rem] text-gray-400 mt-1">
+                <span>0% (görünmez)</span>
+                <span>50%</span>
+                <span>100% (tam net)</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-1.5">
+                Önerilen: 35-55%. Çok yüksek değerlerde başlık metni okunmayabilir.
+              </p>
+            </div>
+            <div className="md:col-span-2">
               <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
@@ -192,11 +219,21 @@ export default function HeroSlidesManagement() {
 
           {form.image_url && (
             <div className="mt-4">
-              <p className="text-xs text-gray-500 mb-2">Önizleme:</p>
-              <div
-                className="w-full h-40 bg-cover bg-center rounded-lg border border-gray-200"
-                style={{ backgroundImage: `url(${form.image_url})` }}
-              />
+              <p className="text-xs text-gray-500 mb-2">Önizleme (sitede şu şekilde görünecek):</p>
+              <div className="relative w-full h-48 rounded-lg border border-gray-200 overflow-hidden bg-summit-paper">
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${form.image_url})`, opacity: (form.opacity || 0) / 100 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/35 to-white/55" />
+                <div className="relative z-10 p-5 h-full flex flex-col justify-center">
+                  <p className="text-xs uppercase tracking-widest text-summit-navy/70 font-semibold">21 Mayıs 2026</p>
+                  <h3 className="font-heading text-summit-navy text-2xl font-bold leading-tight mt-1">
+                    Arsa Yatırım <span className="text-summit-gold">Zirvesi</span>
+                  </h3>
+                  <p className="text-gray-600 text-xs mt-2">Hilton İstanbul Bosphorus</p>
+                </div>
+              </div>
             </div>
           )}
 

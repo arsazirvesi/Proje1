@@ -236,6 +236,7 @@ class HeroSlideCreate(BaseModel):
     title: Optional[str] = None
     order: int = 0
     is_active: bool = True
+    opacity: Optional[int] = 45  # 0-100, percent
 
 
 class SeoSettings(BaseModel):
