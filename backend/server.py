@@ -231,6 +231,13 @@ class EmailIndividual(BaseModel):
     content: str
 
 
+class HeroSlideCreate(BaseModel):
+    image_url: str
+    title: Optional[str] = None
+    order: int = 0
+    is_active: bool = True
+
+
 class SeoSettings(BaseModel):
     site_name: Optional[str] = None
     site_url: Optional[str] = None
@@ -368,6 +375,12 @@ async def get_events():
 @api_router.get("/program")
 async def get_program():
     docs = await db.program.find({}).sort("order", 1).to_list(50)
+    return [clean_doc(d) for d in docs]
+
+
+@api_router.get("/hero-slides")
+async def get_hero_slides():
+    docs = await db.hero_slides.find({"is_active": True}).sort("order", 1).to_list(20)
     return [clean_doc(d) for d in docs]
 
 
@@ -1034,6 +1047,37 @@ async def admin_update_seo(body: SeoSettings, admin: dict = Depends(get_admin_us
     return clean_doc(doc)
 
 
+# ===== Hero slides admin =====
+@api_router.get("/admin/hero-slides")
+async def admin_list_hero_slides(admin: dict = Depends(get_admin_user)):
+    docs = await db.hero_slides.find({}).sort("order", 1).to_list(50)
+    return [clean_doc(d) for d in docs]
+
+@api_router.post("/admin/hero-slides")
+async def admin_create_hero_slide(body: HeroSlideCreate, admin: dict = Depends(get_admin_user)):
+    doc = {**body.model_dump(), "created_at": datetime.now(timezone.utc).isoformat()}
+    result = await db.hero_slides.insert_one(doc)
+    doc["_id"] = result.inserted_id
+    return clean_doc(doc)
+
+@api_router.put("/admin/hero-slides/{slide_id}")
+async def admin_update_hero_slide(slide_id: str, body: HeroSlideCreate, admin: dict = Depends(get_admin_user)):
+    update = {**body.model_dump(), "updated_at": datetime.now(timezone.utc).isoformat()}
+    result = await db.hero_slides.update_one({"_id": ObjectId(slide_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Slide bulunamadı")
+    doc = await db.hero_slides.find_one({"_id": ObjectId(slide_id)})
+    return clean_doc(doc)
+
+@api_router.delete("/admin/hero-slides/{slide_id}")
+async def admin_delete_hero_slide(slide_id: str, admin: dict = Depends(get_admin_user)):
+    result = await db.hero_slides.delete_one({"_id": ObjectId(slide_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Slide bulunamadı")
+    return {"message": "Slide silindi"}
+
+
+
 # ==================== ADMIN PROGRAM ====================
 
 @api_router.get("/admin/program")
@@ -1250,6 +1294,22 @@ async def startup():
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         logger.info("Banner seeded")
+
+    # Seed hero slides (3 photos)
+    if await db.hero_slides.count_documents({}) == 0:
+        slides = [
+            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg",
+             "title": "Zirveden", "order": 0, "is_active": True,
+             "created_at": datetime.now(timezone.utc).isoformat()},
+            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/z1u1rnwp_6bdf1e85-1707-4c85-80f4-e6574aab5a21.jpeg",
+             "title": "Katılımcılar", "order": 1, "is_active": True,
+             "created_at": datetime.now(timezone.utc).isoformat()},
+            {"image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/8bgxo9f8_34e45b4c-4905-428c-8be7-bb3fc0c4ed87.jpeg",
+             "title": "Panel", "order": 2, "is_active": True,
+             "created_at": datetime.now(timezone.utc).isoformat()},
+        ]
+        await db.hero_slides.insert_many(slides)
+        logger.info("Hero slides seeded")
 
     # Seed SEO settings
     if await db.seo_settings.count_documents({"key": "main"}) == 0:

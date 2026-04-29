@@ -15,6 +15,7 @@ const navItems = [
   { label: "Konuşmacılar (Site)", href: "/admin/konusmacilar", icon: Mic2 },
   { label: "Sponsorlar (Site)", href: "/admin/sponsorlar", icon: Award },
   { label: "Banner Yönetimi", href: "/admin/bannerlar", icon: Image },
+  { label: "Hero Slideshow (Banner Foto)", href: "/admin/hero-slides", icon: Image },
   { label: "Blog", href: "/admin/blog", icon: FileText },
   { label: "Geçmiş Etkinlikler", href: "/admin/etkinlikler", icon: Calendar },
   { label: "Program", href: "/admin/program", icon: ListOrdered },

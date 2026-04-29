@@ -35,6 +35,7 @@ import BlogManagement from "./pages/admin/BlogManagement";
 import EventManagement from "./pages/admin/EventManagement";
 import ProgramManagement from "./pages/admin/ProgramManagement";
 import AdminSEO from "./pages/admin/AdminSEO";
+import HeroSlidesManagement from "./pages/admin/HeroSlidesManagement";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -92,6 +93,7 @@ function App() {
               <Route path="program" element={<ProgramManagement />} />
               <Route path="kullanicilar" element={<AdminUsers />} />
               <Route path="seo" element={<AdminSEO />} />
+              <Route path="hero-slides" element={<HeroSlidesManagement />} />
               {/* Backward compat for old URLs */}
               <Route path="uyeler" element={<Navigate to="/admin/bulten-uyeleri" replace />} />
               <Route path="misafirler" element={<Navigate to="/admin/ziyaretciler" replace />} />

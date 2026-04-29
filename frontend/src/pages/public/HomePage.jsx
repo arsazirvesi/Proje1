@@ -31,6 +31,8 @@ export default function HomePage() {
   const [program, setProgram] = useState([]);
   const [events, setEvents] = useState([]);
   const [sponsors, setSponsors] = useState([]);
+  const [heroSlides, setHeroSlides] = useState([]);
+  const [activeSlide, setActiveSlide] = useState(0);
   const [registerOpen, setRegisterOpen] = useState(false);
   const countdown = useCountdown("2026-05-21T09:00:00+03:00");
 
@@ -39,7 +41,15 @@ export default function HomePage() {
     axios.get(`${API}/program`).then(r => setProgram(r.data.slice(0, 6))).catch(() => {});
     axios.get(`${API}/events`).then(r => setEvents(r.data.slice(0, 3))).catch(() => {});
     axios.get(`${API}/sponsors`).then(r => setSponsors(r.data)).catch(() => {});
+    axios.get(`${API}/hero-slides`).then(r => setHeroSlides(r.data)).catch(() => {});
   }, []);
+
+  // Rotate hero slides every 5s
+  useEffect(() => {
+    if (heroSlides.length < 2) return;
+    const t = setInterval(() => setActiveSlide(i => (i + 1) % heroSlides.length), 5000);
+    return () => clearInterval(t);
+  }, [heroSlides.length]);
 
   return (
     <div className="bg-white min-h-screen font-body">
@@ -63,6 +73,25 @@ export default function HomePage() {
           <div className="absolute top-20 -right-32 w-[500px] h-[500px] rounded-full bg-summit-navy/5 blur-3xl" />
           <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-summit-accent/10 blur-3xl" />
         </div>
+
+        {/* Hero slideshow background — semi-transparent, auto-rotating */}
+        {heroSlides.length > 0 && (
+          <div className="absolute inset-0 overflow-hidden" data-testid="hero-slideshow">
+            {heroSlides.map((s, i) => (
+              <div
+                key={s.id}
+                aria-hidden="true"
+                className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1500ms] ease-in-out"
+                style={{
+                  backgroundImage: `url(${s.image_url})`,
+                  opacity: i === activeSlide ? 0.18 : 0,
+                }}
+              />
+            ))}
+            {/* Soft white wash to keep text readable */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/55 via-white/50 to-white/65" />
+          </div>
+        )}
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">

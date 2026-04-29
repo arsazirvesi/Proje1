@@ -105,7 +105,7 @@ export default function GuestList() {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm hover:border-summit-navy/30">
-            <Download size={14} /> CSV İndir
+            <Download size={14} /> Excel İndir
           </button>
           <button onClick={() => setEmailModal(true)} className="btn-navy flex items-center gap-2 px-4 py-2 text-sm" data-testid="send-guest-email-btn">
             <Send size={14} /> Toplu Email

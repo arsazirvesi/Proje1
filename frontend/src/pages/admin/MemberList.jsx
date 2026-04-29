@@ -79,7 +79,7 @@ export default function MemberList() {
         </div>
         <div className="flex gap-3 flex-wrap">
           <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600 text-sm hover:border-summit-gold/30 transition-colors">
-            <Download size={14} /> CSV İndir
+            <Download size={14} /> Excel İndir
           </button>
           <button onClick={() => setEmailModal(true)} className="btn-gold flex items-center gap-2 px-4 py-2 text-sm" data-testid="send-bulk-email-btn">
             <Send size={14} /> Toplu Email Gönder
