@@ -826,138 +826,202 @@ body{{font-family:'Outfit',sans-serif;background:#f5f5f5;display:flex;justify-co
 
 
 def render_badge_png(guest: dict, seq_number: int) -> bytes:
-    """Generate a badge as PNG image (for email attachments).
-    Uses Pillow to draw a 680x1040 badge with a QR code."""
-    from PIL import Image, ImageDraw, ImageFont
+    """Generate badge as PNG.
+    White background, faint event-themed image overlay, footer with
+    FIRAT (Ana Sponsor) + JNR EXPO (Organizatör) logos."""
+    from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
     visit_type = guest.get("visit_type") or "summit"
     is_summit = visit_type == "summit"
-    bg_a = (34, 49, 106) if is_summit else (212, 175, 55)  # navy / gold
-    bg_b = (15, 27, 63) if is_summit else (184, 144, 32)
-    accent = (212, 175, 55) if is_summit else (34, 49, 106)
-    text_main = (255, 255, 255) if is_summit else (34, 49, 106)
-    text_sub = (255, 255, 255, 140) if is_summit else (34, 49, 106, 180)
-    accent_text = (34, 49, 106) if is_summit else (255, 255, 255)
+
+    # Color palette — accent matches the event identity
+    NAVY = (34, 49, 106)
+    GOLD = (212, 175, 55)
+    accent = NAVY if is_summit else GOLD
+    accent_text_on = (255, 255, 255) if is_summit else NAVY
     label_text = "ZİRVE KATILIMI" if is_summit else "FUAR ZİYARETÇİSİ"
 
-    W, H = 680, 1040
-    img = Image.new("RGB", (W, H), bg_a)
-    # Vertical gradient
-    for y in range(H):
-        r = int(bg_a[0] + (bg_b[0] - bg_a[0]) * y / H)
-        g = int(bg_a[1] + (bg_b[1] - bg_a[1]) * y / H)
-        b = int(bg_a[2] + (bg_b[2] - bg_a[2]) * y / H)
-        for x in range(W):
-            img.putpixel((x, y), (r, g, b))
+    W, H = 720, 1080
+    img = Image.new("RGB", (W, H), (255, 255, 255))
+
+    # Background watermark image (zirve seminar photo or fuar floor photo)
+    bg_filename = "arsa_zirvesi_seminar.jpeg" if is_summit else "fair_bg.jpeg"
+    bg_path = UPLOADS_DIR / bg_filename
+    if bg_path.exists():
+        try:
+            bg = Image.open(bg_path).convert("RGBA")
+            # Fit and center crop to badge size
+            bg_ratio = bg.width / bg.height
+            target_ratio = W / H
+            if bg_ratio > target_ratio:
+                new_w = int(bg.height * target_ratio)
+                left = (bg.width - new_w) // 2
+                bg = bg.crop((left, 0, left + new_w, bg.height))
+            else:
+                new_h = int(bg.width / target_ratio)
+                top = (bg.height - new_h) // 2
+                bg = bg.crop((0, top, bg.width, top + new_h))
+            bg = bg.resize((W, H), Image.LANCZOS)
+            # Apply heavy white tint so it's a faint, elegant background
+            bg = bg.filter(ImageFilter.GaussianBlur(radius=3))
+            white_overlay = Image.new("RGBA", (W, H), (255, 255, 255, 220))
+            bg = Image.alpha_composite(bg, white_overlay)
+            img.paste(bg.convert("RGB"), (0, 0))
+        except Exception as e:
+            logger.warning(f"Badge bg image load failed: {e}")
 
     draw = ImageDraw.Draw(img, "RGBA")
 
-    # Top & bottom accent bars
-    draw.rectangle([(0, 0), (W, 10)], fill=accent)
-    draw.rectangle([(0, H - 6), (W, H)], fill=accent)
+    # Top accent bar (color depends on type)
+    draw.rectangle([(0, 0), (W, 12)], fill=accent)
 
-    # Try to load a font - fall back to default
-    def get_font(size):
-        for path in [
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
-        ]:
+    # Font helpers
+    def get_font(size, bold=True):
+        paths = (
+            ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+             "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"]
+            if bold else
+            ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+             "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"]
+        )
+        for p in paths:
             try:
-                return ImageFont.truetype(path, size)
+                return ImageFont.truetype(p, size)
             except Exception:
                 continue
         return ImageFont.load_default()
 
-    def get_font_regular(size):
-        for path in [
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-        ]:
-            try:
-                return ImageFont.truetype(path, size)
-            except Exception:
-                continue
-        return ImageFont.load_default()
-
-    f_event = get_font(22)
-    f_date = get_font_regular(16)
+    f_event = get_font(24)
+    f_date = get_font(15, bold=False)
     f_label = get_font(20)
-    f_name = get_font(40)
-    f_title = get_font_regular(20)
-    f_company = get_font_regular(20)
+    f_name = get_font(42)
+    f_title = get_font(20, bold=False)
+    f_company = get_font(20, bold=False)
     f_seq = get_font(22)
-    f_id = get_font_regular(14)
+    f_id = get_font(13, bold=False)
+    f_sponsor_role = get_font(11)
+    f_initials = get_font(72)
 
-    # Sequence number (top right)
-    seq_text = f"#{seq_number}"
-    bbox = draw.textbbox((0, 0), seq_text, font=f_seq)
-    seq_w = bbox[2] - bbox[0]
-    draw.rounded_rectangle([(W - seq_w - 70, 30), (W - 30, 75)], radius=6, fill=accent)
-    draw.text((W - seq_w - 50, 38), seq_text, fill=accent_text, font=f_seq)
-
-    # Header
     def center_text(y, text, font, color):
         bbox = draw.textbbox((0, 0), text, font=font)
         w = bbox[2] - bbox[0]
         draw.text(((W - w) / 2, y), text, fill=color, font=font)
 
-    center_text(60, "ARSA YATIRIM ZİRVESİ 2026", f_event, accent)
-    center_text(95, "21 Mayıs 2026 · Hilton İstanbul Bosphorus", f_date, text_sub[:3])
+    # Sequence pill (top right)
+    seq_text = f"#{seq_number}"
+    bbox = draw.textbbox((0, 0), seq_text, font=f_seq)
+    seq_w = bbox[2] - bbox[0]
+    pad = 22
+    draw.rounded_rectangle(
+        [(W - seq_w - pad * 2 - 30, 35), (W - 30, 80)],
+        radius=8, fill=accent
+    )
+    draw.text((W - seq_w - pad - 30, 43), seq_text, fill=accent_text_on, font=f_seq)
 
-    # Tag
-    tag_pad_x, tag_pad_y = 16, 8
+    # Event header
+    center_text(80, "ARSA YATIRIM ZİRVESİ 2026", f_event, NAVY)
+    center_text(115, "21 Mayıs 2026 · Hilton İstanbul Bosphorus", f_date, (90, 90, 90))
+
+    # Tag (event type label)
     bbox = draw.textbbox((0, 0), label_text, font=f_label)
     label_w = bbox[2] - bbox[0]
     label_h = bbox[3] - bbox[1]
+    tag_pad_x = 18
+    tag_pad_y = 8
     tag_x = (W - label_w - tag_pad_x * 2) / 2
     draw.rounded_rectangle(
-        [(tag_x, 130), (tag_x + label_w + tag_pad_x * 2, 130 + label_h + tag_pad_y * 2)],
-        radius=5, fill=accent
+        [(tag_x, 155), (tag_x + label_w + tag_pad_x * 2, 155 + label_h + tag_pad_y * 2)],
+        radius=6, fill=accent
     )
-    draw.text((tag_x + tag_pad_x, 130 + tag_pad_y), label_text, fill=accent_text, font=f_label)
+    draw.text((tag_x + tag_pad_x, 155 + tag_pad_y), label_text, fill=accent_text_on, font=f_label)
 
     # Avatar circle with initials
     name = (guest.get("name") or "").strip()
     initials = "".join([w[0].upper() for w in name.split()[:2]]) if name else "K"
-    av_size = 180
-    av_x = (W - av_size) / 2
-    av_y = 230
-    draw.ellipse([(av_x, av_y), (av_x + av_size, av_y + av_size)], fill=accent, outline=text_main, width=4)
-    f_initials = get_font(72)
+    av_size = 170
+    av_x = int((W - av_size) / 2)
+    av_y = 250
+    draw.ellipse(
+        [(av_x, av_y), (av_x + av_size, av_y + av_size)],
+        fill=accent, outline=(255, 255, 255), width=5
+    )
     bbox = draw.textbbox((0, 0), initials, font=f_initials)
     init_w = bbox[2] - bbox[0]
     init_h = bbox[3] - bbox[1]
-    draw.text((av_x + (av_size - init_w) / 2, av_y + (av_size - init_h) / 2 - 8),
-              initials, fill=accent_text, font=f_initials)
+    draw.text(
+        (av_x + (av_size - init_w) / 2, av_y + (av_size - init_h) / 2 - 10),
+        initials, fill=accent_text_on, font=f_initials
+    )
 
     # Name + title + company
-    center_text(450, name[:30] if name else "Kayıtlı Misafir", f_name, text_main)
+    center_text(450, name[:30] if name else "Kayıtlı Misafir", f_name, NAVY)
     title_val = (guest.get("title") or "").strip()
     if title_val:
-        center_text(510, title_val[:40], f_title, accent)
+        center_text(510, title_val[:40], f_title, accent if not is_summit else (90, 90, 90))
     company = (guest.get("company") or "").strip()
     if company:
-        center_text(540, company[:40], f_company, text_sub[:3])
+        center_text(540, company[:40], f_company, (60, 60, 60))
 
     # QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
     qr.add_data(f"AYZ2026-{guest.get('_id') or ''}")
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color=(10, 17, 40), back_color="white").convert("RGB")
-    qr_size = 240
-    qr_img = qr_img.resize((qr_size, qr_size))
+    qr_img = qr.make_image(fill_color=NAVY, back_color="white").convert("RGB")
+    qr_size = 220
+    qr_img = qr_img.resize((qr_size, qr_size), Image.LANCZOS)
     qr_x = int((W - qr_size) / 2)
-    qr_y = 640
-    # White rounded backdrop for QR
-    draw.rounded_rectangle([(qr_x - 16, qr_y - 16), (qr_x + qr_size + 16, qr_y + qr_size + 16)], radius=12, fill=(255, 255, 255))
+    qr_y = 620
+    draw.rounded_rectangle(
+        [(qr_x - 14, qr_y - 14), (qr_x + qr_size + 14, qr_y + qr_size + 14)],
+        radius=12, fill=(255, 255, 255), outline=accent, width=2
+    )
     img.paste(qr_img, (qr_x, qr_y))
 
-    # Badge ID at bottom
+    # Badge ID
     guest_id = str(guest.get("_id") or "")
     badge_id = f"AYZ2026-{guest_id[-8:].upper()}"
-    center_text(940, badge_id, f_id, text_sub[:3])
+    center_text(880, badge_id, f_id, (140, 140, 140))
 
-    # Save to bytes
+    # ==== SPONSOR FOOTER ====
+    footer_y = 920
+    # Subtle divider
+    draw.rectangle([(60, footer_y), (W - 60, footer_y + 1)], fill=(220, 220, 220))
+
+    # Two columns: FIRAT (left) and JNR (right)
+    col_w = (W - 120) / 2
+
+    def paste_logo(logo_path, target_box, role_label):
+        """Paste a centered, fitted logo into target_box=(x1,y1,x2,y2) with role label below."""
+        try:
+            x1, y1, x2, y2 = target_box
+            box_w = x2 - x1
+            box_h = y2 - y1 - 22  # leave 22px for role label
+            logo = Image.open(logo_path).convert("RGBA")
+            ratio = min(box_w / logo.width, box_h / logo.height)
+            nw, nh = int(logo.width * ratio), int(logo.height * ratio)
+            logo = logo.resize((nw, nh), Image.LANCZOS)
+            paste_x = x1 + int((box_w - nw) / 2)
+            paste_y = y1 + int((box_h - nh) / 2)
+            img.paste(logo, (paste_x, paste_y), logo)
+
+            # Role label below
+            bbox = draw.textbbox((0, 0), role_label, font=f_sponsor_role)
+            lw = bbox[2] - bbox[0]
+            draw.text(
+                (x1 + int((box_w - lw) / 2), y2 - 18),
+                role_label, fill=(120, 120, 120), font=f_sponsor_role
+            )
+        except Exception as e:
+            logger.warning(f"Logo paste failed ({logo_path}): {e}")
+
+    firat_logo = UPLOADS_DIR / "firat_logo.png"
+    jnr_logo = UPLOADS_DIR / "jnr_logo.png"
+    paste_logo(firat_logo, (60, footer_y + 14, int(60 + col_w), footer_y + 130), "ANA SPONSOR")
+    paste_logo(jnr_logo, (int(W - 60 - col_w), footer_y + 14, W - 60, footer_y + 130), "ORGANİZATÖR")
+
+    # Bottom accent bar
+    draw.rectangle([(0, H - 8), (W, H)], fill=accent)
+
     out = io.BytesIO()
     img.save(out, format="PNG", optimize=True)
     return out.getvalue()
