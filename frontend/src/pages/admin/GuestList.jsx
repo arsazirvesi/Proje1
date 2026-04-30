@@ -36,6 +36,26 @@ function VerifiedBadge({ verified }) {
   );
 }
 
+function CheckedInBadge({ guest }) {
+  if (guest.checked_in) {
+    const at = guest.checked_in_at ? new Date(guest.checked_in_at) : null;
+    const timeStr = at ? at.toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+    return (
+      <span
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[0.65rem] font-bold bg-green-500 text-white shadow-sm"
+        title={`Giriş yapıldı: ${timeStr}`}
+      >
+        ✓ GELDİ {timeStr && <span className="font-normal opacity-90 ml-0.5">· {timeStr}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.6rem] font-medium bg-gray-100 text-gray-500 border border-gray-200">
+      Bekliyor
+    </span>
+  );
+}
+
 function VisitTypeBadge({ type }) {
   const isSummit = !type || type === "summit";
   return (
@@ -123,17 +143,19 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const exportCSV = () => {
     const showType = !forcedVisitType;
     const headers = showType
-      ? ["Sıra", "Ziyaret Tipi", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
-      : ["Sıra", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
+      ? ["Sıra", "Ziyaret Tipi", "Doğrulama", "Etkinlik Girişi", "Giriş Saati", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
+      : ["Sıra", "Doğrulama", "Etkinlik Girişi", "Giriş Saati", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
     const rows = [headers];
     items.forEach((g, i) => {
       const verifiedStr = g.is_verified ? "Evet" : "Bekliyor";
       const verifiedAt = g.verified_at ? g.verified_at.slice(0, 10) : "";
+      const checkedStr = g.checked_in ? "Geldi" : "Bekliyor";
+      const checkedAt = g.checked_in_at ? new Date(g.checked_in_at).toLocaleString("tr-TR") : "";
       const base = [g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
         g.participant_type || "", g.interest_area || "", g.invite_code || "", g.status || "new", g.created_at?.slice(0,10), verifiedAt];
       rows.push(showType
-        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", verifiedStr, ...base]
-        : [i + 1, verifiedStr, ...base]);
+        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", verifiedStr, checkedStr, checkedAt, ...base]
+        : [i + 1, verifiedStr, checkedStr, checkedAt, ...base]);
     });
     const filename = forcedVisitType === "summit" ? "zirve-ziyaretcileri"
                    : forcedVisitType === "fair" ? "fuar-ziyaretcileri"
@@ -150,6 +172,9 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const summitVerified = summitItems.filter(i => i.is_verified).length;
   const fairVerified = fairItems.filter(i => i.is_verified).length;
   const pendingCount = items.filter(i => !i.is_verified).length;
+  const summitCheckedIn = summitItems.filter(i => i.checked_in).length;
+  const fairCheckedIn = fairItems.filter(i => i.checked_in).length;
+  const totalCheckedIn = items.filter(i => i.checked_in).length;
   const SUMMIT_CAPACITY = 600;
 
   const counts = STATUS_OPTIONS.reduce((acc, o) => {
@@ -169,20 +194,23 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
               <>
                 Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
                 <span className="ml-1.5">Doğrulanmış <strong className="text-green-600">{summitVerified}</strong>/{SUMMIT_CAPACITY}</span> ·
-                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span>
+                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span> ·
+                <span className="ml-1.5">Etkinliğe Geldi <strong className="text-green-700">{summitCheckedIn}</strong></span>
               </>
             ) : forcedVisitType === "fair" ? (
               <>
                 Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
                 <span className="ml-1.5">Doğrulanmış <strong className="text-green-600">{fairVerified}</strong></span> ·
-                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span>
+                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span> ·
+                <span className="ml-1.5">Fuara Geldi <strong className="text-green-700">{fairCheckedIn}</strong></span>
               </>
             ) : (
               <>
                 Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
                 <span className="ml-1.5">Zirve <strong className="text-green-600">{summitVerified}</strong>/{summitCount}</span> ·
                 <span className="ml-1.5">Fuar <strong className="text-green-600">{fairVerified}</strong>/{fairCount}</span> ·
-                <span className="ml-1.5 text-amber-600">Bekleyen {pendingCount}</span>
+                <span className="ml-1.5 text-amber-600">Bekleyen {pendingCount}</span> ·
+                <span className="ml-1.5">Geldi <strong className="text-green-700">{totalCheckedIn}</strong></span>
               </>
             )}
           </p>
@@ -315,6 +343,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                   <th>Ad Soyad</th>
                   {!forcedVisitType && <th className="hidden sm:table-cell">Tip</th>}
                   <th className="hidden sm:table-cell">Doğrulama</th>
+                  <th>Etkinlik Girişi</th>
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
                   <th className="hidden lg:table-cell">Şirket</th>
@@ -326,7 +355,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={forcedVisitType ? 10 : 11} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={forcedVisitType ? 11 : 12} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
                 )}
                 {items.map((g, i) => (
                   <tr key={g.id} data-testid={`guest-row-${g.id}`}>
@@ -336,6 +365,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                     <td className="text-summit-navy font-medium">{g.name}</td>
                     {!forcedVisitType && <td className="hidden sm:table-cell"><VisitTypeBadge type={g.visit_type} /></td>}
                     <td className="hidden sm:table-cell"><VerifiedBadge verified={!!g.is_verified} /></td>
+                    <td><CheckedInBadge guest={g} /></td>
                     <td className="text-gray-600">{g.email}</td>
                     <td className="hidden md:table-cell">{g.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{g.company || "-"}</td>
@@ -397,12 +427,13 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                 ["Katılımcı Türü", detail.participant_type],
                 ["İlgi Alanı", detail.interest_area],
                 ["Davet Kodu", detail.invite_code],
+                ["Etkinlik Girişi", detail.checked_in ? `✓ Geldi (${detail.checked_in_at ? new Date(detail.checked_in_at).toLocaleString("tr-TR") : ""})` : "Bekliyor"],
                 ["Beklentiler", detail.expectations],
                 ["Kayıt Tarihi", detail.created_at?.slice(0,16).replace("T", " ")],
               ].filter(([, v]) => v).map(([k, v]) => (
                 <div key={k}>
                   <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{k}</div>
-                  <div className={`text-summit-navy text-sm ${k === "Davet Kodu" ? "font-mono font-bold inline-block bg-summit-paper px-2 py-0.5 rounded" : ""}`}>{v}</div>
+                  <div className={`text-summit-navy text-sm ${k === "Davet Kodu" ? "font-mono font-bold inline-block bg-summit-paper px-2 py-0.5 rounded" : ""} ${k === "Etkinlik Girişi" && detail.checked_in ? "text-green-700 font-semibold" : ""}`}>{v}</div>
                 </div>
               ))}
 
