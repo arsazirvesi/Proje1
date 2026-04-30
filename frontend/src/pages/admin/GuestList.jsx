@@ -18,6 +18,24 @@ const VISIT_FILTERS = [
   { value: "fair", label: "Fuar" },
 ];
 
+const VERIFIED_FILTERS = [
+  { value: "all", label: "Tümü" },
+  { value: "yes", label: "Doğrulanmış" },
+  { value: "no", label: "Bekleyen" },
+];
+
+function VerifiedBadge({ verified }) {
+  return verified ? (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.6rem] font-semibold bg-green-50 text-green-700 border border-green-200">
+      ✓ Doğrulandı
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.6rem] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+      ⏱ Bekliyor
+    </span>
+  );
+}
+
 function VisitTypeBadge({ type }) {
   const isSummit = !type || type === "summit";
   return (
@@ -41,6 +59,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [visitFilter, setVisitFilter] = useState(forcedVisitType || "all");
+  const [verifiedFilter, setVerifiedFilter] = useState("all");
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ subject: "", content: "" });
   const [detail, setDetail] = useState(null);
@@ -55,12 +74,13 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
       // forcedVisitType overrides UI filter
       const effectiveVisit = forcedVisitType || visitFilter;
       if (effectiveVisit !== "all") params.visit_type = effectiveVisit;
+      if (verifiedFilter !== "all") params.verified = verifiedFilter;
       if (search) params.q = search;
       const { data } = await axios.get(`${API}/admin/guests`, { params, withCredentials: true });
       setItems(data);
     } catch { /* empty */ }
     setLoading(false);
-  }, [statusFilter, visitFilter, search, forcedVisitType]);
+  }, [statusFilter, visitFilter, verifiedFilter, search, forcedVisitType]);
 
   useEffect(() => {
     const t = setTimeout(fetchData, 250);
@@ -103,15 +123,17 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const exportCSV = () => {
     const showType = !forcedVisitType;
     const headers = showType
-      ? ["Sıra", "Ziyaret Tipi", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"]
-      : ["Sıra", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"];
+      ? ["Sıra", "Ziyaret Tipi", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
+      : ["Sıra", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
     const rows = [headers];
     items.forEach((g, i) => {
+      const verifiedStr = g.is_verified ? "Evet" : "Bekliyor";
+      const verifiedAt = g.verified_at ? g.verified_at.slice(0, 10) : "";
       const base = [g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
-        g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10)];
+        g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10), verifiedAt];
       rows.push(showType
-        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", ...base]
-        : [i + 1, ...base]);
+        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", verifiedStr, ...base]
+        : [i + 1, verifiedStr, ...base]);
     });
     const filename = forcedVisitType === "summit" ? "zirve-ziyaretcileri"
                    : forcedVisitType === "fair" ? "fuar-ziyaretcileri"
@@ -121,8 +143,13 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
 
   const BACKEND = API.replace(/\/api$/, "");
 
-  const summitCount = items.filter(i => (i.visit_type || "summit") === "summit").length;
-  const fairCount = items.filter(i => i.visit_type === "fair").length;
+  const summitItems = items.filter(i => (i.visit_type || "summit") === "summit");
+  const fairItems = items.filter(i => i.visit_type === "fair");
+  const summitCount = summitItems.length;
+  const fairCount = fairItems.length;
+  const summitVerified = summitItems.filter(i => i.is_verified).length;
+  const fairVerified = fairItems.filter(i => i.is_verified).length;
+  const pendingCount = items.filter(i => !i.is_verified).length;
   const SUMMIT_CAPACITY = 600;
 
   const counts = STATUS_OPTIONS.reduce((acc, o) => {
@@ -137,22 +164,25 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
           <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">
             {title || "Ziyaretçi Kayıtları"}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             {forcedVisitType === "summit" ? (
               <>
-                Toplam <strong className="text-summit-navy">{items.length}</strong> kişi ·
-                Kapasite <strong className="text-summit-navy"> {SUMMIT_CAPACITY}</strong> ·
-                Kalan <strong className={items.length >= SUMMIT_CAPACITY ? "text-red-600" : "text-summit-navy"}>
-                  {" "}{Math.max(0, SUMMIT_CAPACITY - items.length)}
-                </strong>
+                Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
+                <span className="ml-1.5">Doğrulanmış <strong className="text-green-600">{summitVerified}</strong>/{SUMMIT_CAPACITY}</span> ·
+                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span>
               </>
             ) : forcedVisitType === "fair" ? (
-              <>Toplam <strong className="text-summit-navy">{items.length}</strong> fuar ziyaretçisi · Sınırsız kayıt</>
+              <>
+                Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
+                <span className="ml-1.5">Doğrulanmış <strong className="text-green-600">{fairVerified}</strong></span> ·
+                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span>
+              </>
             ) : (
               <>
                 Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
-                <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-navy" /> Zirve: <strong className="text-summit-navy">{summitCount}/{SUMMIT_CAPACITY}</strong></span> ·
-                <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-accent" /> Fuar: <strong className="text-summit-navy">{fairCount}</strong></span>
+                <span className="ml-1.5">Zirve <strong className="text-green-600">{summitVerified}</strong>/{summitCount}</span> ·
+                <span className="ml-1.5">Fuar <strong className="text-green-600">{fairVerified}</strong>/{fairCount}</span> ·
+                <span className="ml-1.5 text-amber-600">Bekleyen {pendingCount}</span>
               </>
             )}
           </p>
@@ -222,6 +252,25 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
         </div>
       )}
 
+      {/* Verified filter */}
+      <div className="bg-white border border-gray-200 rounded-md p-3 mb-3 flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">E-posta Doğrulaması:</span>
+        {VERIFIED_FILTERS.map(o => (
+          <button
+            key={o.value}
+            onClick={() => setVerifiedFilter(o.value)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+              verifiedFilter === o.value
+                ? (o.value === "yes" ? "bg-green-600 text-white" : o.value === "no" ? "bg-amber-600 text-white" : "bg-summit-navy text-white")
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+            data-testid={`filter-verified-${o.value}`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
       {/* Status filters */}
       <div className="bg-white border border-gray-200 rounded-md p-3 mb-4 flex items-center gap-2 flex-wrap">
         <Filter size={15} className="text-gray-400 ml-1" />
@@ -265,6 +314,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                   <th className="w-12 text-center">#</th>
                   <th>Ad Soyad</th>
                   {!forcedVisitType && <th className="hidden sm:table-cell">Tip</th>}
+                  <th className="hidden sm:table-cell">Doğrulama</th>
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
                   <th className="hidden lg:table-cell">Şirket</th>
@@ -275,7 +325,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={forcedVisitType ? 8 : 9} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={forcedVisitType ? 9 : 10} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
                 )}
                 {items.map((g, i) => (
                   <tr key={g.id} data-testid={`guest-row-${g.id}`}>
@@ -284,6 +334,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                     </td>
                     <td className="text-summit-navy font-medium">{g.name}</td>
                     {!forcedVisitType && <td className="hidden sm:table-cell"><VisitTypeBadge type={g.visit_type} /></td>}
+                    <td className="hidden sm:table-cell"><VerifiedBadge verified={!!g.is_verified} /></td>
                     <td className="text-gray-600">{g.email}</td>
                     <td className="hidden md:table-cell">{g.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{g.company || "-"}</td>

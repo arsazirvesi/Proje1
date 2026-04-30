@@ -11,6 +11,7 @@ import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
 import ProgramPage from "./pages/public/ProgramPage";
 import FairPage from "./pages/public/FairPage";
+import VerifyPage from "./pages/public/VerifyPage";
 import RegisterPage from "./pages/public/RegisterPage";
 import VisitorRegisterPage from "./pages/public/VisitorRegisterPage";
 import ExhibitorRegisterPage from "./pages/public/ExhibitorRegisterPage";
@@ -65,6 +66,7 @@ function App() {
             <Route path="/konusmacilar" element={<SpeakersPage />} />
             <Route path="/program" element={<ProgramPage />} />
             <Route path="/fuar-alani" element={<FairPage />} />
+            <Route path="/dogrulama" element={<VerifyPage />} />
             <Route path="/etkinlikler" element={<PastEventsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />

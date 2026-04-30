@@ -7,6 +7,7 @@ import jwt
 import qrcode
 import io
 import base64
+import secrets
 import logging
 import html as html_escape
 from datetime import datetime, timezone, timedelta
@@ -599,8 +600,15 @@ SUMMIT_CAPACITY = 600
 
 @api_router.get("/register/capacity")
 async def get_register_capacity():
-    summit_count = await db.guests.count_documents({"visit_type": {"$in": ["summit", None]}})
-    fair_count = await db.guests.count_documents({"visit_type": "fair"})
+    # Only count VERIFIED visitors towards capacity (spam-proof)
+    summit_count = await db.guests.count_documents({
+        "visit_type": {"$in": ["summit", None]},
+        "is_verified": True,
+    })
+    fair_count = await db.guests.count_documents({
+        "visit_type": "fair",
+        "is_verified": True,
+    })
     return {
         "summit": {
             "registered": summit_count,
@@ -616,61 +624,209 @@ async def get_register_capacity():
     }
 
 
+def render_verify_email(guest: dict, verify_url: str) -> tuple[str, str]:
+    """Short email asking the user to confirm their address."""
+    visit_type = guest.get("visit_type") or "summit"
+    is_summit = visit_type == "summit"
+    accent = "#22316a" if is_summit else "#D4AF37"
+    accent_text = "#fff" if is_summit else "#22316a"
+    label = "Arsa Yatırım Zirvesi 2026" if is_summit else "8. Gayrimenkul Proje Yatırım Fuarı"
+    subject = f"E-postanızı Doğrulayın · {label}"
+    name = (guest.get("name") or "").strip() or "Sayın Misafir"
+    html = f"""<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f7;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#22316a;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f4f4f7;padding:40px 20px;">
+    <tr><td align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0" width="560" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <tr><td style="background:{accent};padding:26px 40px;text-align:center;">
+          <div style="color:{accent_text};font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;opacity:0.85;">Son Bir Adım</div>
+          <div style="color:{accent_text};font-size:22px;font-weight:700;margin-top:6px;font-family:Georgia,serif;">E-postanızı Doğrulayın</div>
+        </td></tr>
+        <tr><td style="padding:38px 40px 30px;">
+          <p style="font-size:16px;margin:0 0 14px 0;"><strong>Merhaba {html_escape.escape(name)},</strong></p>
+          <p style="font-size:14px;line-height:1.7;color:#555;margin:0 0 22px 0;">
+            {label} için kaydınız alındı. <strong>Kaydınızın tamamlanması ve yaka kartınızın hazırlanması için</strong>
+            lütfen aşağıdaki butona tıklayarak e-posta adresinizi doğrulayın.
+          </p>
+          <div style="text-align:center;margin:28px 0;">
+            <a href="{verify_url}" style="display:inline-block;background:{accent};color:{accent_text};padding:14px 38px;border-radius:8px;font-weight:700;text-decoration:none;font-size:15px;letter-spacing:0.3px;">
+              E-postamı Doğrula
+            </a>
+          </div>
+          <p style="font-size:12px;color:#888;line-height:1.6;margin:18px 0 0 0;">
+            Buton çalışmazsa aşağıdaki linki tarayıcınıza kopyalayabilirsiniz:<br>
+            <a href="{verify_url}" style="color:{accent};word-break:break-all;font-size:11px;">{verify_url}</a>
+          </p>
+          <p style="font-size:12px;color:#aaa;line-height:1.6;margin:22px 0 0 0;border-top:1px solid #eee;padding-top:16px;">
+            Bu bağlantı 7 gün boyunca geçerlidir. Eğer bu kaydı siz yapmadıysanız, bu e-postayı yok sayabilirsiniz.
+          </p>
+        </td></tr>
+        <tr><td style="background:#f8f9fb;padding:18px 40px;text-align:center;border-top:1px solid #e1e3e9;">
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">Arsa Yatırım Zirvesi 2026</div>
+          <div style="font-size:11px;color:#aaa;margin-top:4px;">FIRAT CONSTRUCTION YAPI A.Ş.</div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>
+"""
+    return subject, html
+
+
 @api_router.post("/register/guest")
 async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
     existing = await db.guests.find_one({"email": body.email.lower()})
     if existing:
-        raise HTTPException(400, "Bu email ile zaten kayıt yapılmış")
+        # If existing but not yet verified, resend verification
+        if not existing.get("is_verified"):
+            token = existing.get("verification_token") or secrets.token_urlsafe(32)
+            await db.guests.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {
+                    "verification_token": token,
+                    "verification_sent_at": datetime.now(timezone.utc).isoformat(),
+                }},
+            )
+            public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+            verify_url = f"{public_base}/dogrulama?token={token}"
+            subject, html = render_verify_email(existing, verify_url)
+            background_tasks.add_task(send_email, existing["email"], subject, html, None)
+            return {
+                "id": str(existing["_id"]),
+                "message": "Bu e-posta ile daha önce kayıt yapılmış ancak henüz doğrulanmamış. Doğrulama maili tekrar gönderildi.",
+                "needs_verification": True,
+            }
+        raise HTTPException(400, "Bu e-posta ile zaten doğrulanmış bir kayıt var.")
 
     visit_type = (body.visit_type or "summit").lower()
     if visit_type not in ("summit", "fair"):
         visit_type = "summit"
 
-    # Enforce capacity for the summit
+    # Enforce capacity for the summit (count only VERIFIED summit guests)
     if visit_type == "summit":
-        summit_count = await db.guests.count_documents({"visit_type": {"$in": ["summit", None]}})
+        summit_count = await db.guests.count_documents({
+            "visit_type": {"$in": ["summit", None]},
+            "is_verified": True,
+        })
         if summit_count >= SUMMIT_CAPACITY:
             raise HTTPException(
                 400,
                 "Zirve kontenjanımız doldu. Fuar ziyareti kayıtları hâlâ açık, oradan devam edebilirsiniz.",
             )
 
+    token = secrets.token_urlsafe(32)
+    now_iso = datetime.now(timezone.utc).isoformat()
     doc = {
         **body.model_dump(),
         "email": body.email.lower(),
         "visit_type": visit_type,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": now_iso,
+        "updated_at": now_iso,
         "badge_printed": False,
         "status": "new",
         "admin_notes": "",
+        "is_verified": False,
+        "verification_token": token,
+        "verification_sent_at": now_iso,
+        "verified_at": None,
     }
     result = await db.guests.insert_one(doc)
     guest_id = str(result.inserted_id)
 
-    # Compute sequence number (oldest first = #1)
+    # Send verification email (NO badge yet)
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    verify_url = f"{public_base}/dogrulama?token={token}"
+    subject, html = render_verify_email({**doc, "_id": result.inserted_id}, verify_url)
+    background_tasks.add_task(send_email, body.email.lower(), subject, html, None)
+
+    return {
+        "id": guest_id,
+        "message": "Kaydınız alındı. Doğrulama linki e-postanıza gönderildi.",
+        "needs_verification": True,
+    }
+
+
+@api_router.get("/verify/guest")
+async def verify_guest(token: str, background_tasks: BackgroundTasks):
+    """Verify the visitor's email with the given token.
+    On success, send the confirmation email with the PNG badge attachment."""
+    if not token:
+        raise HTTPException(400, "Doğrulama anahtarı eksik")
+    guest = await db.guests.find_one({"verification_token": token})
+    if not guest:
+        raise HTTPException(404, "Geçersiz veya süresi dolmuş doğrulama linki")
+
+    # Check expiry (7 days)
+    sent_at = guest.get("verification_sent_at")
+    if sent_at:
+        try:
+            sent_dt = datetime.fromisoformat(sent_at.replace("Z", "+00:00"))
+            if datetime.now(timezone.utc) - sent_dt > timedelta(days=7):
+                raise HTTPException(410, "Doğrulama linkinin süresi doldu. Lütfen yeniden kayıt olun.")
+        except ValueError:
+            pass
+
+    if guest.get("is_verified"):
+        return {
+            "already_verified": True,
+            "name": guest.get("name"),
+            "visit_type": guest.get("visit_type") or "summit",
+        }
+
+    visit_type = guest.get("visit_type") or "summit"
+
+    # Re-check summit capacity at verification time (in case it filled while pending)
+    if visit_type == "summit":
+        summit_verified = await db.guests.count_documents({
+            "visit_type": {"$in": ["summit", None]},
+            "is_verified": True,
+        })
+        if summit_verified >= SUMMIT_CAPACITY:
+            raise HTTPException(
+                400,
+                "Ne yazık ki Zirve kontenjanı siz doğrulamadan önce doldu. "
+                "Fuar ziyareti kayıtları hâlâ açık, oradan kayıt olabilirsiniz.",
+            )
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.guests.update_one(
+        {"_id": guest["_id"]},
+        {"$set": {"is_verified": True, "verified_at": now_iso, "updated_at": now_iso},
+         "$unset": {"verification_token": ""}},
+    )
+
+    # Compute sequence (verified visitors only)
     seq = await db.guests.count_documents({
         "visit_type": ({"$in": ["summit", None]} if visit_type == "summit" else "fair"),
-        "created_at": {"$lte": doc["created_at"]},
+        "is_verified": True,
+        "verified_at": {"$lte": now_iso},
     })
 
-    # Generate badge PNG and queue email with attachment
+    # Generate badge PNG + send final confirmation email
     public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
     try:
-        guest_with_id = {**doc, "_id": result.inserted_id}
-        badge_png = render_badge_png(guest_with_id, seq)
+        guest_full = {**guest, "is_verified": True, "verified_at": now_iso}
+        badge_png = render_badge_png(guest_full, seq)
         attachments = [{
             "content_bytes": badge_png,
-            "filename": f"yaka-karti-{guest_id[-8:]}.png",
+            "filename": f"yaka-karti-{str(guest['_id'])[-8:]}.png",
             "mime_type": "image/png",
         }]
     except Exception as e:
-        logger.error(f"Badge PNG generation failed: {e}")
+        logger.error(f"Badge PNG generation failed on verify: {e}")
         attachments = None
 
-    subject, html = render_register_confirmation_email({**doc, "_id": result.inserted_id}, seq, public_base)
-    background_tasks.add_task(send_email, body.email.lower(), subject, html, attachments)
-    return {"id": guest_id, "message": "Ziyaretçi kaydınız alınmıştır", "badge_url": f"/api/badge/{guest_id}"}
+    subject, html = render_register_confirmation_email(guest_full, seq, public_base)
+    background_tasks.add_task(send_email, guest["email"], subject, html, attachments)
+
+    return {
+        "verified": True,
+        "name": guest.get("name"),
+        "visit_type": visit_type,
+        "sequence": seq,
+        "badge_url": f"/api/badge/{guest['_id']}",
+    }
 
 
 @api_router.post("/register/exhibitor")
@@ -1179,18 +1335,27 @@ async def admin_get_guests(
     status: Optional[str] = None,
     q: Optional[str] = None,
     visit_type: Optional[str] = None,
+    verified: Optional[str] = None,
     admin: dict = Depends(get_admin_user),
 ):
     query: dict = {}
     if status and status != "all":
         query["status"] = status
+    if verified == "yes":
+        query["is_verified"] = True
+    elif verified == "no":
+        query["$or"] = [{"is_verified": False}, {"is_verified": {"$exists": False}}]
     if visit_type and visit_type in ("summit", "fair"):
-        if visit_type == "summit":
-            query["$or"] = [{"visit_type": "summit"}, {"visit_type": {"$exists": False}}, {"visit_type": None}]
+        vt_or = (
+            [{"visit_type": "summit"}, {"visit_type": {"$exists": False}}, {"visit_type": None}]
+            if visit_type == "summit" else [{"visit_type": "fair"}]
+        )
+        if "$or" in query:
+            existing_or = query.pop("$or")
+            query["$and"] = [{"$or": existing_or}, {"$or": vt_or}]
         else:
-            query["visit_type"] = "fair"
+            query["$or"] = vt_or
     if q:
-        # If we already set $or for visit_type, merge with $and
         name_or = [
             {"name": {"$regex": q, "$options": "i"}},
             {"email": {"$regex": q, "$options": "i"}},
@@ -1200,6 +1365,8 @@ async def admin_get_guests(
         if "$or" in query:
             existing_or = query.pop("$or")
             query["$and"] = [{"$or": existing_or}, {"$or": name_or}]
+        elif "$and" in query:
+            query["$and"].append({"$or": name_or})
         else:
             query["$or"] = name_or
     # Oldest first so #1 is first registered visitor
