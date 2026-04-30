@@ -10,7 +10,7 @@ const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "📷 Yaka Kartı QR Tarama", href: "/admin/checkin", icon: ScanLine },
   { label: "🎟 Davet Kodları", href: "/admin/davet-kodlari", icon: KeyRound },
-  { label: "🔑 API Anahtarları (3. Parti)", href: "/admin/api-anahtarlari", icon: Shield },
+  { label: "API Anahtarları (3. Parti)", href: "/admin/api-anahtarlari", icon: Shield },
   { label: "⏱ Etkinlik Tarihi & Sayaç", href: "/admin/etkinlik-ayarlari", icon: Calendar },
   { label: "Ziyaretçiler (Tümü)", href: "/admin/ziyaretciler", icon: Users },
   { label: "Zirve Ziyaretçileri", href: "/admin/zirve-ziyaretcileri", icon: Ticket },

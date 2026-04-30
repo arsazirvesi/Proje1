@@ -143,12 +143,14 @@ Kurumsal zirve websitesi + kapsamlı CRM admin paneli.
 - [ ] Exhibitor stand price quote field admin-editable
 
 ### P2 (Nice to have)
-- [ ] QR code check-in scanner at entrance
+- [x] QR code check-in scanner at entrance (DONE — /admin/checkin via html5-qrcode, iOS Safari fixes applied)
+- [x] API Keys management for 3rd party fair scanners (DONE 2026-04-30 — admin page /admin/api-anahtarlari + /api/external/checkin, /api/external/guests with X-API-Key header; valid_for scope: summit / fair / both; usage tracking; 17/17 backend tests passing)
 - [ ] Photo gallery for past events
 - [ ] Analytics dashboard (visitor counts, conversion rates)
 - [ ] Multi-language (EN / TR)
 - [ ] Password reset flow
-- [ ] Refactor `server.py` (1100+ lines) into `routers/` modules
+- [ ] Refactor `server.py` (~2750 lines) into `routers/` modules — deferred until AFTER the event per user
+- [ ] Sponsor package prices/perks editable from admin panel
 
 ---
 
