@@ -2269,7 +2269,7 @@ async def startup():
     await db.guests.create_index("email", unique=True)
     await db.blog_posts.create_index("slug", unique=True)
 
-    # Seed admin
+    # Seed admin (ONLY first time — never overwrite existing user's password)
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@arsayatirim.com")
     admin_pass = os.environ.get("ADMIN_PASSWORD", "Admin@2026!")
     existing = await db.users.find_one({"email": admin_email})
@@ -2280,8 +2280,16 @@ async def startup():
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         logger.info(f"Admin user created: {admin_email}")
-    elif not verify_password(admin_pass, existing["password_hash"]):
-        await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_pass)}})
+    # NOTE: We intentionally do NOT reset password from .env on subsequent
+    # restarts. Once the admin user exists, ADMIN_PASSWORD env var is only a
+    # bootstrap default. To force a reset, set ADMIN_FORCE_PASSWORD_RESET=1
+    # in the environment for ONE deploy.
+    elif os.environ.get("ADMIN_FORCE_PASSWORD_RESET") == "1":
+        await db.users.update_one(
+            {"email": admin_email},
+            {"$set": {"password_hash": hash_password(admin_pass)}},
+        )
+        logger.warning(f"Admin password reset from env (ADMIN_FORCE_PASSWORD_RESET=1): {admin_email}")
 
     # Seed speakers
     if await db.speakers.count_documents({}) == 0:
