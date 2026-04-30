@@ -331,10 +331,10 @@ export default function VisitorRegisterPage() {
                 </span>
                 <div className="relative w-full overflow-hidden bg-summit-navy aspect-[16/9] sm:aspect-[5/3]">
                   <img
-                    src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg"
+                    src={`${API}/uploads/fair_stands.jpeg`}
                     alt="Fuar alanı standları"
                     className="absolute inset-0 w-full h-full object-cover"
-                    style={{ objectPosition: "center 88%" }}
+                    style={{ objectPosition: "center center" }}
                     loading="eager"
                     decoding="async"
                   />
