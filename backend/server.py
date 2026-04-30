@@ -640,9 +640,12 @@ async def _check_invite_code(raw_code: Optional[str], visit_type: str) -> dict:
     if expires_at:
         try:
             exp_dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+            # If date string had no timezone (e.g. "2026-05-23"), treat as UTC end-of-day
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc)
             if datetime.now(timezone.utc) > exp_dt:
                 return {"valid": False, "reason": "Bu davet kodunun süresi dolmuş."}
-        except (ValueError, AttributeError):
+        except (ValueError, AttributeError, TypeError):
             pass
     max_uses = doc.get("max_uses", 0) or 0
     used_count = doc.get("used_count", 0) or 0
