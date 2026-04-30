@@ -3,12 +3,14 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   LayoutDashboard, Users, UserCheck, Mic2, Award, Image, FileText,
-  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2
+  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Ziyaretçiler", href: "/admin/ziyaretciler", icon: Users },
+  { label: "Ziyaretçiler (Tümü)", href: "/admin/ziyaretciler", icon: Users },
+  { label: "Zirve Ziyaretçileri", href: "/admin/zirve-ziyaretcileri", icon: Ticket },
+  { label: "Fuar Ziyaretçileri", href: "/admin/fuar-ziyaretcileri", icon: Store },
   { label: "Fuar Stant Başvuruları", href: "/admin/fuar-stant", icon: UserCheck },
   { label: "Konuşmacı / Sponsor Başvuruları", href: "/admin/konusmaci-basvuru", icon: Mic2 },
   { label: "Bülten Üyeleri", href: "/admin/bulten-uyeleri", icon: Users },

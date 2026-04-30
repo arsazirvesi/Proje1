@@ -34,12 +34,12 @@ function StatusBadge({ status }) {
   return <span className={`status-badge ${s.cls}`}>{s.label}</span>;
 }
 
-export default function GuestList() {
+export default function GuestList({ forcedVisitType, title, subtitle }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [visitFilter, setVisitFilter] = useState("all");
+  const [visitFilter, setVisitFilter] = useState(forcedVisitType || "all");
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ subject: "", content: "" });
   const [detail, setDetail] = useState(null);
@@ -51,13 +51,15 @@ export default function GuestList() {
     try {
       const params = {};
       if (statusFilter !== "all") params.status = statusFilter;
-      if (visitFilter !== "all") params.visit_type = visitFilter;
+      // forcedVisitType overrides UI filter
+      const effectiveVisit = forcedVisitType || visitFilter;
+      if (effectiveVisit !== "all") params.visit_type = effectiveVisit;
       if (search) params.q = search;
       const { data } = await axios.get(`${API}/admin/guests`, { params, withCredentials: true });
       setItems(data);
     } catch { /* empty */ }
     setLoading(false);
-  }, [statusFilter, visitFilter, search]);
+  }, [statusFilter, visitFilter, search, forcedVisitType]);
 
   useEffect(() => {
     const t = setTimeout(fetchData, 250);
@@ -98,17 +100,27 @@ export default function GuestList() {
   };
 
   const exportCSV = () => {
-    const rows = [["Sıra", "Ziyaret Tipi", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"]];
-    items.forEach((g, i) => rows.push([
-      i + 1,
-      (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve",
-      g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
-      g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10)
-    ]));
+    const showType = !forcedVisitType;
+    const headers = showType
+      ? ["Sıra", "Ziyaret Tipi", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"]
+      : ["Sıra", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"];
+    const rows = [headers];
+    items.forEach((g, i) => {
+      const base = [g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
+        g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10)];
+      rows.push(showType
+        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", ...base]
+        : [i + 1, ...base]);
+    });
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "ziyaretciler.csv"; a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = forcedVisitType === "summit" ? "zirve-ziyaretcileri.csv"
+               : forcedVisitType === "fair" ? "fuar-ziyaretcileri.csv"
+               : "ziyaretciler.csv";
+    a.click();
   };
 
   const BACKEND = API.replace(/\/api$/, "");
@@ -126,12 +138,29 @@ export default function GuestList() {
     <div data-testid="guest-list-page">
       <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
         <div>
-          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Ziyaretçi Kayıtları</h1>
+          <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">
+            {title || "Ziyaretçi Kayıtları"}
+          </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
-            <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-navy" /> Zirve: <strong className="text-summit-navy">{summitCount}/{SUMMIT_CAPACITY}</strong></span> ·
-            <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-accent" /> Fuar: <strong className="text-summit-navy">{fairCount}</strong></span>
+            {forcedVisitType === "summit" ? (
+              <>
+                Toplam <strong className="text-summit-navy">{items.length}</strong> kişi ·
+                Kapasite <strong className="text-summit-navy"> {SUMMIT_CAPACITY}</strong> ·
+                Kalan <strong className={items.length >= SUMMIT_CAPACITY ? "text-red-600" : "text-summit-navy"}>
+                  {" "}{Math.max(0, SUMMIT_CAPACITY - items.length)}
+                </strong>
+              </>
+            ) : forcedVisitType === "fair" ? (
+              <>Toplam <strong className="text-summit-navy">{items.length}</strong> fuar ziyaretçisi · Sınırsız kayıt</>
+            ) : (
+              <>
+                Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
+                <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-navy" /> Zirve: <strong className="text-summit-navy">{summitCount}/{SUMMIT_CAPACITY}</strong></span> ·
+                <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-accent" /> Fuar: <strong className="text-summit-navy">{fairCount}</strong></span>
+              </>
+            )}
           </p>
+          {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
         </div>
         <div className="flex gap-3 flex-wrap">
           <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm hover:border-summit-navy/30">
@@ -143,21 +172,30 @@ export default function GuestList() {
         </div>
       </div>
 
-      {/* Capacity bar */}
-      <div className="bg-white border border-gray-200 rounded-md p-3 mb-4">
-        <div className="flex items-center justify-between text-xs mb-1.5">
-          <span className="text-summit-navy font-semibold">Zirve Kontenjanı (600 kişi)</span>
-          <span className="text-gray-500">
-            {summitCount}/{SUMMIT_CAPACITY} dolu · {Math.max(0, SUMMIT_CAPACITY - summitCount)} yer kaldı
-          </span>
+      {/* Capacity bar — only for summit or combined view */}
+      {(!forcedVisitType || forcedVisitType === "summit") && (
+        <div className="bg-white border border-gray-200 rounded-md p-3 mb-4">
+          <div className="flex items-center justify-between text-xs mb-1.5">
+            <span className="text-summit-navy font-semibold">Zirve Kontenjanı (600 kişi)</span>
+            <span className="text-gray-500">
+              {forcedVisitType === "summit" ? items.length : summitCount}/{SUMMIT_CAPACITY} dolu ·
+              {" "}{Math.max(0, SUMMIT_CAPACITY - (forcedVisitType === "summit" ? items.length : summitCount))} yer kaldı
+            </span>
+          </div>
+          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all ${
+                (forcedVisitType === "summit" ? items.length : summitCount) >= SUMMIT_CAPACITY
+                  ? "bg-red-500"
+                  : (forcedVisitType === "summit" ? items.length : summitCount) / SUMMIT_CAPACITY > 0.8
+                  ? "bg-summit-accent"
+                  : "bg-summit-navy"
+              }`}
+              style={{ width: `${Math.min(100, ((forcedVisitType === "summit" ? items.length : summitCount) / SUMMIT_CAPACITY) * 100)}%` }}
+            />
+          </div>
         </div>
-        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all ${summitCount >= SUMMIT_CAPACITY ? "bg-red-500" : summitCount / SUMMIT_CAPACITY > 0.8 ? "bg-summit-accent" : "bg-summit-navy"}`}
-            style={{ width: `${Math.min(100, (summitCount / SUMMIT_CAPACITY) * 100)}%` }}
-          />
-        </div>
-      </div>
+      )}
 
       {msg && (
         <div className="bg-summit-navy/5 border border-summit-navy/30 rounded-md p-3 text-summit-navy text-sm mb-5 flex items-center justify-between">
@@ -166,25 +204,27 @@ export default function GuestList() {
         </div>
       )}
 
-      {/* Visit type filters */}
-      <div className="bg-white border border-gray-200 rounded-md p-3 mb-3 flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Ziyaret Tipi:</span>
-        {VISIT_FILTERS.map(o => (
-          <button
-            key={o.value}
-            onClick={() => setVisitFilter(o.value)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              visitFilter === o.value ? "bg-summit-navy text-white" : "text-gray-600 hover:bg-gray-100"
-            }`}
-            data-testid={`filter-visit-${o.value}`}
-          >
-            {o.label}
-            {o.value === "summit" && <span className="opacity-70 ml-1">({summitCount})</span>}
-            {o.value === "fair" && <span className="opacity-70 ml-1">({fairCount})</span>}
-            {o.value === "all" && <span className="opacity-70 ml-1">({summitCount + fairCount})</span>}
-          </button>
-        ))}
-      </div>
+      {/* Visit type filters — only show on combined view */}
+      {!forcedVisitType && (
+        <div className="bg-white border border-gray-200 rounded-md p-3 mb-3 flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Ziyaret Tipi:</span>
+          {VISIT_FILTERS.map(o => (
+            <button
+              key={o.value}
+              onClick={() => setVisitFilter(o.value)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                visitFilter === o.value ? "bg-summit-navy text-white" : "text-gray-600 hover:bg-gray-100"
+              }`}
+              data-testid={`filter-visit-${o.value}`}
+            >
+              {o.label}
+              {o.value === "summit" && <span className="opacity-70 ml-1">({summitCount})</span>}
+              {o.value === "fair" && <span className="opacity-70 ml-1">({fairCount})</span>}
+              {o.value === "all" && <span className="opacity-70 ml-1">({summitCount + fairCount})</span>}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Status filters */}
       <div className="bg-white border border-gray-200 rounded-md p-3 mb-4 flex items-center gap-2 flex-wrap">
@@ -228,7 +268,7 @@ export default function GuestList() {
                 <tr>
                   <th className="w-12 text-center">#</th>
                   <th>Ad Soyad</th>
-                  <th className="hidden sm:table-cell">Tip</th>
+                  {!forcedVisitType && <th className="hidden sm:table-cell">Tip</th>}
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
                   <th className="hidden lg:table-cell">Şirket</th>
@@ -239,7 +279,7 @@ export default function GuestList() {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={9} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={forcedVisitType ? 8 : 9} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
                 )}
                 {items.map((g, i) => (
                   <tr key={g.id} data-testid={`guest-row-${g.id}`}>
@@ -247,7 +287,7 @@ export default function GuestList() {
                       #{i + 1}
                     </td>
                     <td className="text-summit-navy font-medium">{g.name}</td>
-                    <td className="hidden sm:table-cell"><VisitTypeBadge type={g.visit_type} /></td>
+                    {!forcedVisitType && <td className="hidden sm:table-cell"><VisitTypeBadge type={g.visit_type} /></td>}
                     <td className="text-gray-600">{g.email}</td>
                     <td className="hidden md:table-cell">{g.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{g.company || "-"}</td>

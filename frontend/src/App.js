@@ -85,6 +85,14 @@ function App() {
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="ziyaretciler" element={<GuestList />} />
+              <Route path="zirve-ziyaretcileri" element={
+                <GuestList forcedVisitType="summit" title="Zirve Ziyaretçileri"
+                  subtitle="Sadece Arsa Yatırım Zirvesi 2026 konferans programına kaydolanlar" />
+              } />
+              <Route path="fuar-ziyaretcileri" element={
+                <GuestList forcedVisitType="fair" title="Fuar Ziyaretçileri"
+                  subtitle="Sadece 8. Gayrimenkul Proje Yatırım Fuarı'na gelen ziyaretçiler" />
+              } />
               <Route path="fuar-stant" element={<ExhibitorList />} />
               <Route path="konusmaci-basvuru" element={<SpeakerApplicationList />} />
               <Route path="bulten-uyeleri" element={<MemberList />} />
