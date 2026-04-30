@@ -13,9 +13,10 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Any, Annotated
 from pathlib import Path
 
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, BackgroundTasks
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr, BeforeValidator
 from bson import ObjectId
@@ -1159,6 +1160,35 @@ async def admin_delete_hero_slide(slide_id: str, admin: dict = Depends(get_admin
     return {"message": "Slide silindi"}
 
 
+# ===== Image upload =====
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"}
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB
+
+@api_router.post("/admin/uploads/image")
+async def admin_upload_image(file: UploadFile = File(...), admin: dict = Depends(get_admin_user)):
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(400, f"Geçersiz dosya tipi: {file.content_type}. JPG, PNG, WEBP veya GIF kullanın.")
+
+    # Read & size check
+    content = await file.read()
+    if len(content) > MAX_IMAGE_SIZE:
+        raise HTTPException(400, f"Dosya boyutu maksimum {MAX_IMAGE_SIZE // 1024 // 1024} MB olabilir")
+    if len(content) == 0:
+        raise HTTPException(400, "Boş dosya")
+
+    # Generate safe filename
+    import uuid
+    ext_map = {"image/jpeg": ".jpg", "image/jpg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif"}
+    ext = ext_map.get(file.content_type, ".jpg")
+    unique_name = f"{uuid.uuid4().hex}{ext}"
+    file_path = UPLOADS_DIR / unique_name
+    file_path.write_bytes(content)
+
+    public_url = f"/api/uploads/{unique_name}"
+    return {"url": public_url, "filename": unique_name, "size": len(content)}
+
+
+
 # ===== Fair settings admin =====
 @api_router.get("/admin/fair")
 async def admin_get_fair(admin: dict = Depends(get_admin_user)):
@@ -1216,6 +1246,13 @@ async def admin_delete_session(session_id: str, admin: dict = Depends(get_admin_
 # ==================== APP SETUP ====================
 
 app.include_router(api_router)
+
+
+# Static uploads directory — serves files uploaded via admin panel
+# Mounted under /api/uploads so K8s ingress routes the requests to the backend
+UPLOADS_DIR = Path(__file__).parent / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 
 # Dynamic SEO endpoints (also exposed under /api for ingress routing)

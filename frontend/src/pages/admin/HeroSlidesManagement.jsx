@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import axios from "axios";
-import { Plus, Trash2, ArrowUp, ArrowDown, Image as ImageIcon, Save, X, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Image as ImageIcon, Save, X, Eye, EyeOff, Upload } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 export default function HeroSlidesManagement() {
@@ -11,6 +11,35 @@ export default function HeroSlidesManagement() {
   const [editing, setEditing] = useState(null);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setErr("Lütfen bir görsel dosyası seçin (JPG, PNG, WEBP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setErr("Dosya 10 MB'dan büyük olamaz.");
+      return;
+    }
+    setUploading(true);
+    setErr(""); setMsg("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await axios.post(`${API}/admin/uploads/image`, fd, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setForm(p => ({ ...p, image_url: data.url }));
+      setMsg("Görsel yüklendi. Şimdi başlık ekleyip Kaydet'e basın.");
+    } catch (e) {
+      setErr(e?.response?.data?.detail || "Yükleme başarısız");
+    }
+    setUploading(false);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -144,19 +173,71 @@ export default function HeroSlidesManagement() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Görsel URL *</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">Görsel *</label>
+
+              {form.image_url ? (
+                <div className="relative">
+                  <div
+                    className="w-full h-44 bg-cover bg-center rounded-lg border border-gray-200"
+                    style={{ backgroundImage: `url(${form.image_url})` }}
+                  />
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      className="bg-white/95 hover:bg-white text-summit-navy text-xs font-medium px-3 py-1.5 rounded shadow border border-gray-200"
+                    >
+                      Değiştir
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setForm(p => ({ ...p, image_url: "" }))}
+                      className="bg-white/95 hover:bg-red-50 text-red-600 text-xs font-medium px-3 py-1.5 rounded shadow border border-gray-200"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.files?.[0]) handleFileUpload(e.dataTransfer.files[0]);
+                  }}
+                  className={`w-full h-44 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${
+                    uploading ? "bg-gray-50 opacity-70" : "bg-gray-50 hover:border-summit-navy hover:bg-summit-navy/5"
+                  }`}
+                  data-testid="slide-upload-zone"
+                >
+                  {uploading ? (
+                    <>
+                      <div className="w-8 h-8 border-2 border-summit-navy border-t-transparent rounded-full animate-spin mb-3" />
+                      <p className="text-summit-navy text-sm font-medium">Yükleniyor...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={28} className="text-gray-400 mb-2" />
+                      <p className="text-summit-navy text-sm font-medium">Görsel yüklemek için tıkla</p>
+                      <p className="text-gray-400 text-xs mt-1">veya buraya sürükle bırak</p>
+                      <p className="text-gray-400 text-[0.65rem] mt-2">JPG / PNG / WEBP — Max 10 MB</p>
+                    </>
+                  )}
+                </div>
+              )}
+
               <input
-                type="url"
-                value={form.image_url}
-                onChange={(e) => setForm(p => ({ ...p, image_url: e.target.value }))}
-                placeholder="https://..."
-                required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-summit-gold/40"
-                data-testid="slide-image-url"
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e.target.files?.[0])}
+                data-testid="slide-file-input"
               />
-              <p className="text-xs text-gray-400 mt-1">
-                Görseli önce başka bir yere yükleyin (Imgur, Cloudinary, vb.) ve URL'ini buraya yapıştırın.
-                Önerilen boyut: 1920x1080 px (yatay).
+
+              <p className="text-xs text-gray-400 mt-2">
+                Önerilen boyut: 1920×1080 px (yatay). Görsel sunucunuza yüklenir, harici bir hizmete gerek yoktur.
               </p>
             </div>
             <div>
