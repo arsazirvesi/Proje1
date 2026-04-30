@@ -16,7 +16,7 @@ const applicationTypes = [
 ];
 
 const sponsorPackages = [
-  { value: "ana", label: "Ana Sponsor" },
+  { value: "ana", label: "Ana Sponsor (verildi — bekleme listesi)" },
   { value: "altin", label: "Altın Sponsor" },
   { value: "gumus", label: "Gümüş Sponsor" },
   { value: "bronz", label: "Bronz Sponsor" },
@@ -94,7 +94,7 @@ const SPONSOR_TIERS = [
       "Tüm katılımcı veri tabanı paylaşımı",
       "VIP yemek + özel networking",
     ],
-    highlight: true,
+    sold: true,
     pkg: "ana",
   },
   {
@@ -111,6 +111,7 @@ const SPONSOR_TIERS = [
       "Katılımcı verisi (filtrelenmiş)",
       "VIP yemek davetiyesi",
     ],
+    highlight: true,
     pkg: "altin",
   },
   {
@@ -469,20 +470,32 @@ export default function SpeakerApplicationPage() {
               const Icon = t.icon;
               return (
                 <div key={i}
-                  className={`relative group rounded-2xl overflow-hidden flex flex-col bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl
-                    ${t.highlight
-                      ? "ring-2 ring-summit-accent shadow-2xl lg:scale-[1.04]"
-                      : "ring-1 ring-gray-200 shadow-md"}`}
+                  className={`relative group rounded-2xl overflow-hidden flex flex-col bg-white transition-all duration-300
+                    ${t.sold
+                      ? "ring-1 ring-gray-200 shadow-md opacity-90"
+                      : t.highlight
+                        ? "ring-2 ring-summit-accent shadow-2xl lg:scale-[1.04] hover:-translate-y-2 hover:shadow-2xl"
+                        : "ring-1 ring-gray-200 shadow-md hover:-translate-y-2 hover:shadow-2xl"}`}
                   data-testid={`sponsor-tier-${t.label.toLowerCase().replace(" ", "-")}`}
                 >
-                  {t.highlight && (
+                  {/* SOLD diagonal ribbon */}
+                  {t.sold && (
+                    <div className="absolute top-0 right-0 w-28 h-28 overflow-hidden pointer-events-none z-20">
+                      <div className="absolute top-7 -right-8 w-40 rotate-45 bg-red-600 text-white text-[0.7rem] font-bold uppercase tracking-[0.2em] text-center py-1.5 shadow-lg ring-1 ring-red-700">
+                        VERİLDİ
+                      </div>
+                    </div>
+                  )}
+
+                  {t.highlight && !t.sold && (
                     <div className="absolute top-0 left-0 right-0 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-[0.2em] text-center py-1.5 z-10 shadow-md">
                       ★ EN POPÜLER ★
                     </div>
                   )}
 
                   {/* Colored Header */}
-                  <div className={`relative ${t.bg} ${t.highlight ? "pt-12 pb-7" : "py-7"} px-5 text-center`}>
+                  <div className={`relative ${t.bg} ${t.highlight && !t.sold ? "pt-12 pb-7" : "py-7"} px-5 text-center
+                    ${t.sold ? "grayscale-[40%]" : ""}`}>
                     {/* subtle pattern overlay */}
                     <div className="absolute inset-0 opacity-10"
                       style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
@@ -491,13 +504,13 @@ export default function SpeakerApplicationPage() {
                     </div>
                     <h3 className="relative font-heading text-white text-xl font-bold mt-4 drop-shadow-md">{t.label}</h3>
                     <p className="relative text-white/85 text-[0.68rem] uppercase tracking-[0.18em] mt-1.5 font-semibold">
-                      {t.highlight ? "Premium Paket" : "Standart Paket"}
+                      {t.sold ? "Sahibini Buldu" : t.highlight ? "Premium Paket" : "Standart Paket"}
                     </p>
                   </div>
 
                   {/* Perks */}
                   <div className="flex-1 p-5 flex flex-col">
-                    <ul className="space-y-2.5 mb-6 flex-1">
+                    <ul className={`space-y-2.5 mb-6 flex-1 ${t.sold ? "opacity-60" : ""}`}>
                       {t.perks.map((p, j) => (
                         <li key={j} className="flex items-start gap-2 text-xs text-gray-700 leading-relaxed">
                           <Check size={13} className="text-summit-accent mt-0.5 shrink-0" strokeWidth={3} />
@@ -505,17 +518,28 @@ export default function SpeakerApplicationPage() {
                         </li>
                       ))}
                     </ul>
-                    <button
-                      onClick={() => scrollToForm("sponsor", t.pkg)}
-                      className={`w-full py-3 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 transition-all
-                        ${t.highlight
-                          ? "bg-summit-accent text-summit-navy hover:bg-yellow-400 shadow-md hover:shadow-lg"
-                          : "bg-summit-navy text-white hover:bg-summit-navy-dark"
-                        }`}
-                      data-testid={`sponsor-cta-${i}`}
-                    >
-                      Bu Paketi Seç <ArrowRight size={14} />
-                    </button>
+                    {t.sold ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full py-3 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200"
+                        data-testid={`sponsor-cta-${i}`}
+                      >
+                        <Crown size={14} /> Bu Paket Verildi
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => scrollToForm("sponsor", t.pkg)}
+                        className={`w-full py-3 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 transition-all
+                          ${t.highlight
+                            ? "bg-summit-accent text-summit-navy hover:bg-yellow-400 shadow-md hover:shadow-lg"
+                            : "bg-summit-navy text-white hover:bg-summit-navy-dark"
+                          }`}
+                        data-testid={`sponsor-cta-${i}`}
+                      >
+                        Bu Paketi Seç <ArrowRight size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -789,7 +813,7 @@ export default function SpeakerApplicationPage() {
             Sınırlı kontenjan. <span className="text-summit-accent italic">Hemen yerinizi ayırtın.</span>
           </h2>
           <p className="text-white/85 text-sm sm:text-base mb-8 max-w-xl mx-auto leading-relaxed">
-            36 stant ve 4 ana sponsorluk paketi mevcut. Geçen yıl 12 firma "keşke daha erken başvursaydık" dedi.
+            Ana Sponsorluk sahibini buldu. <strong className="text-summit-accent">Altın, Gümüş ve Bronz</strong> paketleri ile 36 stant kontenjanı için başvurular devam ediyor.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <button
