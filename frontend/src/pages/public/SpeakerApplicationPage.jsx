@@ -23,21 +23,20 @@ const sponsorPackages = [
   { value: "danisacagim", label: "Önce bilgi almak istiyorum" },
 ];
 
-// === Real summit photos (existing customer assets) ===
+// === Real summit photos (existing customer assets) — only PURE PHOTOS, no text-overlay banners ===
 const HERO_BG = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg";
-const SUMMIT_IMG_1 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/8bgxo9f8_34e45b4c-4905-428c-8be7-bb3fc0c4ed87.jpeg";
-const SUMMIT_IMG_2 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/z1u1rnwp_6bdf1e85-1707-4c85-80f4-e6574aab5a21.jpeg";
-const SUMMIT_IMG_3 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/ukxr6ozq_IMG_4962.jpeg";
-const SUMMIT_IMG_4 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/0qahm8c4_IMG_4960.jpeg";
-const SUMMIT_IMG_5 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/01rt3h3r_IMG_4927.jpeg";
-const SUMMIT_IMG_6 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/kzmv2bzx_IMG_4415.jpeg";
-const SUMMIT_IMG_7 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/i9qghti1_IMG_4414.jpeg";
-const SUMMIT_IMG_8 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/e7ra3uom_IMG_4941.png";
-const SUMMIT_IMG_9 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/vj45pzl7_IMG_4926.png";
-const SUMMIT_BANNER = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg";
+const PHOTO_AUDIENCE_1 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/8bgxo9f8_34e45b4c-4905-428c-8be7-bb3fc0c4ed87.jpeg";
+const PHOTO_AUDIENCE_2 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/ukxr6ozq_IMG_4962.jpeg";
+const PHOTO_AUDIENCE_3 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/01rt3h3r_IMG_4927.jpeg";
+const PHOTO_AUDIENCE_4 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/kzmv2bzx_IMG_4415.jpeg";
+const PHOTO_AUDIENCE_5 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/i9qghti1_IMG_4414.jpeg";
+const PHOTO_STAGE_1 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/e7ra3uom_IMG_4941.png";
+const PHOTO_STAGE_2 = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/vj45pzl7_IMG_4926.png";
+// Side-card hero (allowed even if has small projector text — used in card frame with own caption)
+const HERO_SIDE_CARD = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg";
 const FAIR_BG = "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg";
 
-const PAST_GALLERY = [SUMMIT_IMG_1, SUMMIT_IMG_2, SUMMIT_IMG_3, SUMMIT_IMG_4, SUMMIT_IMG_5, SUMMIT_IMG_6, SUMMIT_IMG_7, SUMMIT_IMG_8];
+const PAST_GALLERY = [PHOTO_AUDIENCE_1, PHOTO_AUDIENCE_2, PHOTO_AUDIENCE_3, PHOTO_AUDIENCE_4, PHOTO_AUDIENCE_5, PHOTO_STAGE_1, PHOTO_STAGE_2];
 
 // === Stats ===
 const HEADLINE_STATS = [
@@ -47,45 +46,46 @@ const HEADLINE_STATS = [
   { value: "5.000+", label: "Hedef Ziyaretçi", icon: Eye },
 ];
 
-// === Why Sponsor Benefits ===
+// === Why Sponsor Benefits — use ONLY clean photos ===
 const BENEFITS = [
   {
     icon: Eye,
     title: "Marka Görünürlüğü",
     desc: "Logo + tanıtım videolarınız sahne, fuar girişi, sosyal medya ve basın kanallarında 600+ profesyonele ulaşır.",
-    image: SUMMIT_IMG_2,
+    image: PHOTO_AUDIENCE_1,
     badge: "Ortalama 50.000+ erişim",
   },
   {
     icon: Handshake,
     title: "Doğrudan Yatırımcı Buluşması",
     desc: "Karar mercii yatırımcılar, müteahhitler ve emlak danışmanlarıyla yüz yüze tanışın. Networking salonunda birebir görüşme imkânı.",
-    image: SUMMIT_IMG_5,
+    image: PHOTO_AUDIENCE_3,
     badge: "%72 Karar mercii oranı",
   },
   {
     icon: Target,
     title: "Yüksek Kalite Lead",
     desc: "QR yaka kartlarıyla standınızı ziyaret eden tüm yatırımcıların kişi bilgileri size aktarılır. CRM uyumlu Excel raporu.",
-    image: SUMMIT_IMG_4,
+    image: PHOTO_AUDIENCE_4,
     badge: "Ortalama 250+ lead/firma",
   },
   {
     icon: Megaphone,
     title: "Basın & Medya",
     desc: "Sektörel basın, dijital medya ve yatırım yayınları zirveyi takip ediyor. Sponsor markalar her haberde ön planda.",
-    image: SUMMIT_IMG_3,
+    image: PHOTO_STAGE_1,
     badge: "12+ medya partneri",
   },
 ];
 
-// === Sponsor Tiers ===
+// === Sponsor Tiers — NO BACKGROUND IMAGES, just clean colored cards ===
 const SPONSOR_TIERS = [
   {
     icon: Crown,
     label: "Ana Sponsor",
-    color: "from-summit-navy to-blue-900",
-    accent: "summit-accent",
+    bg: "bg-gradient-to-br from-summit-navy via-blue-900 to-summit-navy-dark",
+    iconBg: "bg-summit-accent",
+    iconColor: "text-summit-navy",
     perks: [
       "Sahnede açılış konuşması",
       "Tüm iletişim materyallerinde isim hakkı",
@@ -94,14 +94,15 @@ const SPONSOR_TIERS = [
       "Tüm katılımcı veri tabanı paylaşımı",
       "VIP yemek + özel networking",
     ],
-    image: SUMMIT_IMG_1,
     highlight: true,
+    pkg: "ana",
   },
   {
     icon: Trophy,
     label: "Altın Sponsor",
-    color: "from-yellow-500 to-amber-600",
-    accent: "summit-accent",
+    bg: "bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600",
+    iconBg: "bg-white",
+    iconColor: "text-amber-600",
     perks: [
       "Panel oturumunda konuşma hakkı",
       "Logo: tüm dijital + basılı materyaller",
@@ -110,13 +111,14 @@ const SPONSOR_TIERS = [
       "Katılımcı verisi (filtrelenmiş)",
       "VIP yemek davetiyesi",
     ],
-    image: SUMMIT_IMG_2,
+    pkg: "altin",
   },
   {
     icon: Medal,
     label: "Gümüş Sponsor",
-    color: "from-slate-400 to-slate-600",
-    accent: "summit-navy",
+    bg: "bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700",
+    iconBg: "bg-white",
+    iconColor: "text-slate-600",
     perks: [
       "Logo: tüm dijital materyaller",
       "Stant (9m²) — fuar alanı",
@@ -124,20 +126,21 @@ const SPONSOR_TIERS = [
       "Katılımcı listesi (ad-soyad-firma)",
       "Networking yemek davetiyesi",
     ],
-    image: SUMMIT_IMG_3,
+    pkg: "gumus",
   },
   {
     icon: Gem,
     label: "Bronz Sponsor",
-    color: "from-orange-400 to-orange-600",
-    accent: "summit-navy",
+    bg: "bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700",
+    iconBg: "bg-white",
+    iconColor: "text-orange-600",
     perks: [
       "Logo: web sitesi + sahne arkası",
       "Mini Stant (6m²)",
       "Sosyal medya tanıtım postu",
       "5 kişilik konferans katılımı",
     ],
-    image: SUMMIT_IMG_4,
+    pkg: "bronz",
   },
 ];
 
@@ -308,7 +311,7 @@ export default function SpeakerApplicationPage() {
           <div className="lg:col-span-4 hidden lg:block">
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-2xl">
               <div className="aspect-[4/5] rounded-lg overflow-hidden mb-5 relative">
-                <img src={SUMMIT_BANNER} alt="Arsa Yatırım Zirvesi sahne görüntüsü" className="w-full h-full object-cover" />
+                <img src={HERO_SIDE_CARD} alt="Arsa Yatırım Zirvesi sahne görüntüsü" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-summit-navy/80 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 text-white">
                   <p className="text-[0.65rem] uppercase tracking-widest text-summit-accent font-bold">2025 Zirvesi</p>
@@ -372,19 +375,19 @@ export default function SpeakerApplicationPage() {
                   className="group bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                   data-testid={`benefit-card-${i}`}
                 >
-                  <div className="relative h-56 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden bg-summit-navy">
                     <img
                       src={b.image}
                       alt={b.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-summit-navy/85 via-summit-navy/30 to-transparent" />
-                    <div className="absolute top-4 left-4 w-12 h-12 rounded-xl bg-summit-accent flex items-center justify-center shadow-lg">
+                    <div className="absolute inset-0 bg-gradient-to-t from-summit-navy via-summit-navy/60 to-summit-navy/40" />
+                    <div className="absolute top-4 left-4 w-12 h-12 rounded-xl bg-summit-accent flex items-center justify-center shadow-lg ring-2 ring-white/30">
                       <Icon size={22} className="text-summit-navy" />
                     </div>
                     <div className="absolute bottom-4 left-4 right-4">
-                      <span className="inline-flex items-center gap-1.5 text-summit-accent text-[0.65rem] font-bold uppercase tracking-wider bg-white/10 backdrop-blur px-2.5 py-1 rounded">
-                        <TrendingUp size={11} /> {b.badge}
+                      <span className="inline-flex items-center gap-1.5 text-summit-navy text-[0.7rem] font-bold uppercase tracking-wider bg-summit-accent px-3 py-1.5 rounded shadow-md">
+                        <TrendingUp size={12} /> {b.badge}
                       </span>
                     </div>
                   </div>
@@ -437,7 +440,7 @@ export default function SpeakerApplicationPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {PAST_GALLERY.slice(6).concat([SUMMIT_IMG_9, SUMMIT_BANNER]).slice(0, 4).map((img, i) => (
+            {[PHOTO_STAGE_2, PHOTO_AUDIENCE_5, PHOTO_AUDIENCE_2, PHOTO_AUDIENCE_4].map((img, i) => (
               <div key={i} className="group relative aspect-[4/3] rounded-lg overflow-hidden shadow-md">
                 <img src={img} alt={`Zirve görsel ${i + 7}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-summit-navy/0 group-hover:bg-summit-navy/30 transition-colors" />
@@ -466,39 +469,47 @@ export default function SpeakerApplicationPage() {
               const Icon = t.icon;
               return (
                 <div key={i}
-                  className={`relative group rounded-2xl overflow-hidden bg-white border-2 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl
-                    ${t.highlight ? "border-summit-accent shadow-2xl scale-[1.02]" : "border-gray-200 shadow-sm"}`}
+                  className={`relative group rounded-2xl overflow-hidden flex flex-col bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl
+                    ${t.highlight
+                      ? "ring-2 ring-summit-accent shadow-2xl lg:scale-[1.04]"
+                      : "ring-1 ring-gray-200 shadow-md"}`}
                   data-testid={`sponsor-tier-${t.label.toLowerCase().replace(" ", "-")}`}
                 >
                   {t.highlight && (
-                    <div className="absolute top-0 left-0 right-0 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-widest text-center py-1.5 z-10">
-                      ★ En Popüler ★
+                    <div className="absolute top-0 left-0 right-0 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-[0.2em] text-center py-1.5 z-10 shadow-md">
+                      ★ EN POPÜLER ★
                     </div>
                   )}
-                  <div className={`relative h-40 overflow-hidden ${t.highlight ? "mt-7" : ""}`}>
-                    <img src={t.image} alt={t.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${t.color} opacity-80`} />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Icon size={36} className="mx-auto mb-2 drop-shadow-lg" />
-                        <h3 className="font-heading text-2xl font-bold drop-shadow-lg">{t.label}</h3>
-                      </div>
+
+                  {/* Colored Header */}
+                  <div className={`relative ${t.bg} ${t.highlight ? "pt-12 pb-7" : "py-7"} px-5 text-center`}>
+                    {/* subtle pattern overlay */}
+                    <div className="absolute inset-0 opacity-10"
+                      style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+                    <div className={`relative w-16 h-16 mx-auto rounded-xl ${t.iconBg} flex items-center justify-center shadow-lg ring-4 ring-white/20`}>
+                      <Icon size={28} className={t.iconColor} strokeWidth={2.2} />
                     </div>
+                    <h3 className="relative font-heading text-white text-xl font-bold mt-4 drop-shadow-md">{t.label}</h3>
+                    <p className="relative text-white/85 text-[0.68rem] uppercase tracking-[0.18em] mt-1.5 font-semibold">
+                      {t.highlight ? "Premium Paket" : "Standart Paket"}
+                    </p>
                   </div>
-                  <div className="p-5">
-                    <ul className="space-y-2.5 mb-6">
+
+                  {/* Perks */}
+                  <div className="flex-1 p-5 flex flex-col">
+                    <ul className="space-y-2.5 mb-6 flex-1">
                       {t.perks.map((p, j) => (
-                        <li key={j} className="flex items-start gap-2 text-xs text-gray-700">
-                          <Check size={13} className="text-summit-accent mt-0.5 shrink-0" />
+                        <li key={j} className="flex items-start gap-2 text-xs text-gray-700 leading-relaxed">
+                          <Check size={13} className="text-summit-accent mt-0.5 shrink-0" strokeWidth={3} />
                           <span>{p}</span>
                         </li>
                       ))}
                     </ul>
                     <button
-                      onClick={() => scrollToForm("sponsor", t.label.toLowerCase().split(" ")[0] === "ana" ? "ana" : t.label.toLowerCase().split(" ")[0])}
-                      className={`w-full py-2.5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 transition-all
+                      onClick={() => scrollToForm("sponsor", t.pkg)}
+                      className={`w-full py-3 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 transition-all
                         ${t.highlight
-                          ? "bg-summit-accent text-summit-navy hover:bg-yellow-400 shadow-md"
+                          ? "bg-summit-accent text-summit-navy hover:bg-yellow-400 shadow-md hover:shadow-lg"
                           : "bg-summit-navy text-white hover:bg-summit-navy-dark"
                         }`}
                       data-testid={`sponsor-cta-${i}`}
@@ -521,7 +532,7 @@ export default function SpeakerApplicationPage() {
       <section className="py-20 bg-summit-navy relative overflow-hidden" data-testid="testimonials-section">
         <div
           className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: `url(${SUMMIT_IMG_2})`, backgroundSize: "cover", backgroundPosition: "center" }}
+          style={{ backgroundImage: `url(${PHOTO_AUDIENCE_3})`, backgroundSize: "cover", backgroundPosition: "center" }}
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-summit-navy/85" />
