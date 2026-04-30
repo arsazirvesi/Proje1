@@ -7,20 +7,22 @@ import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket
 import { API_BASE as API } from "../../lib/api";
 
 function useCountdown(targetDate) {
-  const [timeLeft, setTimeLeft] = useState({});
-  useEffect(() => {
-    const calc = () => {
-      const diff = new Date(targetDate).getTime() - Date.now();
-      if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      setTimeLeft({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
-      });
+  // Immediate calc (avoids the 0/0/0/0 flash on first render)
+  const compute = (target) => {
+    if (!target) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    const diff = new Date(target).getTime() - Date.now();
+    if (isNaN(diff) || diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    return {
+      days: Math.floor(diff / 86400000),
+      hours: Math.floor((diff % 86400000) / 3600000),
+      minutes: Math.floor((diff % 3600000) / 60000),
+      seconds: Math.floor((diff % 60000) / 1000),
     };
-    calc();
-    const t = setInterval(calc, 1000);
+  };
+  const [timeLeft, setTimeLeft] = useState(() => compute(targetDate));
+  useEffect(() => {
+    setTimeLeft(compute(targetDate));
+    const t = setInterval(() => setTimeLeft(compute(targetDate)), 1000);
     return () => clearInterval(t);
   }, [targetDate]);
   return timeLeft;
@@ -34,7 +36,17 @@ export default function HomePage() {
   const [heroSlides, setHeroSlides] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
   const [registerOpen, setRegisterOpen] = useState(false);
-  const countdown = useCountdown("2026-05-21T09:00:00+03:00");
+  const [siteSettings, setSiteSettings] = useState({
+    event_datetime: "2026-05-21T09:00:00+03:00",
+    event_date_label: "21 Mayıs 2026",
+    event_time_label: "09:00 - 19:00",
+    event_location: "Hilton İstanbul Bosphorus",
+    speakers_count: 4,
+    sessions_count: 12,
+    attendees_count: "600+",
+    countdown_title: "Zirveye Kalan Süre",
+  });
+  const countdown = useCountdown(siteSettings.event_datetime);
 
   useEffect(() => {
     axios.get(`${API}/speakers`).then(r => setSpeakers(r.data)).catch(() => {});
@@ -42,6 +54,9 @@ export default function HomePage() {
     axios.get(`${API}/events`).then(r => setEvents(r.data.slice(0, 3))).catch(() => {});
     axios.get(`${API}/sponsors`).then(r => setSponsors(r.data)).catch(() => {});
     axios.get(`${API}/hero-slides`).then(r => setHeroSlides(r.data)).catch(() => {});
+    axios.get(`${API}/site-settings`).then(r => {
+      if (r.data && Object.keys(r.data).length) setSiteSettings(s => ({ ...s, ...r.data }));
+    }).catch(() => {});
   }, []);
 
   // Rotate hero slides every 5s
@@ -101,7 +116,7 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-3 mb-4 sm:mb-7 animate-fade-in stagger-1 opacity-0">
                 <div className="w-8 sm:w-10 h-0.5 bg-summit-navy" />
                 <span className="text-summit-navy text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em]">
-                  21 Mayıs 2026 · Perşembe
+                  {siteSettings.event_date_label} · Perşembe
                 </span>
               </div>
 
@@ -119,7 +134,7 @@ export default function HomePage() {
               {/* Location pill */}
               <div className="inline-flex items-center gap-2 mt-4 sm:mt-6 bg-white border border-gray-200 rounded-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm animate-slide-up stagger-4 opacity-0">
                 <MapPin size={13} className="text-summit-navy shrink-0" />
-                <span className="text-summit-navy text-xs sm:text-sm font-medium">Hilton İstanbul Bosphorus</span>
+                <span className="text-summit-navy text-xs sm:text-sm font-medium">{siteSettings.event_location}</span>
               </div>
 
               {/* Compact countdown (mobile-only visible) */}
@@ -214,7 +229,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-between mb-6 mt-1">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500">Geri Sayım</p>
-                    <h3 className="font-heading text-summit-navy text-xl mt-1">Zirveye Kalan Süre</h3>
+                    <h3 className="font-heading text-summit-navy text-xl mt-1">{siteSettings.countdown_title || "Zirveye Kalan Süre"}</h3>
                   </div>
                   <div className="w-11 h-11 rounded-md bg-summit-navy/10 flex items-center justify-center">
                     <Calendar size={18} className="text-summit-navy" />
@@ -233,7 +248,11 @@ export default function HomePage() {
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-3 gap-3">
-                  {[["4", "Konuşmacı"], ["12", "Oturum"], ["600+", "Katılımcı"]].map(([n, l]) => (
+                  {[
+                    [String(siteSettings.speakers_count || 4), "Konuşmacı"],
+                    [String(siteSettings.sessions_count || 12), "Oturum"],
+                    [siteSettings.attendees_count || "600+", "Katılımcı"],
+                  ].map(([n, l]) => (
                     <div key={l} className="text-center">
                       <div className="font-heading text-summit-navy text-2xl font-bold">{n}</div>
                       <div className="text-gray-500 text-[0.65rem] uppercase tracking-widest mt-1 font-medium">{l}</div>

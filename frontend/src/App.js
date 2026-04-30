@@ -38,6 +38,7 @@ import ProgramManagement from "./pages/admin/ProgramManagement";
 import AdminSEO from "./pages/admin/AdminSEO";
 import HeroSlidesManagement from "./pages/admin/HeroSlidesManagement";
 import FairManagement from "./pages/admin/FairManagement";
+import SiteSettingsManagement from "./pages/admin/SiteSettingsManagement";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -105,6 +106,7 @@ function App() {
               <Route path="kullanicilar" element={<AdminUsers />} />
               <Route path="seo" element={<AdminSEO />} />
               <Route path="hero-slides" element={<HeroSlidesManagement />} />
+              <Route path="etkinlik-ayarlari" element={<SiteSettingsManagement />} />
               <Route path="fuar" element={<FairManagement />} />
               {/* Backward compat for old URLs */}
               <Route path="uyeler" element={<Navigate to="/admin/bulten-uyeleri" replace />} />

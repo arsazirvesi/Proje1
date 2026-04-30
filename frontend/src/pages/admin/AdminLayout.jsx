@@ -8,6 +8,7 @@ import {
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "⏱ Etkinlik Tarihi & Sayaç", href: "/admin/etkinlik-ayarlari", icon: Calendar },
   { label: "Ziyaretçiler (Tümü)", href: "/admin/ziyaretciler", icon: Users },
   { label: "Zirve Ziyaretçileri", href: "/admin/zirve-ziyaretcileri", icon: Ticket },
   { label: "Fuar Ziyaretçileri", href: "/admin/fuar-ziyaretcileri", icon: Store },

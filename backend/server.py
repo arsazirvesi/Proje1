@@ -241,6 +241,18 @@ class HeroSlideCreate(BaseModel):
     opacity: Optional[int] = 45  # 0-100, percent
 
 
+class SiteSettings(BaseModel):
+    """General site-wide settings (event date for countdown, statistics, etc.)"""
+    event_datetime: Optional[str] = None  # ISO 8601 with timezone, used by countdown
+    event_date_label: Optional[str] = None  # "21 Mayıs 2026" - text label
+    event_time_label: Optional[str] = None  # "09:00 - 19:00"
+    event_location: Optional[str] = None  # "Hilton İstanbul Bosphorus"
+    speakers_count: Optional[int] = None
+    sessions_count: Optional[int] = None
+    attendees_count: Optional[str] = None  # "600+"
+    countdown_title: Optional[str] = None  # "Zirveye Kalan Süre"
+
+
 class FairSettings(BaseModel):
     fair_name: Optional[str] = None
     subtitle: Optional[str] = None
@@ -408,6 +420,14 @@ async def get_hero_slides():
 @api_router.get("/fair")
 async def get_fair_settings():
     doc = await db.fair_settings.find_one({"key": "main"})
+    if not doc:
+        return {}
+    return clean_doc(doc)
+
+
+@api_router.get("/site-settings")
+async def get_site_settings():
+    doc = await db.site_settings.find_one({"key": "main"})
     if not doc:
         return {}
     return clean_doc(doc)
@@ -1210,6 +1230,29 @@ async def admin_update_fair(body: FairSettings, admin: dict = Depends(get_admin_
     return clean_doc(doc)
 
 
+# ===== Site settings (event date / countdown) =====
+@api_router.get("/admin/site-settings")
+async def admin_get_site_settings(admin: dict = Depends(get_admin_user)):
+    doc = await db.site_settings.find_one({"key": "main"})
+    if not doc:
+        return {}
+    return clean_doc(doc)
+
+
+@api_router.put("/admin/site-settings")
+async def admin_update_site_settings(body: SiteSettings, admin: dict = Depends(get_admin_user)):
+    update = {k: v for k, v in body.model_dump().items() if v is not None}
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.site_settings.update_one(
+        {"key": "main"},
+        {"$set": update, "$setOnInsert": {"key": "main", "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    doc = await db.site_settings.find_one({"key": "main"})
+    return clean_doc(doc)
+
+
+
 
 
 # ==================== ADMIN PROGRAM ====================
@@ -1446,6 +1489,22 @@ async def startup():
         ]
         await db.hero_slides.insert_many(slides)
         logger.info("Hero slides seeded")
+
+    # Seed site-wide settings (event date / countdown)
+    if await db.site_settings.count_documents({"key": "main"}) == 0:
+        await db.site_settings.insert_one({
+            "key": "main",
+            "event_datetime": "2026-05-21T09:00:00+03:00",
+            "event_date_label": "21 Mayıs 2026",
+            "event_time_label": "09:00 - 19:00",
+            "event_location": "Hilton İstanbul Bosphorus",
+            "speakers_count": 4,
+            "sessions_count": 12,
+            "attendees_count": "600+",
+            "countdown_title": "Zirveye Kalan Süre",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("Site settings seeded")
 
     # Seed fair settings
     if await db.fair_settings.count_documents({"key": "main"}) == 0:
