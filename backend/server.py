@@ -1422,15 +1422,15 @@ async def startup():
     # Seed past events
     if await db.past_events.count_documents({}) == 0:
         await db.past_events.insert_many([
-            {"title": "1. Arsa Yatırım Zirvesi", "year": 2023, "venue": "Crowne Plaza Istanbul Asia",
+            {"title": "1. Fuar Semineri", "year": 2023, "venue": "Crowne Plaza Istanbul Asia",
              "description": "İlk Arsa Yatırım Zirvesi'nde 200'den fazla yatırımcı bir araya geldi. Arsa yatırımının temellerini ele alan bu zirve büyük ilgi gördü.",
              "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/04eetgap_17e1e87f-b677-4054-92cc-c1972d6d0dd5.jpeg",
              "attendee_count": 200, "speakers_count": 5, "created_at": datetime.now(timezone.utc).isoformat()},
-            {"title": "2. Arsa Yatırım Zirvesi", "year": 2024, "venue": "Wyndham Grand Istanbul",
+            {"title": "2. Fuar Semineri", "year": 2024, "venue": "Wyndham Grand Istanbul",
              "description": "İkinci zirve 400'ü aşkın katılımcıyla gerçekleşti. Bölgesel analizler ve hukuki konular detaylı olarak ele alındı.",
              "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/z1u1rnwp_6bdf1e85-1707-4c85-80f4-e6574aab5a21.jpeg",
              "attendee_count": 400, "speakers_count": 8, "created_at": datetime.now(timezone.utc).isoformat()},
-            {"title": "3. Arsa Yatırım Zirvesi", "year": 2025, "venue": "Marriott Istanbul Asia",
+            {"title": "3. Fuar Semineri", "year": 2025, "venue": "Marriott Istanbul Asia",
              "description": "Üçüncü zirve 600'den fazla yatırımcının katılımıyla en büyük buluşmaya ev sahipliği yaptı. Dijital araçlar gündemin merkezindeydi.",
              "image_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/8bgxo9f8_34e45b4c-4905-428c-8be7-bb3fc0c4ed87.jpeg",
              "attendee_count": 600, "speakers_count": 12, "created_at": datetime.now(timezone.utc).isoformat()},
