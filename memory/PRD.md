@@ -120,6 +120,10 @@ Kurumsal zirve websitesi + kapsamlı CRM admin paneli.
 
 ## Pending / Backlog
 
+### Recently Completed (Feb 2026)
+- [x] **2026-02-09 — Konuşmacı/Sponsor Başvuru Sayfası Conversion Redesign**: `/konusmaci-basvuru` sayfası tam landing page'e dönüştürüldü. Hero (summit photo bg + gold "En Prestijli" CTA), Stats Bar (600+/36/20+/5K+), 4 Benefit cards (gerçek zirve fotoğrafları + KPI rozetleri), Past Event Gallery (mosaic + 4 ek foto), 4 Sponsor Tier cards (Ana/Altın/Gümüş/Bronz, "★ EN POPÜLER ★" highlight), 3 Testimonial, Application Form (sponsor pre-selected), Final CTA. Tüm CTA'lar tier seçimini forma scroll'lar.
+- [x] **Email Verification (Double Opt-in) UI**: VisitorRegisterPage.jsx başarı ekranı "E-postanızı Kontrol Edin" + 4 adımlı doğrulama talimatı şeklinde güncellendi. "Yaka Kartını Gör" butonu kaldırıldı.
+
 ### P0 (Pre-launch)
 - [ ] SENDGRID_API_KEY environment variable
 - [ ] Real speaker photos (currently stock photos)
