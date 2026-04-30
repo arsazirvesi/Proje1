@@ -141,14 +141,14 @@ export default function VisitorRegisterPage() {
                 type="button"
                 onClick={() => !summitFull && setVisitType("summit")}
                 disabled={summitFull}
-                className={`group text-left bg-white border-2 rounded-md overflow-hidden transition-all shadow-sm
+                className={`group text-left bg-white rounded-md overflow-hidden transition-all shadow-md ring-1 ring-black/5
                   ${summitFull
-                    ? "border-gray-200 opacity-60 cursor-not-allowed"
-                    : "border-summit-navy/30 hover:border-summit-navy hover:shadow-xl hover:-translate-y-1 cursor-pointer"}`}
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:shadow-2xl hover:ring-summit-navy/30 hover:-translate-y-1 cursor-pointer"}`}
                 data-testid="visit-option-summit"
               >
                 <div
-                  className="w-full h-44 bg-cover bg-center"
+                  className="w-full h-52 bg-cover bg-center"
                   style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg)" }}
                   aria-hidden="true"
                 />
@@ -208,15 +208,15 @@ export default function VisitorRegisterPage() {
               <button
                 type="button"
                 onClick={() => setVisitType("fair")}
-                className="group text-left bg-white border-2 border-summit-accent/40 hover:border-summit-accent rounded-md overflow-hidden transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer relative"
+                className="group text-left bg-white rounded-md overflow-hidden transition-all shadow-md ring-1 ring-summit-accent/30 hover:shadow-2xl hover:ring-summit-accent hover:-translate-y-1 cursor-pointer relative"
                 data-testid="visit-option-fair"
               >
                 <span className="absolute top-4 right-4 z-10 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded shadow">
                   Sınırsız Kayıt
                 </span>
                 <div
-                  className="w-full h-44 bg-cover bg-center"
-                  style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg)" }}
+                  className="w-full h-52 bg-cover bg-center"
+                  style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg)", backgroundPosition: "center top" }}
                   aria-hidden="true"
                 />
                 <div className="p-6">
