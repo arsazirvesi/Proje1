@@ -239,6 +239,24 @@ class HeroSlideCreate(BaseModel):
     opacity: Optional[int] = 45  # 0-100, percent
 
 
+class FairSettings(BaseModel):
+    fair_name: Optional[str] = None
+    subtitle: Optional[str] = None
+    dates: Optional[str] = None
+    location: Optional[str] = None
+    hall_name: Optional[str] = None
+    description: Optional[str] = None
+    total_stands: Optional[int] = None
+    total_size_range: Optional[str] = None
+    floor_plan_url: Optional[str] = None  # PDF URL (kroki)
+    floor_plan_image_url: Optional[str] = None  # PNG/JPG rendered kroki
+    gallery: Optional[List[str]] = None  # image urls
+    stand_types: Optional[List[dict]] = None  # [{name, size, count, features}]
+    highlights: Optional[List[str]] = None  # bullet list
+    cta_text: Optional[str] = None
+    cta_url: Optional[str] = None
+
+
 class SeoSettings(BaseModel):
     site_name: Optional[str] = None
     site_url: Optional[str] = None
@@ -383,6 +401,14 @@ async def get_program():
 async def get_hero_slides():
     docs = await db.hero_slides.find({"is_active": True}).sort("order", 1).to_list(20)
     return [clean_doc(d) for d in docs]
+
+
+@api_router.get("/fair")
+async def get_fair_settings():
+    doc = await db.fair_settings.find_one({"key": "main"})
+    if not doc:
+        return {}
+    return clean_doc(doc)
 
 
 @api_router.get("/seo")
@@ -1078,6 +1104,28 @@ async def admin_delete_hero_slide(slide_id: str, admin: dict = Depends(get_admin
     return {"message": "Slide silindi"}
 
 
+# ===== Fair settings admin =====
+@api_router.get("/admin/fair")
+async def admin_get_fair(admin: dict = Depends(get_admin_user)):
+    doc = await db.fair_settings.find_one({"key": "main"})
+    if not doc:
+        return {}
+    return clean_doc(doc)
+
+@api_router.put("/admin/fair")
+async def admin_update_fair(body: FairSettings, admin: dict = Depends(get_admin_user)):
+    update = {k: v for k, v in body.model_dump().items() if v is not None}
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.fair_settings.update_one(
+        {"key": "main"},
+        {"$set": update, "$setOnInsert": {"key": "main", "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    doc = await db.fair_settings.find_one({"key": "main"})
+    return clean_doc(doc)
+
+
+
 
 # ==================== ADMIN PROGRAM ====================
 
@@ -1306,6 +1354,47 @@ async def startup():
         ]
         await db.hero_slides.insert_many(slides)
         logger.info("Hero slides seeded")
+
+    # Seed fair settings
+    if await db.fair_settings.count_documents({"key": "main"}) == 0:
+        await db.fair_settings.insert_one({
+            "key": "main",
+            "fair_name": "8. Gayrimenkul Proje Yatırım Fuarı",
+            "subtitle": "Arsa Yatırım Zirvesi 2026 ile eş zamanlı · 20-21 Mayıs 2026",
+            "dates": "20 - 21 Mayıs 2026",
+            "location": "Hilton İstanbul Bosphorus — Connie I, II, A, B, C Salonları",
+            "hall_name": "Connie I-II + Connie A-B-C",
+            "description": "Zirvenin hemen ardından aynı mekânda açılan fuar alanında Türkiye'nin önde gelen gayrimenkul geliştiricileri, proje maketleriyle birlikte yatırımcılarla buluşuyor. Sektör profesyonelleriyle birebir görüşme, proje dosyası inceleme ve anında bağlantı kurma fırsatı.",
+            "total_stands": 36,
+            "total_size_range": "9 m² – 27 m² arası",
+            "floor_plan_url": "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/h5uc5kn7_Stant%20Plan%C4%B1.pdf",
+            "floor_plan_image_url": "",
+            "gallery": [
+                "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/yl13dea2_sinpa%C5%9F.png",
+                "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/y8rcv4pi_WhatsApp%20Image%202026-02-09%20at%2012.10.13%20%284%29.jpeg",
+                "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/0l84i7t0_WhatsApp%20Image%202026-02-09%20at%2012.10.13.jpeg",
+                "https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/7sojex62_WhatsApp%20Image%202026-02-09%20at%2012.10.12%20%284%29.jpeg",
+            ],
+            "stand_types": [
+                {"name": "Kompakt (9 m²)", "size": "3×3 m", "count": 8, "features": "Masa + 2 sandalye + banner alanı + priz + aydınlatma"},
+                {"name": "Standart (12 m²)", "size": "3×4 m", "count": 15, "features": "Geniş teşhir alanı, vitrin, priz, profesyonel tabela"},
+                {"name": "Premium (15 m²)", "size": "3×5 m", "count": 8, "features": "Maket sergi alanı, çoklu görüşme masası, güçlendirilmiş aydınlatma"},
+                {"name": "Büyük Format (18-27 m²)", "size": "3×6 / 3×8 / 3×9 m", "count": 3, "features": "Ana blok konumu, çift yönlü görünür, özel tasarım imkanı"},
+            ],
+            "highlights": [
+                "600+ nitelikli yatırımcı ziyareti beklentisi",
+                "Zirve konuşmacılarıyla aynı mekân, yoğun geçiş trafiği",
+                "Proje maketleri için ayrılmış geniş alanlar",
+                "e-İPAT kayıt masası ve Yenişehir proje standı",
+                "Catering ve ücretsiz otopark imkanı",
+                "Basın ve sosyal medya tanıtım desteği",
+            ],
+            "cta_text": "Stant Başvurusu Yap",
+            "cta_url": "/fuar-stant-kaydi",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        logger.info("Fair settings seeded")
+
 
     # Seed SEO settings
     if await db.seo_settings.count_documents({"key": "main"}) == 0:

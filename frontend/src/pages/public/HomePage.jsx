@@ -360,6 +360,7 @@ export default function HomePage() {
                 href: "/fuar-stant-kaydi",
                 cta: "Stant Başvurusu",
                 testid: "card-exhibitor",
+                extraLink: { text: "Fuar alanını incele →", href: "/fuar-alani" },
               },
               {
                 icon: Mic2,
@@ -369,7 +370,7 @@ export default function HomePage() {
                 cta: "Başvuru Yap",
                 testid: "card-speaker",
               },
-            ].map(({ icon: Icon, label, desc, href, cta, testid, popular }) => (
+            ].map(({ icon: Icon, label, desc, href, cta, testid, popular, extraLink }) => (
               <div key={href} className="group relative bg-white border border-gray-200 rounded-md p-7 card-hover" data-testid={testid}>
                 {popular && (
                   <div className="absolute -top-3 left-7 px-3 py-1 bg-summit-accent text-summit-navy text-xs font-bold uppercase tracking-wider rounded">
@@ -384,6 +385,11 @@ export default function HomePage() {
                 <Link to={href} className="inline-flex items-center gap-2 text-summit-navy font-semibold text-sm hover:gap-3 transition-all">
                   {cta} <ArrowRight size={15} />
                 </Link>
+                {extraLink && (
+                  <Link to={extraLink.href} className="block mt-3 text-summit-navy/70 text-xs hover:text-summit-navy font-medium">
+                    {extraLink.text}
+                  </Link>
+                )}
               </div>
             ))}
           </div>

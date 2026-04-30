@@ -85,6 +85,13 @@ export default function ExhibitorRegisterPage() {
             <p className="text-gray-600 mt-4 text-sm max-w-xl mx-auto">
               Zirvede şirketinizi tanıtın, hedef kitlenizle doğrudan iletişim kurun. Başvurunuzu alır almaz ekibimiz sizinle iletişime geçecek.
             </p>
+            <Link
+              to="/fuar-alani"
+              className="inline-flex items-center gap-1.5 mt-4 text-summit-navy font-semibold text-xs hover:text-summit-accent transition-colors border-b border-summit-navy/30 hover:border-summit-accent pb-0.5"
+              data-testid="exhibitor-fair-link"
+            >
+              Fuar Alanı ve Stant Krokisini İncele →
+            </Link>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-md p-6 sm:p-10 shadow-sm">

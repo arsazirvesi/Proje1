@@ -10,6 +10,7 @@ import SEOHead from "./components/SEOHead";
 import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
 import ProgramPage from "./pages/public/ProgramPage";
+import FairPage from "./pages/public/FairPage";
 import RegisterPage from "./pages/public/RegisterPage";
 import VisitorRegisterPage from "./pages/public/VisitorRegisterPage";
 import ExhibitorRegisterPage from "./pages/public/ExhibitorRegisterPage";
@@ -36,6 +37,7 @@ import EventManagement from "./pages/admin/EventManagement";
 import ProgramManagement from "./pages/admin/ProgramManagement";
 import AdminSEO from "./pages/admin/AdminSEO";
 import HeroSlidesManagement from "./pages/admin/HeroSlidesManagement";
+import FairManagement from "./pages/admin/FairManagement";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -61,6 +63,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/konusmacilar" element={<SpeakersPage />} />
             <Route path="/program" element={<ProgramPage />} />
+            <Route path="/fuar-alani" element={<FairPage />} />
             <Route path="/etkinlikler" element={<PastEventsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
@@ -94,6 +97,7 @@ function App() {
               <Route path="kullanicilar" element={<AdminUsers />} />
               <Route path="seo" element={<AdminSEO />} />
               <Route path="hero-slides" element={<HeroSlidesManagement />} />
+              <Route path="fuar" element={<FairManagement />} />
               {/* Backward compat for old URLs */}
               <Route path="uyeler" element={<Navigate to="/admin/bulten-uyeleri" replace />} />
               <Route path="misafirler" element={<Navigate to="/admin/ziyaretciler" replace />} />
