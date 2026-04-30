@@ -42,6 +42,7 @@ import FairManagement from "./pages/admin/FairManagement";
 import SiteSettingsManagement from "./pages/admin/SiteSettingsManagement";
 import CheckInPage from "./pages/admin/CheckInPage";
 import InviteCodesManagement from "./pages/admin/InviteCodesManagement";
+import ApiKeysManagement from "./pages/admin/ApiKeysManagement";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -91,6 +92,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="checkin" element={<CheckInPage />} />
               <Route path="davet-kodlari" element={<InviteCodesManagement />} />
+              <Route path="api-anahtarlari" element={<ApiKeysManagement />} />
               <Route path="ziyaretciler" element={<GuestList />} />
               <Route path="zirve-ziyaretcileri" element={
                 <GuestList forcedVisitType="summit" title="Zirve Ziyaretçileri"
