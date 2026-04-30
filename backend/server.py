@@ -1250,6 +1250,132 @@ async def admin_dashboard(admin: dict = Depends(get_admin_user)):
     }
 
 
+# ==================== CHECK-IN (QR Badge Validation) ====================
+
+class CheckInRequest(BaseModel):
+    code: str
+
+
+def _parse_checkin_code(raw: str) -> Optional[str]:
+    """Extract guest_id from QR code text. Accepts:
+    - "AYZ2026-{guest_id}" (current QR format)
+    - Plain guest_id
+    - URL containing /badge/{guest_id} (legacy)
+    Returns guest_id or None."""
+    if not raw:
+        return None
+    code = raw.strip()
+    if code.startswith("AYZ2026-"):
+        return code[len("AYZ2026-"):].strip()
+    if "/badge/" in code:
+        return code.split("/badge/")[-1].split("/")[0].split("?")[0].strip()
+    return code
+
+
+@api_router.post("/admin/checkin")
+async def admin_checkin(body: CheckInRequest, admin: dict = Depends(get_admin_user)):
+    """Validate a badge QR code and check the guest in.
+    Status values:
+    - approved: First valid scan, guest now checked in
+    - already_checked_in: Guest already scanned earlier
+    - not_verified: Guest registered but never confirmed email
+    - not_found: Code does not match any guest
+    """
+    guest_id = _parse_checkin_code(body.code)
+    if not guest_id:
+        return {"status": "not_found", "message": "Geçersiz QR kod"}
+
+    if not ObjectId.is_valid(guest_id):
+        return {"status": "not_found", "message": "Yaka kartı sistemde bulunamadı"}
+
+    obj_id = ObjectId(guest_id)
+    guest = await db.guests.find_one({"_id": obj_id})
+    if not guest:
+        return {"status": "not_found", "message": "Yaka kartı sistemde bulunamadı"}
+
+    visit_type = guest.get("visit_type", "summit")
+    visit_label = "Zirve" if visit_type == "summit" else "Fuar"
+    guest_info = {
+        "guest_id": guest_id,
+        "name": guest.get("name", ""),
+        "company": guest.get("company", ""),
+        "title": guest.get("title", ""),
+        "email": guest.get("email", ""),
+        "phone": guest.get("phone", ""),
+        "city": guest.get("city", ""),
+        "visit_type": visit_type,
+        "visit_label": visit_label,
+        "badge_id": f"AYZ2026-{guest_id[-8:].upper()}",
+    }
+
+    # Not email-verified yet
+    if not guest.get("is_verified"):
+        return {
+            "status": "not_verified",
+            "message": "Bu yaka kartının sahibi e-posta doğrulamasını yapmamış",
+            "guest": guest_info,
+        }
+
+    # Already checked in
+    if guest.get("checked_in"):
+        guest_info["checked_in_at"] = guest.get("checked_in_at")
+        guest_info["checked_in_by"] = guest.get("checked_in_by")
+        return {
+            "status": "already_checked_in",
+            "message": "Bu yaka kartı daha önce okutulmuş",
+            "guest": guest_info,
+        }
+
+    # Approve and mark checked in
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.guests.update_one(
+        {"_id": obj_id},
+        {"$set": {
+            "checked_in": True,
+            "checked_in_at": now_iso,
+            "checked_in_by": admin.get("email", "admin"),
+        }},
+    )
+    guest_info["checked_in_at"] = now_iso
+    return {
+        "status": "approved",
+        "message": "Giriş onaylandı — Hoş geldiniz!",
+        "guest": guest_info,
+    }
+
+
+@api_router.get("/admin/checkin/stats")
+async def admin_checkin_stats(admin: dict = Depends(get_admin_user)):
+    """Quick stats for the check-in dashboard."""
+    total = await db.guests.count_documents({"is_verified": True})
+    checked = await db.guests.count_documents({"checked_in": True})
+    summit_total = await db.guests.count_documents({"is_verified": True, "visit_type": "summit"})
+    summit_checked = await db.guests.count_documents({"checked_in": True, "visit_type": "summit"})
+    fair_total = await db.guests.count_documents({"is_verified": True, "visit_type": "fair"})
+    fair_checked = await db.guests.count_documents({"checked_in": True, "visit_type": "fair"})
+    return {
+        "total_verified": total,
+        "total_checked_in": checked,
+        "summit": {"verified": summit_total, "checked_in": summit_checked},
+        "fair": {"verified": fair_total, "checked_in": fair_checked},
+    }
+
+
+@api_router.post("/admin/checkin/reset/{guest_id}")
+async def admin_checkin_reset(guest_id: str, admin: dict = Depends(get_admin_user)):
+    """Allow re-entry by clearing check-in flag (useful if a guest accidentally
+    got marked or for testing)."""
+    if not ObjectId.is_valid(guest_id):
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+    res = await db.guests.update_one(
+        {"_id": ObjectId(guest_id)},
+        {"$set": {"checked_in": False}, "$unset": {"checked_in_at": "", "checked_in_by": ""}},
+    )
+    if res.matched_count == 0:
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+    return {"reset": True}
+
+
 # ==================== ADMIN USERS (Admin Account Management) ====================
 
 @api_router.get("/admin/users")

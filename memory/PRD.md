@@ -121,8 +121,10 @@ Kurumsal zirve websitesi + kapsamlı CRM admin paneli.
 ## Pending / Backlog
 
 ### Recently Completed (Feb 2026)
-- [x] **2026-02-09 — Konuşmacı/Sponsor Başvuru Sayfası Conversion Redesign**: `/konusmaci-basvuru` sayfası tam landing page'e dönüştürüldü. Hero (summit photo bg + gold "En Prestijli" CTA), Stats Bar (600+/36/20+/5K+), 4 Benefit cards (gerçek zirve fotoğrafları + KPI rozetleri), Past Event Gallery (mosaic + 4 ek foto), 4 Sponsor Tier cards (Ana/Altın/Gümüş/Bronz, "★ EN POPÜLER ★" highlight), 3 Testimonial, Application Form (sponsor pre-selected), Final CTA. Tüm CTA'lar tier seçimini forma scroll'lar.
-- [x] **Email Verification (Double Opt-in) UI**: VisitorRegisterPage.jsx başarı ekranı "E-postanızı Kontrol Edin" + 4 adımlı doğrulama talimatı şeklinde güncellendi. "Yaka Kartını Gör" butonu kaldırıldı.
+- [x] **2026-02-09 — QR Yaka Kartı Check-in Sistemi**: Admin paneline `/admin/checkin` sayfası eklendi. Telefon kamerası ile (html5-qrcode) canlı QR tarama; backend `POST /api/admin/checkin` 4 status döner: approved (yeşil ✓), already_checked_in (sarı ⚠), not_verified (turuncu), not_found (kırmızı). Ses + titreşim feedback. Mükerrer giriş engelleme. Manuel kod girişi fallback. Live stats: Zirve/Fuar/Toplam check-in sayaçları. Reset endpoint (`POST /admin/checkin/reset/{guest_id}`).
+- [x] **2026-02-09 — Sponsor Tier "Verildi" İşaretlemesi**: Ana Sponsor satıldı için VERİLDİ diagonal ribbon + "SAHİBİNİ BULDU" subtitle + disabled gri buton "Bu Paket Verildi". Form dropdown'ında "Ana Sponsor (verildi — bekleme listesi)". Final CTA mesajı güncellendi.
+- [x] **2026-02-09 — Konuşmacı/Sponsor Başvuru Sayfası Conversion Redesign**: `/konusmaci-basvuru` sayfası tam landing page'e dönüştürüldü.
+- [x] **Email Verification (Double Opt-in) UI**: VisitorRegisterPage.jsx başarı ekranı "E-postanızı Kontrol Edin" + 4 adımlı doğrulama talimatı şeklinde güncellendi.
 
 ### P0 (Pre-launch)
 - [ ] SENDGRID_API_KEY environment variable

@@ -40,6 +40,7 @@ import AdminSEO from "./pages/admin/AdminSEO";
 import HeroSlidesManagement from "./pages/admin/HeroSlidesManagement";
 import FairManagement from "./pages/admin/FairManagement";
 import SiteSettingsManagement from "./pages/admin/SiteSettingsManagement";
+import CheckInPage from "./pages/admin/CheckInPage";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -87,6 +88,7 @@ function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
+              <Route path="checkin" element={<CheckInPage />} />
               <Route path="ziyaretciler" element={<GuestList />} />
               <Route path="zirve-ziyaretcileri" element={
                 <GuestList forcedVisitType="summit" title="Zirve Ziyaretçileri"
