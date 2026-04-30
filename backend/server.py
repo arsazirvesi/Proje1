@@ -123,6 +123,7 @@ class GuestCreate(BaseModel):
     expectations: Optional[str] = None
     interest_area: Optional[str] = None
     participant_type: Optional[str] = None
+    visit_type: Optional[str] = "summit"  # "summit" | "fair"
 
 class ExhibitorCreate(BaseModel):
     company_name: str
@@ -451,14 +452,51 @@ async def register_member(body: MemberCreate, background_tasks: BackgroundTasks)
     return {"id": member_id, "message": "Üyelik başarıyla oluşturuldu", "name": body.name}
 
 
+SUMMIT_CAPACITY = 600
+
+
+@api_router.get("/register/capacity")
+async def get_register_capacity():
+    summit_count = await db.guests.count_documents({"visit_type": {"$in": ["summit", None]}})
+    fair_count = await db.guests.count_documents({"visit_type": "fair"})
+    return {
+        "summit": {
+            "registered": summit_count,
+            "capacity": SUMMIT_CAPACITY,
+            "remaining": max(0, SUMMIT_CAPACITY - summit_count),
+            "is_full": summit_count >= SUMMIT_CAPACITY,
+        },
+        "fair": {
+            "registered": fair_count,
+            "capacity": None,
+            "unlimited": True,
+        },
+    }
+
+
 @api_router.post("/register/guest")
 async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
     existing = await db.guests.find_one({"email": body.email.lower()})
     if existing:
         raise HTTPException(400, "Bu email ile zaten kayıt yapılmış")
+
+    visit_type = (body.visit_type or "summit").lower()
+    if visit_type not in ("summit", "fair"):
+        visit_type = "summit"
+
+    # Enforce capacity for the summit
+    if visit_type == "summit":
+        summit_count = await db.guests.count_documents({"visit_type": {"$in": ["summit", None]}})
+        if summit_count >= SUMMIT_CAPACITY:
+            raise HTTPException(
+                400,
+                "Zirve kontenjanımız doldu. Fuar ziyareti kayıtları hâlâ açık, oradan devam edebilirsiniz.",
+            )
+
     doc = {
         **body.model_dump(),
         "email": body.email.lower(),
+        "visit_type": visit_type,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "badge_printed": False,
@@ -741,18 +779,35 @@ async def admin_delete_member(member_id: str, admin: dict = Depends(get_admin_us
 # ==================== ADMIN GUESTS (VISITORS) ====================
 
 @api_router.get("/admin/guests")
-async def admin_get_guests(status: Optional[str] = None, q: Optional[str] = None, admin: dict = Depends(get_admin_user)):
+async def admin_get_guests(
+    status: Optional[str] = None,
+    q: Optional[str] = None,
+    visit_type: Optional[str] = None,
+    admin: dict = Depends(get_admin_user),
+):
     query: dict = {}
     if status and status != "all":
         query["status"] = status
+    if visit_type and visit_type in ("summit", "fair"):
+        if visit_type == "summit":
+            query["$or"] = [{"visit_type": "summit"}, {"visit_type": {"$exists": False}}, {"visit_type": None}]
+        else:
+            query["visit_type"] = "fair"
     if q:
-        query["$or"] = [
+        # If we already set $or for visit_type, merge with $and
+        name_or = [
             {"name": {"$regex": q, "$options": "i"}},
             {"email": {"$regex": q, "$options": "i"}},
             {"company": {"$regex": q, "$options": "i"}},
             {"phone": {"$regex": q, "$options": "i"}},
         ]
-    docs = await db.guests.find(query).sort("created_at", -1).to_list(5000)
+        if "$or" in query:
+            existing_or = query.pop("$or")
+            query["$and"] = [{"$or": existing_or}, {"$or": name_or}]
+        else:
+            query["$or"] = name_or
+    # Oldest first so #1 is first registered visitor
+    docs = await db.guests.find(query).sort("created_at", 1).to_list(5000)
     return [clean_doc(d) for d in docs]
 
 @api_router.patch("/admin/guests/{guest_id}")

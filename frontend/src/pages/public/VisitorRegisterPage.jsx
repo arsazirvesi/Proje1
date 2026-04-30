@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { CheckCircle, User, Mail, Phone, Building2, MapPin, Briefcase, FileText, ExternalLink, Ticket } from "lucide-react";
+import {
+  CheckCircle, User, Mail, Phone, Building2, MapPin, Briefcase, FileText,
+  ExternalLink, Ticket, Store, ArrowLeft, Users as UsersIcon, Check, Info
+} from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 const interestAreas = [
@@ -22,7 +25,30 @@ const participantTypes = [
   { value: "diger", label: "Diğer" },
 ];
 
+const VISIT_META = {
+  summit: {
+    key: "summit",
+    tag: "Zirve Katılımı",
+    title: "Arsa Yatırım Zirvesi 2026",
+    subtitle: "Konferans · Panel · Networking · Tam Gün Katılım",
+    formTitle: "Zirve Ziyaretçi Kaydı",
+    formSubtitle: "21 Mayıs Perşembe günü, Hilton İstanbul Bosphorus Zirve Salonu'ndaki konferans ve panel programına katılmak için formu doldurun.",
+    successMessage: "Arsa Yatırım Zirvesi 2026 ziyaretçi kaydınız başarıyla alınmıştır.",
+  },
+  fair: {
+    key: "fair",
+    tag: "Fuar Ziyareti",
+    title: "8. Gayrimenkul Proje Yatırım Fuarı",
+    subtitle: "Proje Fuarı · Maket Sergisi · Yatırım Fırsatları · Sınırsız Katılım",
+    formTitle: "Fuar Ziyaret Kaydı",
+    formSubtitle: "20-21 Mayıs'ta Hilton İstanbul Bosphorus'taki gayrimenkul proje fuarını ziyaret etmek için formu doldurun. Katılım ücretsiz ve sınırsızdır.",
+    successMessage: "8. Gayrimenkul Proje Fuar ziyareti kaydınız başarıyla alınmıştır.",
+  },
+};
+
 export default function VisitorRegisterPage() {
+  const [visitType, setVisitType] = useState(null); // null | "summit" | "fair"
+  const [capacity, setCapacity] = useState(null);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", title: "",
     city: "", expectations: "", interest_area: "", participant_type: ""
@@ -31,12 +57,19 @@ export default function VisitorRegisterPage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    axios.get(`${API}/register/capacity`).then(r => setCapacity(r.data)).catch(() => {});
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      const { data } = await axios.post(`${API}/register/guest`, form);
+      const { data } = await axios.post(`${API}/register/guest`, {
+        ...form,
+        visit_type: visitType,
+      });
       setResult(data);
     } catch (err) {
       const detail = err.response?.data?.detail;
@@ -46,7 +79,9 @@ export default function VisitorRegisterPage() {
     }
   };
 
+  // === STEP 3: Success ===
   if (result) {
+    const meta = VISIT_META[visitType] || VISIT_META.summit;
     const badgeUrl = `${API.replace(/\/api$/, "")}${result.badge_url}`;
     return (
       <div className="bg-white min-h-screen font-body">
@@ -58,7 +93,7 @@ export default function VisitorRegisterPage() {
             </div>
             <h2 className="font-heading text-summit-navy text-2xl">Kaydınız Alındı!</h2>
             <p className="text-gray-600 text-sm mt-3 leading-relaxed">
-              Arsa Yatırım Zirvesi 2026 ziyaretçi kaydınız başarıyla alınmıştır. Onay emaili gönderilmiştir.
+              {meta.successMessage} Onay e-postası gönderilmiştir.
             </p>
             <div className="bg-summit-paper rounded-md border border-gray-200 p-4 mt-6">
               <p className="text-summit-navy text-xs font-semibold uppercase tracking-wider mb-2">Yaka Kartınız</p>
@@ -76,6 +111,148 @@ export default function VisitorRegisterPage() {
     );
   }
 
+  // === STEP 1: Choose visit type ===
+  if (!visitType) {
+    const summitCap = capacity?.summit;
+    const summitFull = summitCap?.is_full;
+    const fillPct = summitCap ? Math.min(100, Math.round((summitCap.registered / summitCap.capacity) * 100)) : 0;
+
+    return (
+      <div className="bg-white min-h-screen font-body">
+        <Navbar />
+        <div className="pt-28 pb-20 bg-summit-paper">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 bg-summit-navy/10 px-3 py-1 rounded-md mb-4">
+                <Ticket size={14} className="text-summit-navy" />
+                <span className="text-summit-navy text-xs font-semibold uppercase tracking-wider">Ücretsiz Kayıt</span>
+              </div>
+              <h1 className="font-heading text-summit-navy text-3xl sm:text-4xl" data-testid="visit-picker-title">
+                Neye Katılmak İstersiniz?
+              </h1>
+              <p className="text-gray-600 mt-4 text-sm max-w-xl mx-auto">
+                Aynı mekânda iki ayrı etkinlik: <strong>konferans programına dahil Zirve</strong> ve <strong>proje fuarı ziyareti</strong>. Her ikisi de ücretsizdir.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* SUMMIT CARD */}
+              <button
+                type="button"
+                onClick={() => !summitFull && setVisitType("summit")}
+                disabled={summitFull}
+                className={`group text-left bg-white border-2 rounded-md p-6 transition-all shadow-sm
+                  ${summitFull
+                    ? "border-gray-200 opacity-60 cursor-not-allowed"
+                    : "border-summit-navy/30 hover:border-summit-navy hover:shadow-xl hover:-translate-y-1 cursor-pointer"}`}
+                data-testid="visit-option-summit"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 rounded-md bg-summit-navy/10 flex items-center justify-center text-summit-navy group-hover:bg-summit-navy group-hover:text-white transition-colors">
+                    <Ticket size={22} />
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-summit-navy bg-summit-navy/8 px-2.5 py-1 rounded">
+                    {VISIT_META.summit.tag}
+                  </span>
+                </div>
+                <h3 className="font-heading text-summit-navy text-xl leading-tight">{VISIT_META.summit.title}</h3>
+                <p className="text-xs text-gray-500 mt-2 leading-relaxed">{VISIT_META.summit.subtitle}</p>
+
+                <ul className="mt-5 space-y-1.5 text-xs text-gray-700">
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Uzman konuşmacılar ve panel programı</li>
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Kahve molası + öğle ikramı</li>
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Plaket takdimi ve networking</li>
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Fuara da ek başvuru olmadan geçiş</li>
+                </ul>
+
+                {/* Capacity meter */}
+                <div className="mt-5 pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className={`font-semibold ${summitFull ? "text-red-600" : "text-summit-navy"}`}>
+                      {summitFull ? "Kontenjan Doldu" : "Sınırlı Kontenjan"}
+                    </span>
+                    {summitCap && (
+                      <span className="text-gray-500">
+                        {summitCap.registered} / {summitCap.capacity} kişi
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all ${summitFull ? "bg-red-500" : fillPct > 80 ? "bg-summit-accent" : "bg-summit-navy"}`}
+                      style={{ width: `${fillPct}%` }}
+                    />
+                  </div>
+                  {summitCap && !summitFull && (
+                    <p className="text-[0.65rem] text-gray-500 mt-1.5">
+                      {summitCap.remaining} kişilik yer kaldı
+                    </p>
+                  )}
+                </div>
+
+                <div className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold
+                  ${summitFull ? "text-gray-400" : "text-summit-navy"}`}>
+                  {summitFull ? "Kayıt Kapandı" : "Zirveye Kaydol"}
+                  {!summitFull && <ArrowLeft size={14} className="rotate-180" />}
+                </div>
+              </button>
+
+              {/* FAIR CARD */}
+              <button
+                type="button"
+                onClick={() => setVisitType("fair")}
+                className="group text-left bg-white border-2 border-summit-accent/40 hover:border-summit-accent rounded-md p-6 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer relative"
+                data-testid="visit-option-fair"
+              >
+                <span className="absolute -top-2.5 right-5 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded">
+                  Sınırsız Kayıt
+                </span>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 rounded-md bg-summit-accent/20 flex items-center justify-center text-summit-navy group-hover:bg-summit-accent transition-colors">
+                    <Store size={22} />
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-summit-navy bg-summit-accent/20 px-2.5 py-1 rounded">
+                    {VISIT_META.fair.tag}
+                  </span>
+                </div>
+                <h3 className="font-heading text-summit-navy text-xl leading-tight">{VISIT_META.fair.title}</h3>
+                <p className="text-xs text-gray-500 mt-2 leading-relaxed">{VISIT_META.fair.subtitle}</p>
+
+                <ul className="mt-5 space-y-1.5 text-xs text-gray-700">
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> 36 gayrimenkul proje standı</li>
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Proje maketleri ve sunumlar</li>
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Sektör temsilcileri ile birebir görüşme</li>
+                  <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> İki gün (20-21 Mayıs), serbest giriş</li>
+                </ul>
+
+                <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-600">
+                  <UsersIcon size={13} className="text-summit-navy" />
+                  <span>Kontenjan sınırı yok · Dilediğiniz saatte giriş</span>
+                </div>
+
+                <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-summit-navy">
+                  Fuar Ziyareti İçin Kaydol
+                  <ArrowLeft size={14} className="rotate-180" />
+                </div>
+              </button>
+            </div>
+
+            <div className="mt-8 bg-white border border-gray-200 rounded-md p-4 flex items-start gap-3">
+              <Info size={16} className="text-summit-navy mt-0.5 shrink-0" />
+              <p className="text-xs text-gray-600 leading-relaxed">
+                <strong className="text-summit-navy">Zirveye kaydolanlar</strong> aynı zamanda fuar alanına da ek kayıt olmadan giriş yapabilir.
+                <strong className="text-summit-navy"> Sadece fuarı</strong> ziyaret etmek isteyenler için ayrı kayıt gereklidir.
+              </p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // === STEP 2: Form ===
+  const meta = VISIT_META[visitType];
   const inputCls = "w-full bg-white border border-gray-200 rounded-md pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none transition-colors";
   const labelCls = "text-gray-600 text-xs uppercase tracking-wider mb-2 block font-semibold";
 
@@ -85,15 +262,23 @@ export default function VisitorRegisterPage() {
 
       <div className="pt-28 pb-24 bg-summit-paper min-h-screen">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <button
+            type="button"
+            onClick={() => setVisitType(null)}
+            className="inline-flex items-center gap-1.5 text-gray-500 hover:text-summit-navy text-xs mb-6 transition-colors"
+            data-testid="visit-picker-back"
+          >
+            <ArrowLeft size={13} /> Kayıt türünü değiştir
+          </button>
+
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 bg-summit-navy/10 px-3 py-1 rounded-md mb-4">
-              <Ticket size={14} className="text-summit-navy" />
-              <span className="text-summit-navy text-xs font-semibold uppercase tracking-wider">Ziyaretçi Kaydı</span>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-md mb-4
+              ${visitType === "fair" ? "bg-summit-accent/20" : "bg-summit-navy/10"}`}>
+              {visitType === "fair" ? <Store size={14} className="text-summit-navy" /> : <Ticket size={14} className="text-summit-navy" />}
+              <span className="text-summit-navy text-xs font-semibold uppercase tracking-wider">{meta.tag}</span>
             </div>
-            <h1 className="font-heading text-summit-navy text-3xl sm:text-4xl">Zirveye Katılın</h1>
-            <p className="text-gray-600 mt-4 text-sm max-w-xl mx-auto">
-              Hilton İstanbul Bosphorus'taki zirvemize ücretsiz katılmak için aşağıdaki formu doldurun.
-            </p>
+            <h1 className="font-heading text-summit-navy text-3xl sm:text-4xl">{meta.formTitle}</h1>
+            <p className="text-gray-600 mt-4 text-sm max-w-xl mx-auto">{meta.formSubtitle}</p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-md p-6 sm:p-10 shadow-sm">
@@ -182,11 +367,13 @@ export default function VisitorRegisterPage() {
               </div>
 
               <div>
-                <label className={labelCls}>Zirveden Beklentileriniz</label>
+                <label className={labelCls}>
+                  {visitType === "fair" ? "Fuardan Beklentileriniz" : "Zirveden Beklentileriniz"}
+                </label>
                 <div className="relative">
                   <FileText size={15} className="absolute left-3 top-3 text-gray-500" />
                   <textarea
-                    placeholder="Hangi konuları öğrenmek istiyorsunuz?"
+                    placeholder={visitType === "fair" ? "Hangi tür projelerle ilgileniyorsunuz?" : "Hangi konuları öğrenmek istiyorsunuz?"}
                     rows={3}
                     value={form.expectations}
                     onChange={e => setForm({...form, expectations: e.target.value})}
@@ -205,7 +392,7 @@ export default function VisitorRegisterPage() {
               <button type="submit" disabled={loading}
                 className="w-full btn-navy py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
                 data-testid="submit-visitor-btn">
-                {loading ? "Kaydediliyor..." : "Ziyaretçi Kaydını Tamamla"}
+                {loading ? "Kaydediliyor..." : `${meta.formTitle}nı Tamamla`}
               </button>
 
               <p className="text-gray-500 text-xs text-center">

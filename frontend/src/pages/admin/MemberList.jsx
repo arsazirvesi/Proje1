@@ -62,10 +62,10 @@ export default function MemberList() {
   };
 
   const exportCSV = () => {
-    const rows = [["Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Tarih"]];
-    filtered.forEach(m => rows.push([m.name, m.email, m.phone || "", m.company || "", m.title || "", m.city || "", m.created_at?.slice(0,10)]));
-    const csv = rows.map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const rows = [["Sıra", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Tarih"]];
+    filtered.forEach((m, i) => rows.push([i + 1, m.name, m.email, m.phone || "", m.company || "", m.title || "", m.city || "", m.created_at?.slice(0,10)]));
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "uyeler.csv"; a.click();
   };
@@ -117,6 +117,7 @@ export default function MemberList() {
             <table className="w-full admin-table">
               <thead>
                 <tr>
+                  <th className="w-12 text-center">#</th>
                   <th>Ad Soyad</th>
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
@@ -128,10 +129,11 @@ export default function MemberList() {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-10 text-gray-500">Üye bulunamadı</td></tr>
+                  <tr><td colSpan={8} className="text-center py-10 text-gray-500">Üye bulunamadı</td></tr>
                 )}
-                {filtered.map(m => (
+                {filtered.map((m, i) => (
                   <tr key={m.id} data-testid={`member-row-${m.id}`}>
+                    <td className="text-center text-gray-400 font-mono text-xs font-semibold">#{i + 1}</td>
                     <td className="text-summit-navy font-medium">{m.name}</td>
                     <td className="text-gray-600">{m.email}</td>
                     <td className="hidden md:table-cell">{m.phone || "-"}</td>

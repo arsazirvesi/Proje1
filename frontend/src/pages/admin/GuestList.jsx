@@ -11,6 +11,24 @@ const STATUS_OPTIONS = [
   { value: "rejected", label: "Reddedildi", cls: "status-rejected" },
 ];
 
+const VISIT_FILTERS = [
+  { value: "all", label: "Hepsi" },
+  { value: "summit", label: "Zirve" },
+  { value: "fair", label: "Fuar" },
+];
+
+function VisitTypeBadge({ type }) {
+  const isSummit = !type || type === "summit";
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[0.65rem] font-semibold uppercase tracking-wider
+        ${isSummit ? "bg-summit-navy/10 text-summit-navy" : "bg-summit-accent/20 text-summit-navy"}`}
+    >
+      {isSummit ? "Zirve" : "Fuar"}
+    </span>
+  );
+}
+
 function StatusBadge({ status }) {
   const s = STATUS_OPTIONS.find(o => o.value === status) || STATUS_OPTIONS[1];
   return <span className={`status-badge ${s.cls}`}>{s.label}</span>;
@@ -21,6 +39,7 @@ export default function GuestList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [visitFilter, setVisitFilter] = useState("all");
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ subject: "", content: "" });
   const [detail, setDetail] = useState(null);
@@ -32,12 +51,13 @@ export default function GuestList() {
     try {
       const params = {};
       if (statusFilter !== "all") params.status = statusFilter;
+      if (visitFilter !== "all") params.visit_type = visitFilter;
       if (search) params.q = search;
       const { data } = await axios.get(`${API}/admin/guests`, { params, withCredentials: true });
       setItems(data);
-    } catch {}
+    } catch { /* empty */ }
     setLoading(false);
-  }, [statusFilter, search]);
+  }, [statusFilter, visitFilter, search]);
 
   useEffect(() => {
     const t = setTimeout(fetchData, 250);
@@ -78,8 +98,10 @@ export default function GuestList() {
   };
 
   const exportCSV = () => {
-    const rows = [["Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"]];
-    items.forEach(g => rows.push([
+    const rows = [["Sıra", "Ziyaret Tipi", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Tarih"]];
+    items.forEach((g, i) => rows.push([
+      i + 1,
+      (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve",
       g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
       g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10)
     ]));
@@ -91,6 +113,10 @@ export default function GuestList() {
 
   const BACKEND = API.replace(/\/api$/, "");
 
+  const summitCount = items.filter(i => (i.visit_type || "summit") === "summit").length;
+  const fairCount = items.filter(i => i.visit_type === "fair").length;
+  const SUMMIT_CAPACITY = 600;
+
   const counts = STATUS_OPTIONS.reduce((acc, o) => {
     acc[o.value] = o.value === "all" ? items.length : items.filter(i => (i.status || "new") === o.value).length;
     return acc;
@@ -98,10 +124,14 @@ export default function GuestList() {
 
   return (
     <div data-testid="guest-list-page">
-      <div className="flex items-start justify-between mb-7 flex-wrap gap-3">
+      <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
         <div>
           <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl">Ziyaretçi Kayıtları</h1>
-          <p className="text-gray-500 text-sm mt-1">{items.length} kayıt · Zirveye katılmak için başvuran ziyaretçiler</p>
+          <p className="text-gray-500 text-sm mt-1">
+            Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
+            <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-navy" /> Zirve: <strong className="text-summit-navy">{summitCount}/{SUMMIT_CAPACITY}</strong></span> ·
+            <span className="inline-flex items-center gap-1 ml-1.5"><span className="w-1.5 h-1.5 rounded-full bg-summit-accent" /> Fuar: <strong className="text-summit-navy">{fairCount}</strong></span>
+          </p>
         </div>
         <div className="flex gap-3 flex-wrap">
           <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm hover:border-summit-navy/30">
@@ -113,12 +143,48 @@ export default function GuestList() {
         </div>
       </div>
 
+      {/* Capacity bar */}
+      <div className="bg-white border border-gray-200 rounded-md p-3 mb-4">
+        <div className="flex items-center justify-between text-xs mb-1.5">
+          <span className="text-summit-navy font-semibold">Zirve Kontenjanı (600 kişi)</span>
+          <span className="text-gray-500">
+            {summitCount}/{SUMMIT_CAPACITY} dolu · {Math.max(0, SUMMIT_CAPACITY - summitCount)} yer kaldı
+          </span>
+        </div>
+        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all ${summitCount >= SUMMIT_CAPACITY ? "bg-red-500" : summitCount / SUMMIT_CAPACITY > 0.8 ? "bg-summit-accent" : "bg-summit-navy"}`}
+            style={{ width: `${Math.min(100, (summitCount / SUMMIT_CAPACITY) * 100)}%` }}
+          />
+        </div>
+      </div>
+
       {msg && (
         <div className="bg-summit-navy/5 border border-summit-navy/30 rounded-md p-3 text-summit-navy text-sm mb-5 flex items-center justify-between">
           {msg}
           <button onClick={() => setMsg("")}><X size={14} /></button>
         </div>
       )}
+
+      {/* Visit type filters */}
+      <div className="bg-white border border-gray-200 rounded-md p-3 mb-3 flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-semibold text-gray-500 ml-1 uppercase tracking-wider">Ziyaret Tipi:</span>
+        {VISIT_FILTERS.map(o => (
+          <button
+            key={o.value}
+            onClick={() => setVisitFilter(o.value)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+              visitFilter === o.value ? "bg-summit-navy text-white" : "text-gray-600 hover:bg-gray-100"
+            }`}
+            data-testid={`filter-visit-${o.value}`}
+          >
+            {o.label}
+            {o.value === "summit" && <span className="opacity-70 ml-1">({summitCount})</span>}
+            {o.value === "fair" && <span className="opacity-70 ml-1">({fairCount})</span>}
+            {o.value === "all" && <span className="opacity-70 ml-1">({summitCount + fairCount})</span>}
+          </button>
+        ))}
+      </div>
 
       {/* Status filters */}
       <div className="bg-white border border-gray-200 rounded-md p-3 mb-4 flex items-center gap-2 flex-wrap">
@@ -160,7 +226,9 @@ export default function GuestList() {
             <table className="w-full admin-table">
               <thead>
                 <tr>
+                  <th className="w-12 text-center">#</th>
                   <th>Ad Soyad</th>
+                  <th className="hidden sm:table-cell">Tip</th>
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
                   <th className="hidden lg:table-cell">Şirket</th>
@@ -171,11 +239,15 @@ export default function GuestList() {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={7} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={9} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
                 )}
-                {items.map(g => (
+                {items.map((g, i) => (
                   <tr key={g.id} data-testid={`guest-row-${g.id}`}>
+                    <td className="text-center text-gray-400 font-mono text-xs font-semibold" data-testid={`guest-seq-${i + 1}`}>
+                      #{i + 1}
+                    </td>
                     <td className="text-summit-navy font-medium">{g.name}</td>
+                    <td className="hidden sm:table-cell"><VisitTypeBadge type={g.visit_type} /></td>
                     <td className="text-gray-600">{g.email}</td>
                     <td className="hidden md:table-cell">{g.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{g.company || "-"}</td>

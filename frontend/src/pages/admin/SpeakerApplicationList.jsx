@@ -97,9 +97,9 @@ export default function SpeakerApplicationList() {
   };
 
   const exportCSV = () => {
-    const rows = [["Tip", "Ad/Firma", "Email", "Telefon", "Şirket", "Uzmanlık", "Konu", "Sponsor Paketi", "Durum", "Tarih"]];
-    items.forEach(g => rows.push([
-      g.application_type, g.name, g.email, g.phone, g.company || "", g.expertise || "",
+    const rows = [["Sıra", "Tip", "Ad/Firma", "Email", "Telefon", "Şirket", "Uzmanlık", "Konu", "Sponsor Paketi", "Durum", "Tarih"]];
+    items.forEach((g, i) => rows.push([
+      i + 1, g.application_type, g.name, g.email, g.phone, g.company || "", g.expertise || "",
       g.topic || "", g.sponsor_package || "", g.status || "new", g.created_at?.slice(0,10)
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -184,6 +184,7 @@ export default function SpeakerApplicationList() {
             <table className="w-full admin-table">
               <thead>
                 <tr>
+                  <th className="w-12 text-center">#</th>
                   <th>Tip</th>
                   <th>Ad / Firma</th>
                   <th>E-posta</th>
@@ -196,10 +197,11 @@ export default function SpeakerApplicationList() {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={8} className="text-center py-10 text-gray-500">Başvuru bulunamadı</td></tr>
+                  <tr><td colSpan={9} className="text-center py-10 text-gray-500">Başvuru bulunamadı</td></tr>
                 )}
-                {items.map(g => (
+                {items.map((g, i) => (
                   <tr key={g.id} data-testid={`sp-row-${g.id}`}>
+                    <td className="text-center text-gray-400 font-mono text-xs font-semibold">#{i + 1}</td>
                     <td><TypeBadge t={g.application_type} /></td>
                     <td className="text-summit-navy font-medium">{g.name}</td>
                     <td className="text-gray-600">{g.email}</td>

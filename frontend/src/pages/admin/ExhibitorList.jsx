@@ -78,9 +78,9 @@ export default function ExhibitorList() {
   };
 
   const exportCSV = () => {
-    const rows = [["Firma", "Yetkili", "Email", "Telefon", "Sektör", "Stant Tercihi", "Vergi No", "Durum", "Tarih"]];
-    items.forEach(g => rows.push([
-      g.company_name, g.contact_name, g.email, g.phone, g.sector || "", g.stand_preference || "",
+    const rows = [["Sıra", "Firma", "Yetkili", "Email", "Telefon", "Sektör", "Stant Tercihi", "Vergi No", "Durum", "Tarih"]];
+    items.forEach((g, i) => rows.push([
+      i + 1, g.company_name, g.contact_name, g.email, g.phone, g.sector || "", g.stand_preference || "",
       g.tax_number || "", g.status || "new", g.created_at?.slice(0,10)
     ]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -152,6 +152,7 @@ export default function ExhibitorList() {
             <table className="w-full admin-table">
               <thead>
                 <tr>
+                  <th className="w-12 text-center">#</th>
                   <th>Firma</th>
                   <th>Yetkili</th>
                   <th className="hidden md:table-cell">Telefon</th>
@@ -164,10 +165,11 @@ export default function ExhibitorList() {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={8} className="text-center py-10 text-gray-500">Başvuru bulunamadı</td></tr>
+                  <tr><td colSpan={9} className="text-center py-10 text-gray-500">Başvuru bulunamadı</td></tr>
                 )}
-                {items.map(g => (
+                {items.map((g, i) => (
                   <tr key={g.id} data-testid={`exhibitor-row-${g.id}`}>
+                    <td className="text-center text-gray-400 font-mono text-xs font-semibold">#{i + 1}</td>
                     <td className="text-summit-navy font-medium">{g.company_name}</td>
                     <td className="text-gray-700">{g.contact_name}</td>
                     <td className="hidden md:table-cell">{g.phone}</td>
