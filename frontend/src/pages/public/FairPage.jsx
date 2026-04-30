@@ -9,10 +9,19 @@ import { API_BASE as API } from "../../lib/api";
 export default function FairPage() {
   const [fair, setFair] = useState(null);
   const [lightbox, setLightbox] = useState(null);
+  const [activeHero, setActiveHero] = useState(0);
 
   useEffect(() => {
     axios.get(`${API}/fair`).then(r => setFair(r.data || {})).catch(() => setFair({}));
   }, []);
+
+  // Auto-rotate the hero gallery every 4 seconds
+  useEffect(() => {
+    const total = fair?.gallery?.length || 0;
+    if (total < 2) return;
+    const t = setInterval(() => setActiveHero(i => (i + 1) % total), 4000);
+    return () => clearInterval(t);
+  }, [fair?.gallery?.length]);
 
   if (!fair) {
     return (
@@ -84,22 +93,47 @@ export default function FairPage() {
             </div>
           </div>
 
-          {/* Right: gallery preview */}
+          {/* Right: gallery preview - auto-sliding hero */}
           <div className="lg:col-span-5">
-            {fair.gallery?.[0] && (
+            {fair.gallery?.length > 0 && (
               <div className="relative">
                 <div
-                  className="w-full h-72 lg:h-[380px] rounded-md overflow-hidden shadow-xl cursor-pointer"
-                  style={{
-                    backgroundImage: `url(${fair.gallery[0]})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                  onClick={() => setLightbox(fair.gallery[0])}
-                />
+                  className="relative w-full h-72 lg:h-[380px] rounded-md overflow-hidden shadow-xl cursor-pointer bg-summit-paper"
+                  onClick={() => setLightbox(fair.gallery[activeHero])}
+                  data-testid="fair-hero-slideshow"
+                >
+                  {fair.gallery.map((src, i) => (
+                    <div
+                      key={src + i}
+                      aria-hidden={i !== activeHero}
+                      className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                      style={{
+                        backgroundImage: `url(${src})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        opacity: i === activeHero ? 1 : 0,
+                      }}
+                    />
+                  ))}
+
+                  {/* Slide indicators */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {fair.gallery.map((_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setActiveHero(i); }}
+                        className={`h-1.5 rounded-full transition-all ${
+                          i === activeHero ? "w-6 bg-white" : "w-1.5 bg-white/60 hover:bg-white/80"
+                        }`}
+                        aria-label={`Slide ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
                 <div className="absolute -bottom-6 right-5 bg-white border-l-4 border-summit-navy p-5 shadow-2xl rounded-md">
                   <div className="text-[0.6rem] uppercase tracking-widest text-gray-500 font-semibold">Geçmiş Fuardan</div>
-                  <div className="font-heading text-summit-navy text-xl font-bold mt-1">Proje Standları</div>
+                  <div className="font-heading text-summit-navy text-xl font-bold mt-1">Proje Stantları</div>
                 </div>
               </div>
             )}
