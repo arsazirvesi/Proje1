@@ -324,11 +324,15 @@ export default function VisitorRegisterPage() {
                 <span className="absolute top-4 right-4 z-10 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded shadow">
                   Sınırsız Kayıt
                 </span>
-                <div
-                  className="w-full h-52 bg-cover bg-center"
-                  style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg)", backgroundPosition: "center top" }}
-                  aria-hidden="true"
-                />
+                <div className="w-full h-52 overflow-hidden bg-summit-navy">
+                  <img
+                    src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg"
+                    alt="Fuar alanı standları"
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: "center 88%" }}
+                    aria-hidden="true"
+                  />
+                </div>
                 <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 rounded-md bg-summit-accent/20 flex items-center justify-center text-summit-navy group-hover:bg-summit-accent transition-colors">
