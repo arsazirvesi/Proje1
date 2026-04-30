@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Trash2, Search, Download, Send, X, Eye, Filter } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
+import { exportXLSX } from "../../lib/xlsx";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tümü", cls: "" },
@@ -83,10 +84,7 @@ export default function ExhibitorList() {
       i + 1, g.company_name, g.contact_name, g.email, g.phone, g.sector || "", g.stand_preference || "",
       g.tax_number || "", g.status || "new", g.created_at?.slice(0,10)
     ]));
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "fuar-stant-basvurulari.csv"; a.click();
+    exportXLSX(rows, "fuar-stant-basvurulari", "Stant Başvuruları");
   };
 
   const counts = STATUS_OPTIONS.reduce((acc, o) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
+import { exportXLSX } from "../../lib/xlsx";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tümü", cls: "" },
@@ -112,15 +113,10 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
         ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", ...base]
         : [i + 1, ...base]);
     });
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = forcedVisitType === "summit" ? "zirve-ziyaretcileri.csv"
-               : forcedVisitType === "fair" ? "fuar-ziyaretcileri.csv"
-               : "ziyaretciler.csv";
-    a.click();
+    const filename = forcedVisitType === "summit" ? "zirve-ziyaretcileri"
+                   : forcedVisitType === "fair" ? "fuar-ziyaretcileri"
+                   : "ziyaretciler";
+    exportXLSX(rows, filename, "Ziyaretçiler");
   };
 
   const BACKEND = API.replace(/\/api$/, "");

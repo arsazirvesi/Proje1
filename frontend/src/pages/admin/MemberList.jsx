@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Trash2, Mail, Search, Download, Send, X } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
+import { exportXLSX } from "../../lib/xlsx";
 
 export default function MemberList() {
   const [members, setMembers] = useState([]);
@@ -64,10 +65,7 @@ export default function MemberList() {
   const exportCSV = () => {
     const rows = [["Sıra", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Tarih"]];
     filtered.forEach((m, i) => rows.push([i + 1, m.name, m.email, m.phone || "", m.company || "", m.title || "", m.city || "", m.created_at?.slice(0,10)]));
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "uyeler.csv"; a.click();
+    exportXLSX(rows, "uyeler", "Üyeler");
   };
 
   return (
