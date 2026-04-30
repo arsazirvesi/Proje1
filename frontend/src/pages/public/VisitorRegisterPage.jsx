@@ -186,14 +186,12 @@ export default function VisitorRegisterPage() {
                     : "hover:shadow-2xl hover:ring-summit-navy/30 hover:-translate-y-1 cursor-pointer"}`}
                 data-testid="visit-option-summit"
               >
-                <div className="relative w-full overflow-hidden bg-summit-navy aspect-[16/9] sm:aspect-[5/3]">
+                <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 200 }}>
                   <img
                     src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg"
                     alt="Arsa Yatırım Zirvesi"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    style={{ objectPosition: "center" }}
-                    loading="eager"
-                    decoding="async"
+                    className="block w-full h-full"
+                    style={{ objectFit: "cover", objectPosition: "center", display: "block" }}
                   />
                 </div>
                 <div className="p-6">
@@ -329,14 +327,12 @@ export default function VisitorRegisterPage() {
                 <span className="absolute top-4 right-4 z-10 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded shadow">
                   Sınırsız Kayıt
                 </span>
-                <div className="relative w-full overflow-hidden bg-summit-navy aspect-[16/9] sm:aspect-[5/3]">
+                <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 200 }}>
                   <img
-                    src={`${API}/uploads/fair_stands.jpeg?v=3`}
+                    src={`${API}/uploads/fair_stands.jpeg?v=${Date.now()}`}
                     alt="Fuar alanı standları"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    style={{ objectPosition: "center center" }}
-                    loading="eager"
-                    decoding="async"
+                    className="block w-full h-full"
+                    style={{ objectFit: "cover", objectPosition: "center", display: "block" }}
                   />
                 </div>
                 <div className="p-6">
