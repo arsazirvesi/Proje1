@@ -317,6 +317,18 @@ def send_email(to: str, subject: str, html: str, attachments: Optional[list] = N
     try:
         sg = sendgrid.SendGridAPIClient(api_key=api_key)
         msg = SGMail(from_email=sender, to_emails=to, subject=subject, html_content=html)
+
+        # Disable SendGrid link tracking — links should resolve directly to our
+        # site (otherwise users land on the click-tracking subdomain).
+        from sendgrid.helpers.mail import (
+            TrackingSettings, ClickTracking, OpenTracking, SubscriptionTracking
+        )
+        tracking = TrackingSettings()
+        tracking.click_tracking = ClickTracking(False, False)
+        tracking.open_tracking = OpenTracking(False)
+        tracking.subscription_tracking = SubscriptionTracking(False)
+        msg.tracking_settings = tracking
+
         if attachments:
             from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
             for att in attachments:
