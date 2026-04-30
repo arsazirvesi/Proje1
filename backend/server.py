@@ -1118,16 +1118,16 @@ body{{font-family:'Outfit',sans-serif;background:#eef0f4;display:flex;justify-co
 .sp-logo-wrap{{
   background:white;
   border-radius:6px;
-  padding:6px 10px;
-  height:42px;
+  padding:8px 12px;
+  height:48px;
   display:flex;
   align-items:center;
   justify-content:center;
   width:100%;
-  max-width:130px;
+  max-width:140px;
 }}
-.sp-logo-wrap img{{max-height:30px;max-width:115px;width:auto;height:auto;object-fit:contain;display:block}}
-.sp-divider{{width:1px;height:42px;background:rgba(255,255,255,0.12);align-self:center}}
+.sp-logo-wrap img{{max-height:36px;max-width:120px;width:auto;height:auto;object-fit:contain;display:block}}
+.sp-divider{{width:1px;height:48px;background:rgba(255,255,255,0.12);align-self:center}}
 
 @media print{{
   body{{background:white;padding:0}}
