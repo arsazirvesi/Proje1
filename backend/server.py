@@ -1052,7 +1052,6 @@ async def generate_badge(guest_id: str):
     name = html_escape.escape(guest.get("name") or "")
     company = html_escape.escape(guest.get("company") or "")
     title_val = html_escape.escape(guest.get("title") or "")
-    initials = "".join([w[0].upper() for w in guest.get("name", "").split()[:2]]) if guest.get("name") else "K"
 
     bg_layer = (
         f"background-image:linear-gradient(135deg,{bg_grad_a}E6 0%,{bg_grad_b}F2 100%),url('{bg_data}');"
@@ -1088,11 +1087,12 @@ body{{font-family:'Outfit',sans-serif;background:#eef0f4;display:flex;justify-co
 .event-date{{color:{text_sub};font-size:11px;margin-top:6px;font-weight:300;letter-spacing:0.4px}}
 .tag{{display:inline-block;padding:6px 14px;background:{accent};color:{accent_text};font-size:9px;letter-spacing:2px;font-weight:700;border-radius:4px;margin-top:14px;text-transform:uppercase}}
 .seq{{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.06);color:{text_main};padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.5px;border:1px solid {accent};backdrop-filter:blur(6px)}}
-.person{{display:flex;flex-direction:column;align-items:center;margin:28px 0 22px}}
-.avatar{{width:96px;height:96px;border-radius:50%;background:{accent};display:flex;align-items:center;justify-content:center;font-size:32px;font-family:'Playfair Display',serif;color:{accent_text};font-weight:700;border:3px solid rgba(255,255,255,0.25);box-shadow:0 8px 22px rgba(0,0,0,0.25);margin-bottom:14px}}
-.person-name{{font-family:'Playfair Display',serif;color:{text_main};font-size:22px;font-weight:700;text-align:center;line-height:1.15;margin:0 8px}}
-.person-title{{color:{accent};font-size:12px;margin-top:6px;letter-spacing:0.6px;font-weight:500;text-align:center}}
-.person-company{{color:{text_sub};font-size:11px;margin-top:3px;letter-spacing:0.4px;text-align:center}}
+.person{{display:flex;flex-direction:column;align-items:center;margin:32px 0 26px;padding:18px 14px;background:rgba(0,0,0,0.18);border-radius:12px;border:1px solid rgba(212,175,55,0.18)}}
+.person-name{{font-family:'Playfair Display',serif;color:{text_main};font-size:28px;font-weight:700;text-align:center;line-height:1.15;margin:0 4px;letter-spacing:0.2px}}
+.person-divider{{width:48px;height:2px;background:{accent};margin:12px auto 12px;opacity:0.85}}
+.person-info-block{{display:flex;flex-direction:column;align-items:center;gap:4px}}
+.person-title{{color:{accent};font-size:12px;letter-spacing:1px;font-weight:600;text-align:center;text-transform:uppercase}}
+.person-company{{color:{text_sub};font-size:12px;letter-spacing:0.4px;text-align:center;font-weight:400}}
 .qr-section{{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px}}
 .qr-wrap{{background:white;border-radius:10px;padding:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18)}}
 .badge-id{{color:{text_sub};font-size:10px;letter-spacing:1.5px;font-weight:500}}
@@ -1146,10 +1146,8 @@ body{{font-family:'Outfit',sans-serif;background:#eef0f4;display:flex;justify-co
       <div class="tag">{label}</div>
     </div>
     <div class="person">
-      <div class="avatar">{initials}</div>
       <div class="person-name">{name}</div>
-      {(f'<div class="person-title">{title_val}</div>') if title_val else ''}
-      {(f'<div class="person-company">{company}</div>') if company else ''}
+      {('<div class="person-divider"></div><div class="person-info-block">' + (f'<div class="person-title">{title_val}</div>' if title_val else '') + (f'<div class="person-company">{company}</div>' if company else '') + '</div>') if (title_val or company) else ''}
     </div>
     <div class="qr-section">
       <div class="qr-wrap"><img src="data:image/png;base64,{qr_b64}" width="92" height="92" alt="QR Kod"></div>
