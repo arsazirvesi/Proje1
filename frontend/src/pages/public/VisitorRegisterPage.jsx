@@ -331,7 +331,7 @@ export default function VisitorRegisterPage() {
                 </span>
                 <div className="relative w-full overflow-hidden bg-summit-navy aspect-[16/9] sm:aspect-[5/3]">
                   <img
-                    src={`${API}/uploads/fair_stands.jpeg`}
+                    src={`${API}/uploads/fair_stands.jpeg?v=3`}
                     alt="Fuar alanı standları"
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ objectPosition: "center center" }}
