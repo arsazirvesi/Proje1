@@ -329,7 +329,7 @@ export default function VisitorRegisterPage() {
                     src={`${API}/uploads/fair_stands.jpeg?v=${Date.now()}`}
                     alt="Fuar alanı standları"
                     className="block w-full h-full"
-                    style={{ objectFit: "cover", objectPosition: "center 35%", display: "block", width: "100%", height: "100%" }}
+                    style={{ objectFit: "cover", objectPosition: "center 20%", display: "block", width: "100%", height: "100%" }}
                   />
                 </div>
                 <div className="p-6">
