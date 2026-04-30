@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { CheckCircle, User, Mail, Phone, Building2, Globe, FileText, Hash, Briefcase, Layers } from "lucide-react";
