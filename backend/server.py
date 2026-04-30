@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Any, Annotated
 from pathlib import Path
 
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, BackgroundTasks, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, BackgroundTasks, UploadFile, File, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -146,6 +146,19 @@ class InviteCodeUpdate(BaseModel):
 class InviteCodeValidate(BaseModel):
     code: str
     visit_type: str = "summit"
+
+class ApiKeyCreate(BaseModel):
+    label: str
+    valid_for: str = "both"  # "summit" | "fair" | "both"
+
+class ApiKeyUpdate(BaseModel):
+    label: Optional[str] = None
+    valid_for: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class ExternalCheckInRequest(BaseModel):
+    code: str
+    mark_checkin: bool = True  # If False, just validate without marking
 
 class ExhibitorCreate(BaseModel):
     company_name: str
@@ -1621,6 +1634,212 @@ async def admin_delete_invite_code(code_id: str, admin: dict = Depends(get_admin
     if result.deleted_count == 0:
         raise HTTPException(404, "Kod bulunamadı")
     return {"deleted": True}
+
+
+# ==================== API KEYS (3rd-party access) ====================
+
+def _generate_api_key() -> str:
+    """Generate a secure 40-char API key with prefix."""
+    return "ayz_" + secrets.token_urlsafe(30)
+
+
+@api_router.get("/admin/api-keys")
+async def admin_list_api_keys(admin: dict = Depends(get_admin_user)):
+    docs = await db.api_keys.find({}).sort("created_at", -1).to_list(200)
+    return [clean_doc(d) for d in docs]
+
+
+@api_router.post("/admin/api-keys")
+async def admin_create_api_key(body: ApiKeyCreate, admin: dict = Depends(get_admin_user)):
+    label = (body.label or "").strip()
+    if len(label) < 2:
+        raise HTTPException(400, "Etiket en az 2 karakter olmalı")
+    valid_for = body.valid_for if body.valid_for in ("summit", "fair", "both") else "both"
+    key = _generate_api_key()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "key": key,
+        "label": label,
+        "valid_for": valid_for,
+        "is_active": True,
+        "usage_count": 0,
+        "last_used_at": None,
+        "created_at": now_iso,
+        "created_by": admin.get("email", "admin"),
+    }
+    result = await db.api_keys.insert_one(doc)
+    return clean_doc({**doc, "_id": result.inserted_id})
+
+
+@api_router.put("/admin/api-keys/{key_id}")
+async def admin_update_api_key(key_id: str, body: ApiKeyUpdate, admin: dict = Depends(get_admin_user)):
+    if not ObjectId.is_valid(key_id):
+        raise HTTPException(404, "Anahtar bulunamadı")
+    update = {}
+    if body.label is not None:
+        update["label"] = body.label.strip()
+    if body.valid_for is not None and body.valid_for in ("summit", "fair", "both"):
+        update["valid_for"] = body.valid_for
+    if body.is_active is not None:
+        update["is_active"] = bool(body.is_active)
+    if not update:
+        raise HTTPException(400, "Güncellenecek alan yok")
+    result = await db.api_keys.update_one({"_id": ObjectId(key_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Anahtar bulunamadı")
+    doc = await db.api_keys.find_one({"_id": ObjectId(key_id)})
+    return clean_doc(doc)
+
+
+@api_router.delete("/admin/api-keys/{key_id}")
+async def admin_delete_api_key(key_id: str, admin: dict = Depends(get_admin_user)):
+    if not ObjectId.is_valid(key_id):
+        raise HTTPException(404, "Anahtar bulunamadı")
+    res = await db.api_keys.delete_one({"_id": ObjectId(key_id)})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Anahtar bulunamadı")
+    return {"deleted": True}
+
+
+# ===== Public external endpoint (used by 3rd-party scanners) =====
+
+async def _validate_api_key(api_key: Optional[str]) -> dict:
+    """Look up an API key, ensure it's active, and update its usage tracking."""
+    if not api_key or not api_key.strip():
+        raise HTTPException(401, "X-API-Key header gerekli")
+    doc = await db.api_keys.find_one({"key": api_key.strip()})
+    if not doc:
+        raise HTTPException(401, "Geçersiz API anahtarı")
+    if not doc.get("is_active", True):
+        raise HTTPException(403, "API anahtarı pasif")
+    # Async-update usage stats (fire-and-forget style)
+    await db.api_keys.update_one(
+        {"_id": doc["_id"]},
+        {"$inc": {"usage_count": 1}, "$set": {"last_used_at": datetime.now(timezone.utc).isoformat()}},
+    )
+    return doc
+
+
+@api_router.post("/external/checkin")
+async def external_checkin(
+    body: ExternalCheckInRequest,
+    x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+):
+    """3rd-party check-in endpoint. Used by exhibitor / fair company scanners.
+
+    Headers: X-API-Key: <api_key>
+    Body: { "code": "AYZ2026-...", "mark_checkin": true }
+
+    Returns same shape as POST /admin/checkin:
+    { status: "approved" | "already_checked_in" | "not_verified" | "not_found",
+      message: str, guest: {...} }
+    """
+    api_key_doc = await _validate_api_key(x_api_key)
+    allowed = api_key_doc.get("valid_for", "both")
+
+    guest_id = _parse_checkin_code(body.code)
+    if not guest_id or not ObjectId.is_valid(guest_id):
+        return {"status": "not_found", "message": "Geçersiz QR kod"}
+
+    obj_id = ObjectId(guest_id)
+    guest = await db.guests.find_one({"_id": obj_id})
+    if not guest:
+        return {"status": "not_found", "message": "Yaka kartı sistemde bulunamadı"}
+
+    visit_type = guest.get("visit_type", "summit")
+    if allowed != "both" and allowed != visit_type:
+        # API key is scoped to a different visit type
+        return {
+            "status": "not_found",
+            "message": f"Bu API anahtarı {visit_type} ziyaretçilerini doğrulamaya yetkili değil",
+        }
+
+    visit_label = "Zirve" if visit_type == "summit" else "Fuar"
+    guest_info = {
+        "guest_id": guest_id,
+        "name": guest.get("name", ""),
+        "company": guest.get("company", ""),
+        "title": guest.get("title", ""),
+        "email": guest.get("email", ""),
+        "phone": guest.get("phone", ""),
+        "city": guest.get("city", ""),
+        "visit_type": visit_type,
+        "visit_label": visit_label,
+        "badge_id": f"AYZ2026-{guest_id[-8:].upper()}",
+    }
+
+    if not guest.get("is_verified"):
+        return {"status": "not_verified", "message": "Bu yaka kartının sahibi e-posta doğrulamasını yapmamış", "guest": guest_info}
+
+    if guest.get("checked_in"):
+        guest_info["checked_in_at"] = guest.get("checked_in_at")
+        guest_info["checked_in_by"] = guest.get("checked_in_by")
+        return {"status": "already_checked_in", "message": "Bu yaka kartı daha önce okutulmuş", "guest": guest_info}
+
+    if not body.mark_checkin:
+        # Validation only — do not update DB
+        return {"status": "approved", "message": "Yaka kartı geçerli", "guest": guest_info}
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.guests.update_one(
+        {"_id": obj_id},
+        {"$set": {
+            "checked_in": True,
+            "checked_in_at": now_iso,
+            "checked_in_by": f"api:{api_key_doc.get('label', 'external')}",
+        }},
+    )
+    guest_info["checked_in_at"] = now_iso
+    return {"status": "approved", "message": "Giriş onaylandı", "guest": guest_info}
+
+
+@api_router.get("/external/guests")
+async def external_list_guests(
+    visit_type: Optional[str] = None,
+    limit: int = 1000,
+    x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
+):
+    """3rd-party endpoint to fetch the verified guest list (for offline lookup).
+
+    Headers: X-API-Key: <api_key>
+    Query:   ?visit_type=fair|summit (optional, filtered to API key's scope)
+             ?limit=1000 (max 5000)
+    """
+    api_key_doc = await _validate_api_key(x_api_key)
+    allowed = api_key_doc.get("valid_for", "both")
+
+    # Apply scope: API key only sees what it's allowed to
+    if allowed == "both":
+        query_visit = visit_type if visit_type in ("summit", "fair") else None
+    else:
+        # If they request something outside their scope, deny
+        if visit_type and visit_type != allowed:
+            raise HTTPException(403, f"Bu API anahtarı sadece {allowed} kayıtlarını görebilir")
+        query_visit = allowed
+
+    query = {"is_verified": True}
+    if query_visit:
+        query["visit_type"] = query_visit
+
+    limit = max(1, min(int(limit or 1000), 5000))
+    docs = await db.guests.find(query).sort("created_at", -1).to_list(limit)
+    out = []
+    for d in docs:
+        gid = str(d["_id"])
+        out.append({
+            "guest_id": gid,
+            "badge_id": f"AYZ2026-{gid[-8:].upper()}",
+            "name": d.get("name", ""),
+            "company": d.get("company", ""),
+            "title": d.get("title", ""),
+            "email": d.get("email", ""),
+            "phone": d.get("phone", ""),
+            "city": d.get("city", ""),
+            "visit_type": d.get("visit_type", "summit"),
+            "checked_in": bool(d.get("checked_in", False)),
+            "checked_in_at": d.get("checked_in_at"),
+        })
+    return {"count": len(out), "guests": out}
 
 
 # ==================== ADMIN USERS (Admin Account Management) ====================
