@@ -79,25 +79,7 @@ const BENEFITS = [
 ];
 
 // === Sponsor Tiers — NO BACKGROUND IMAGES, just clean colored cards ===
-// Order: Altın (en popüler, mevcut) → Ana (verildi) → Gümüş → Bronz
 const SPONSOR_TIERS = [
-  {
-    icon: Trophy,
-    label: "Altın Sponsor",
-    bg: "bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600",
-    iconBg: "bg-white",
-    iconColor: "text-amber-600",
-    perks: [
-      "Panel oturumunda konuşma hakkı",
-      "Logo: tüm dijital + basılı materyaller",
-      "Stant (15m²) — fuar alanı",
-      "5 dakika tanıtım videosu",
-      "Katılımcı verisi (filtrelenmiş)",
-      "VIP yemek davetiyesi",
-    ],
-    highlight: true,
-    pkg: "altin",
-  },
   {
     icon: Crown,
     label: "Ana Sponsor",
@@ -114,6 +96,23 @@ const SPONSOR_TIERS = [
     ],
     sold: true,
     pkg: "ana",
+  },
+  {
+    icon: Trophy,
+    label: "Altın Sponsor",
+    bg: "bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600",
+    iconBg: "bg-white",
+    iconColor: "text-amber-600",
+    perks: [
+      "Panel oturumunda konuşma hakkı",
+      "Logo: tüm dijital + basılı materyaller",
+      "Stant (15m²) — fuar alanı",
+      "5 dakika tanıtım videosu",
+      "Katılımcı verisi (filtrelenmiş)",
+      "VIP yemek davetiyesi",
+    ],
+    highlight: true,
+    pkg: "altin",
   },
   {
     icon: Medal,
