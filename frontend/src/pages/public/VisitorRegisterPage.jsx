@@ -324,9 +324,6 @@ export default function VisitorRegisterPage() {
                 className="group text-left bg-white rounded-md overflow-hidden transition-all shadow-md ring-1 ring-summit-accent/30 hover:shadow-2xl hover:ring-summit-accent hover:-translate-y-1 cursor-pointer relative"
                 data-testid="visit-option-fair"
               >
-                <span className="absolute top-4 right-4 z-10 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded shadow">
-                  Sınırsız Kayıt
-                </span>
                 <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 200 }}>
                   <img
                     src={`${API}/uploads/fair_stands.jpeg?v=${Date.now()}`}
@@ -354,9 +351,14 @@ export default function VisitorRegisterPage() {
                   <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> İki gün (20-21 Mayıs), serbest giriş</li>
                 </ul>
 
-                <div className="mt-5 pt-4 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-600">
-                  <UsersIcon size={13} className="text-summit-navy" />
-                  <span>Kontenjan sınırı yok · Dilediğiniz saatte giriş</span>
+                <div className="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-summit-accent text-summit-navy font-bold uppercase tracking-wider rounded text-[0.65rem]">
+                    Sınırsız Kayıt
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <UsersIcon size={13} className="text-summit-navy" />
+                    Dilediğiniz saatte giriş
+                  </span>
                 </div>
 
                 <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-summit-navy">
