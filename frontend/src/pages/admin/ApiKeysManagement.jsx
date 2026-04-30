@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import {
   KeyRound, Plus, Trash2, Copy, Check, ToggleLeft, ToggleRight, X,
-  AlertCircle, Eye, EyeOff, Shield, Code as CodeIcon, FileText
+  AlertCircle, Eye, EyeOff, Shield, Code as CodeIcon, FileText, Smartphone, ExternalLink
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
@@ -19,6 +19,7 @@ export default function ApiKeysManagement() {
   const [form, setForm] = useState({ label: "", valid_for: "fair" });
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
+  const [copiedLinkId, setCopiedLinkId] = useState(null);
   const [revealedId, setRevealedId] = useState(null);
   const [showDocs, setShowDocs] = useState(false);
 
@@ -74,6 +75,17 @@ export default function ApiKeysManagement() {
     setTimeout(() => setCopiedId(null), 1800);
   };
 
+  const scanLinkFor = (key) => {
+    const origin = (typeof window !== "undefined") ? window.location.origin : "";
+    return `${origin}/tarama/${key}`;
+  };
+
+  const copyScanLink = (id, key) => {
+    navigator.clipboard.writeText(scanLinkFor(key));
+    setCopiedLinkId(id);
+    setTimeout(() => setCopiedLinkId(null), 1800);
+  };
+
   const maskedKey = (key) => key.slice(0, 6) + "•".repeat(20) + key.slice(-4);
 
   return (
@@ -102,6 +114,19 @@ export default function ApiKeysManagement() {
           >
             {showForm ? <X size={16} /> : <Plus size={16} />} {showForm ? "İptal" : "Yeni Anahtar"}
           </button>
+        </div>
+      </div>
+
+      {/* INFO BANNER about mobile scan link */}
+      <div className="bg-summit-gold/10 border border-summit-gold/40 rounded-xl p-4 flex items-start gap-3" data-testid="mobile-link-info">
+        <Smartphone size={20} className="text-summit-navy shrink-0 mt-0.5" />
+        <div className="text-sm text-summit-navy leading-relaxed">
+          <strong className="block mb-0.5">Görevliler için Mobil Tarama Linki</strong>
+          <span className="text-summit-navy/80 text-xs sm:text-sm">
+            Her anahtarın yanındaki <em>"Mobil Link"</em> butonu, login gerektirmeyen bir QR tarama sayfasına yönlendiren özel bir bağlantı verir.
+            Linki kapıdaki görevlinize gönderin, telefonda açıp kamerayı başlatsınlar — tarayıcıyı her açtıklarında tekrar giriş yapmaları gerekmez.
+            Anahtarı pasif yaparsanız link de anında çalışmaz.
+          </span>
         </div>
       </div>
 
@@ -231,14 +256,35 @@ export default function ApiKeysManagement() {
                         </button>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleDelete(k.id, k.label)}
-                          className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                          title="Sil"
-                          data-testid={`delete-${k.id}`}
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        <div className="inline-flex items-center gap-1 justify-end">
+                          <button
+                            onClick={() => copyScanLink(k.id, k.key)}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-summit-navy bg-summit-paper hover:bg-summit-gold/10 border border-gray-200 px-2.5 py-1.5 rounded transition-colors"
+                            title="Mobil tarama linkini kopyala (görevliye gönder)"
+                            data-testid={`copy-scan-link-${k.id}`}
+                          >
+                            {copiedLinkId === k.id ? <Check size={13} className="text-green-600" /> : <Smartphone size={13} />}
+                            {copiedLinkId === k.id ? "Kopyalandı" : "Mobil Link"}
+                          </button>
+                          <a
+                            href={scanLinkFor(k.key)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-gray-500 hover:text-summit-navy hover:bg-summit-paper rounded transition-colors"
+                            title="Mobil tarama sayfasını aç"
+                            data-testid={`open-scan-link-${k.id}`}
+                          >
+                            <ExternalLink size={14} />
+                          </a>
+                          <button
+                            onClick={() => handleDelete(k.id, k.label)}
+                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Sil"
+                            data-testid={`delete-${k.id}`}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

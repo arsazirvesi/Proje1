@@ -16,6 +16,7 @@ import RegisterPage from "./pages/public/RegisterPage";
 import VisitorRegisterPage from "./pages/public/VisitorRegisterPage";
 import ExhibitorRegisterPage from "./pages/public/ExhibitorRegisterPage";
 import SpeakerApplicationPage from "./pages/public/SpeakerApplicationPage";
+import StaffScanPage from "./pages/public/StaffScanPage";
 import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
@@ -81,6 +82,9 @@ function App() {
             <Route path="/fuar-stant-kaydi" element={<ExhibitorRegisterPage />} />
             <Route path="/konusmaci-basvuru" element={<SpeakerApplicationPage />} />
             <Route path="/bulten" element={<RegisterPage />} />
+
+            {/* Public staff scanner (token in URL) */}
+            <Route path="/tarama/:apiKey" element={<StaffScanPage />} />
 
             {/* Backward compat redirects */}
             <Route path="/zirve-kaydi" element={<Navigate to="/ziyaretci-kaydi" replace />} />
