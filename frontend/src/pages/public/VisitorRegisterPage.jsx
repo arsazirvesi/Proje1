@@ -141,12 +141,18 @@ export default function VisitorRegisterPage() {
                 type="button"
                 onClick={() => !summitFull && setVisitType("summit")}
                 disabled={summitFull}
-                className={`group text-left bg-white border-2 rounded-md p-6 transition-all shadow-sm
+                className={`group text-left bg-white border-2 rounded-md overflow-hidden transition-all shadow-sm
                   ${summitFull
                     ? "border-gray-200 opacity-60 cursor-not-allowed"
                     : "border-summit-navy/30 hover:border-summit-navy hover:shadow-xl hover:-translate-y-1 cursor-pointer"}`}
                 data-testid="visit-option-summit"
               >
+                <div
+                  className="w-full h-44 bg-cover bg-center"
+                  style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg)" }}
+                  aria-hidden="true"
+                />
+                <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 rounded-md bg-summit-navy/10 flex items-center justify-center text-summit-navy group-hover:bg-summit-navy group-hover:text-white transition-colors">
                     <Ticket size={22} />
@@ -195,18 +201,25 @@ export default function VisitorRegisterPage() {
                   {summitFull ? "Kayıt Kapandı" : "Zirveye Kaydol"}
                   {!summitFull && <ArrowLeft size={14} className="rotate-180" />}
                 </div>
+                </div>
               </button>
 
               {/* FAIR CARD */}
               <button
                 type="button"
                 onClick={() => setVisitType("fair")}
-                className="group text-left bg-white border-2 border-summit-accent/40 hover:border-summit-accent rounded-md p-6 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer relative"
+                className="group text-left bg-white border-2 border-summit-accent/40 hover:border-summit-accent rounded-md overflow-hidden transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer relative"
                 data-testid="visit-option-fair"
               >
-                <span className="absolute -top-2.5 right-5 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded">
+                <span className="absolute top-4 right-4 z-10 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded shadow">
                   Sınırsız Kayıt
                 </span>
+                <div
+                  className="w-full h-44 bg-cover bg-center"
+                  style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg)" }}
+                  aria-hidden="true"
+                />
+                <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 rounded-md bg-summit-accent/20 flex items-center justify-center text-summit-navy group-hover:bg-summit-accent transition-colors">
                     <Store size={22} />
@@ -233,6 +246,7 @@ export default function VisitorRegisterPage() {
                 <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-summit-navy">
                   Fuar Ziyareti İçin Kaydol
                   <ArrowLeft size={14} className="rotate-180" />
+                </div>
                 </div>
               </button>
             </div>
