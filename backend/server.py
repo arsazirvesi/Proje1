@@ -1003,81 +1003,174 @@ async def generate_badge(guest_id: str):
     if not guest:
         raise HTTPException(404, "Misafir bulunamadı")
 
+    visit_type = guest.get("visit_type") or "summit"
+    is_summit = visit_type == "summit"
+
+    # Brand palette — keep consistent with the website
+    NAVY = "#22316a"
+    NAVY_DARK = "#0F1B3F"
+    GOLD = "#D4AF37"
+    GOLD_SOFT = "rgba(212, 175, 55, 0.85)"
+
+    accent = GOLD if is_summit else NAVY
+    text_main = "#fff" if is_summit else NAVY
+    text_sub = "rgba(255,255,255,0.7)" if is_summit else "rgba(34,49,106,0.75)"
+    label = "ZİRVE KATILIMI" if is_summit else "FUAR ZİYARETÇİSİ"
+    accent_text = NAVY if is_summit else "#fff"
+    bg_grad_a = NAVY if is_summit else GOLD
+    bg_grad_b = NAVY_DARK if is_summit else "#B89020"
+
+    # QR code
     qr = qrcode.QRCode(version=1, box_size=6, border=2)
     qr.add_data(f"AYZ2026-{guest_id}")
     qr.make(fit=True)
-    visit_type = guest.get("visit_type") or "summit"
-    accent = "#D4AF37" if visit_type == "summit" else "#22316a"
-    bg_grad_a = "#22316a" if visit_type == "summit" else "#D4AF37"
-    bg_grad_b = "#0F1B3F" if visit_type == "summit" else "#B89020"
-    text_main = "#fff" if visit_type == "summit" else "#22316a"
-    text_sub_color = "rgba(255,255,255,0.55)" if visit_type == "summit" else "rgba(34,49,106,0.7)"
-    label = "ZİRVE KATILIMI" if visit_type == "summit" else "FUAR ZİYARETÇİSİ"
-
-    img = qr.make_image(fill_color=("#0A1128" if visit_type == "summit" else "#22316a"), back_color="white")
+    qr_img = qr.make_image(fill_color=NAVY, back_color="white")
     buf = io.BytesIO()
-    img.save(buf, format="PNG")
+    qr_img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
 
-    # Compute sequence number (oldest first = #1)
+    # Inline assets (base64) so the page renders perfectly on print/share
+    def _b64_image(path: Path, fmt: str = "image/jpeg") -> str:
+        try:
+            data = path.read_bytes()
+            return f"data:{fmt};base64,{base64.b64encode(data).decode()}"
+        except Exception:
+            return ""
+    bg_img_path = UPLOADS_DIR / ("arsa_zirvesi_seminar.jpeg" if is_summit else "fair_bg.jpeg")
+    bg_data = _b64_image(bg_img_path, "image/jpeg")
+    firat_data = _b64_image(UPLOADS_DIR / "firat_logo.png", "image/png")
+    jnr_data = _b64_image(UPLOADS_DIR / "jnr_logo.png", "image/png")
+
+    # Sequence
     seq = await db.guests.count_documents({
-        "visit_type": (
-            {"$in": ["summit", None]} if visit_type == "summit" else "fair"
-        ),
+        "visit_type": ({"$in": ["summit", None]} if is_summit else "fair"),
         "created_at": {"$lte": guest.get("created_at", "")},
     })
 
-    event_date_line = "21 Mayıs 2026 | Hilton İstanbul Bosphorus" if visit_type == "summit" else "20-21 Mayıs 2026 | Hilton İstanbul Bosphorus"
+    event_date_line = "21 Mayıs 2026  ·  Hilton İstanbul Bosphorus" if is_summit \
+        else "20-21 Mayıs 2026  ·  Hilton İstanbul Bosphorus"
     name = html_escape.escape(guest.get("name") or "")
     company = html_escape.escape(guest.get("company") or "")
     title_val = html_escape.escape(guest.get("title") or "")
     initials = "".join([w[0].upper() for w in guest.get("name", "").split()[:2]]) if guest.get("name") else "K"
 
+    bg_layer = (
+        f"background-image:linear-gradient(135deg,{bg_grad_a}E6 0%,{bg_grad_b}F2 100%),url('{bg_data}');"
+        f"background-size:cover;background-position:center;"
+    ) if bg_data else (
+        f"background:linear-gradient(135deg,{bg_grad_a} 0%,{bg_grad_b} 100%);"
+    )
+
     html = f"""<!DOCTYPE html>
 <html lang="tr"><head><meta charset="UTF-8"><title>Yaka Kartı - {name}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
-body{{font-family:'Outfit',sans-serif;background:#f5f5f5;display:flex;justify-content:center;align-items:center;min-height:100vh;flex-direction:column;gap:20px}}
-.badge{{width:340px;height:520px;background:linear-gradient(135deg,{bg_grad_a} 0%,{bg_grad_b} 100%);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative;overflow:hidden}}
-.badge::before{{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:{accent}}}
-.badge::after{{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:{accent}}}
-.event-header{{text-align:center}}
-.event-name{{font-family:'Playfair Display',serif;color:{accent};font-size:13px;letter-spacing:2px;text-transform:uppercase}}
-.event-date{{color:{text_sub_color};font-size:11px;margin-top:4px}}
-.tag{{display:inline-block;padding:4px 10px;background:{accent};color:{("#22316a" if visit_type == "summit" else "#fff")};font-size:9px;letter-spacing:1.5px;font-weight:600;border-radius:3px;margin-top:8px}}
-.seq{{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.15);color:{text_main};padding:3px 9px;border-radius:5px;font-size:10px;font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:0.5px;border:1px solid {accent}}}
-.avatar{{width:88px;height:88px;border-radius:50%;background:{accent};display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Playfair Display',serif;color:{("#22316a" if visit_type == "summit" else "#fff")};font-weight:700;border:3px solid rgba(255,255,255,0.3);margin-bottom:12px}}
-.person-info{{text-align:center}}
-.person-name{{font-family:'Playfair Display',serif;color:{text_main};font-size:20px;font-weight:700}}
-.person-title{{color:{accent};font-size:12px;margin-top:5px;letter-spacing:0.5px}}
-.person-company{{color:{text_sub_color};font-size:12px;margin-top:3px}}
-.qr-wrap{{background:white;border-radius:8px;padding:8px}}
-.badge-id{{color:{text_sub_color};font-size:10px;letter-spacing:1px}}
-.print-btn{{background:{accent};color:{("#22316a" if visit_type == "summit" else "#fff")};border:none;padding:12px 32px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;font-size:14px;transition:all 0.2s}}
-.print-btn:hover{{transform:translateY(-1px)}}
-@media print{{body{{background:white}}.print-btn{{display:none}}}}
+body{{font-family:'Outfit',sans-serif;background:#eef0f4;display:flex;justify-content:center;align-items:center;min-height:100vh;flex-direction:column;gap:24px;padding:32px 16px}}
+.print-btn{{background:{NAVY};color:#fff;border:none;padding:13px 36px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.5px;transition:all 0.2s;box-shadow:0 4px 14px rgba(34,49,106,0.18);text-transform:uppercase;display:inline-flex;align-items:center;gap:8px}}
+.print-btn:hover{{transform:translateY(-1px);box-shadow:0 6px 20px rgba(34,49,106,0.32);background:#1a2855}}
+.badge{{
+  width:380px;
+  background:{NAVY};
+  {bg_layer}
+  border-radius:18px;
+  padding:0;
+  box-shadow:0 30px 80px rgba(15,27,63,0.35);
+  position:relative;
+  overflow:hidden;
+  color:{text_main};
+}}
+.badge::before{{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,{accent} 0%,{GOLD_SOFT} 50%,{accent} 100%)}}
+.inner{{padding:30px 26px 22px}}
+.event-header{{text-align:center;padding-top:6px}}
+.event-name{{font-family:'Playfair Display',serif;color:{accent};font-size:14px;letter-spacing:3px;text-transform:uppercase;font-weight:700}}
+.event-date{{color:{text_sub};font-size:11px;margin-top:6px;font-weight:300;letter-spacing:0.4px}}
+.tag{{display:inline-block;padding:6px 14px;background:{accent};color:{accent_text};font-size:9px;letter-spacing:2px;font-weight:700;border-radius:4px;margin-top:14px;text-transform:uppercase}}
+.seq{{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.06);color:{text_main};padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.5px;border:1px solid {accent};backdrop-filter:blur(6px)}}
+.person{{display:flex;flex-direction:column;align-items:center;margin:28px 0 22px}}
+.avatar{{width:96px;height:96px;border-radius:50%;background:{accent};display:flex;align-items:center;justify-content:center;font-size:32px;font-family:'Playfair Display',serif;color:{accent_text};font-weight:700;border:3px solid rgba(255,255,255,0.25);box-shadow:0 8px 22px rgba(0,0,0,0.25);margin-bottom:14px}}
+.person-name{{font-family:'Playfair Display',serif;color:{text_main};font-size:22px;font-weight:700;text-align:center;line-height:1.15;margin:0 8px}}
+.person-title{{color:{accent};font-size:12px;margin-top:6px;letter-spacing:0.6px;font-weight:500;text-align:center}}
+.person-company{{color:{text_sub};font-size:11px;margin-top:3px;letter-spacing:0.4px;text-align:center}}
+.qr-section{{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px}}
+.qr-wrap{{background:white;border-radius:10px;padding:10px;box-shadow:0 6px 18px rgba(0,0,0,0.18)}}
+.badge-id{{color:{text_sub};font-size:10px;letter-spacing:1.5px;font-weight:500}}
+
+/* === SPONSOR FOOTER === */
+.sponsor-footer{{
+  background:rgba(0,0,0,0.18);
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding:14px 18px 16px;
+  display:grid;
+  grid-template-columns:1fr 1px 1fr;
+  gap:12px;
+  align-items:center;
+}}
+.sp-col{{display:flex;flex-direction:column;align-items:center;gap:6px}}
+.sp-role{{
+  font-size:8px;
+  letter-spacing:2px;
+  color:{accent};
+  font-weight:700;
+  text-transform:uppercase;
+}}
+.sp-logo-wrap{{
+  background:white;
+  border-radius:6px;
+  padding:6px 10px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  max-width:130px;
+}}
+.sp-logo-wrap img{{max-height:30px;max-width:115px;width:auto;height:auto;object-fit:contain;display:block}}
+.sp-divider{{width:1px;height:42px;background:rgba(255,255,255,0.12);align-self:center}}
+
+@media print{{
+  body{{background:white;padding:0}}
+  .print-btn{{display:none}}
+  .badge{{box-shadow:none;width:380px}}
+}}
 </style></head>
 <body>
 <button class="print-btn" onclick="window.print()">Yaka Kartını Yazdır</button>
 <div class="badge">
-  <span class="seq">#{seq}</span>
-  <div class="event-header">
-    <div class="event-name">ARSA YATIRIM ZİRVESİ 2026</div>
-    <div class="event-date">{event_date_line}</div>
-    <div class="tag">{label}</div>
-  </div>
-  <div style="display:flex;flex-direction:column;align-items:center">
-    <div class="avatar">{initials}</div>
-    <div class="person-info">
+  <div class="inner">
+    <span class="seq">#{seq}</span>
+    <div class="event-header">
+      <div class="event-name">ARSA YATIRIM ZİRVESİ 2026</div>
+      <div class="event-date">{event_date_line}</div>
+      <div class="tag">{label}</div>
+    </div>
+    <div class="person">
+      <div class="avatar">{initials}</div>
       <div class="person-name">{name}</div>
-      <div class="person-title">{title_val}</div>
-      <div class="person-company">{company}</div>
+      {(f'<div class="person-title">{title_val}</div>') if title_val else ''}
+      {(f'<div class="person-company">{company}</div>') if company else ''}
+    </div>
+    <div class="qr-section">
+      <div class="qr-wrap"><img src="data:image/png;base64,{qr_b64}" width="92" height="92" alt="QR Kod"></div>
+      <div class="badge-id">AYZ2026-{guest_id[-8:].upper()}</div>
     </div>
   </div>
-  <div class="qr-wrap"><img src="data:image/png;base64,{qr_b64}" width="80" height="80" alt="QR Kod"></div>
-  <div class="badge-id">AYZ2026-{guest_id[-8:].upper()}</div>
+  <div class="sponsor-footer">
+    <div class="sp-col">
+      <div class="sp-role">Ana Sponsor</div>
+      <div class="sp-logo-wrap">
+        {f'<img src="{firat_data}" alt="Fırat Construction">' if firat_data else '<span style="font-size:11px;color:#22316a;font-weight:700">FIRAT CONSTRUCTION</span>'}
+      </div>
+    </div>
+    <div class="sp-divider"></div>
+    <div class="sp-col">
+      <div class="sp-role">Organizatör</div>
+      <div class="sp-logo-wrap">
+        {f'<img src="{jnr_data}" alt="JNR Fuarcılık">' if jnr_data else '<span style="font-size:11px;color:#22316a;font-weight:700">JNR FUARCILIK</span>'}
+      </div>
+    </div>
+  </div>
 </div>
 </body></html>"""
     return HTMLResponse(html)
