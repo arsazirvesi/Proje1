@@ -103,9 +103,22 @@ export default function CheckInPage() {
       // We just wanted permission; release the stream so html5-qrcode can take over
       stream.getTracks().forEach((t) => t.stop());
 
-      const html5QrCode = new Html5Qrcode(SCANNER_ELEMENT_ID);
+      // Mark scanning state BEFORE starting so the DOM element is rendered
+      setScanning(true);
+      // small delay to allow React to mount the scanner region
+      await new Promise((r) => setTimeout(r, 60));
+
+      const html5QrCode = new Html5Qrcode(SCANNER_ELEMENT_ID, /* verbose */ false);
       scannerRef.current = html5QrCode;
-      const config = { fps: 10, qrbox: { width: 260, height: 260 }, aspectRatio: 1.0 };
+      const config = {
+        fps: 10,
+        qrbox: { width: 240, height: 240 },
+        aspectRatio: 1.0,
+        // iOS Safari needs videoConstraints — facingMode passed alone breaks
+        videoConstraints: { facingMode: { ideal: "environment" } },
+        // disable flipping which breaks on some iOS devices
+        rememberLastUsedCamera: true,
+      };
 
       // 4) Try with rear camera first; fall back to ANY camera if that fails
       try {
@@ -121,7 +134,6 @@ export default function CheckInPage() {
         if (!cameras || cameras.length === 0) {
           throw new Error("Cihazda kamera bulunamadı");
         }
-        // Prefer a camera whose label hints at "back" / "rear" / "environment"
         const back = cameras.find((c) => /back|rear|environment|arka/i.test(c.label || ""));
         const chosen = back || cameras[cameras.length - 1];
         await html5QrCode.start(
@@ -131,7 +143,20 @@ export default function CheckInPage() {
           () => {}
         );
       }
-      setScanning(true);
+
+      // iOS Safari fix: make the injected <video> element inline + autoplay properly
+      const region = document.getElementById(SCANNER_ELEMENT_ID);
+      const video = region?.querySelector("video");
+      if (video) {
+        video.setAttribute("playsinline", "true");
+        video.setAttribute("webkit-playsinline", "true");
+        video.setAttribute("muted", "true");
+        video.setAttribute("autoplay", "true");
+        video.style.width = "100%";
+        video.style.height = "100%";
+        video.style.objectFit = "cover";
+        try { await video.play(); } catch {/* already playing */}
+      }
     } catch (err) {
       const name = err?.name || "";
       const msg = err?.message || "";
@@ -149,6 +174,12 @@ export default function CheckInPage() {
         friendly = `Kamera başlatılamadı: ${msg || name || "Bilinmeyen hata"}. Manuel kod girişini deneyebilirsiniz.`;
       }
       setError(friendly);
+      // ensure any half-started scanner is cleaned up
+      if (scannerRef.current) {
+        try { await scannerRef.current.stop(); } catch {/* ignore */}
+        try { await scannerRef.current.clear(); } catch {/* ignore */}
+        scannerRef.current = null;
+      }
       setScanning(false);
     }
   };
@@ -303,6 +334,7 @@ export default function CheckInPage() {
           id={SCANNER_ELEMENT_ID}
           className={`mx-auto w-full max-w-md aspect-square rounded-lg overflow-hidden bg-gray-900 relative
             ${scanning ? "" : "flex items-center justify-center"}`}
+          style={{ minHeight: scanning ? 300 : "auto" }}
           data-testid="scanner-region"
         >
           {!scanning && (
