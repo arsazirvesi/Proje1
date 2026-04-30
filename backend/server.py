@@ -301,20 +301,129 @@ class SeoSettings(BaseModel):
 
 
 # --- Email Helper ---
-def send_email(to: str, subject: str, html: str) -> bool:
+def send_email(to: str, subject: str, html: str, attachments: Optional[list] = None) -> bool:
+    """Send email via SendGrid.
+
+    attachments: list of dicts with keys:
+        - content_bytes: bytes
+        - filename: str
+        - mime_type: str (default image/png)
+    """
     api_key = os.environ.get("SENDGRID_API_KEY", "")
     sender = os.environ.get("SENDER_EMAIL", "noreply@arsayatirimzirvesi.com")
     if not api_key:
-        logger.warning("SendGrid API key not configured - email not sent")
+        logger.warning("SendGrid API key not configured - email not sent (to=%s, subject=%s)", to, subject)
         return False
     try:
         sg = sendgrid.SendGridAPIClient(api_key=api_key)
         msg = SGMail(from_email=sender, to_emails=to, subject=subject, html_content=html)
+        if attachments:
+            from sendgrid.helpers.mail import Attachment, FileContent, FileName, FileType, Disposition
+            for att in attachments:
+                encoded = base64.b64encode(att["content_bytes"]).decode()
+                a = Attachment(
+                    FileContent(encoded),
+                    FileName(att["filename"]),
+                    FileType(att.get("mime_type", "image/png")),
+                    Disposition("attachment"),
+                )
+                msg.add_attachment(a)
         resp = sg.send(msg)
         return resp.status_code in [200, 202]
     except Exception as e:
         logger.error(f"Email error: {e}")
         return False
+
+
+def render_register_confirmation_email(guest: dict, seq_number: int, public_base_url: str) -> tuple[str, str]:
+    """Returns (subject, html) for the confirmation email."""
+    visit_type = guest.get("visit_type") or "summit"
+    is_summit = visit_type == "summit"
+    accent = "#D4AF37" if is_summit else "#22316a"
+    accent_bg = "#22316a" if is_summit else "#F5E6A3"
+    accent_text = "#fff" if is_summit else "#22316a"
+    label = "Arsa Yatırım Zirvesi 2026" if is_summit else "8. Gayrimenkul Proje Yatırım Fuarı"
+    sub_label = "Konferans · Panel · Networking" if is_summit else "Proje Fuarı · Maket Sergisi"
+    venue_info = ("21 Mayıs 2026 · 09:00 - 19:00" if is_summit else "20-21 Mayıs 2026 · Sınırsız Giriş")
+    intro = (
+        "Arsa Yatırım Zirvesi 2026 konferans programına kaydınız başarıyla alınmıştır."
+        if is_summit
+        else "8. Gayrimenkul Proje Yatırım Fuarı ziyaretçi kaydınız başarıyla alınmıştır."
+    )
+    subject = f"Kayıt Onayı · {label}"
+    name = (guest.get("name") or "").strip() or "Misafir"
+    guest_id = str(guest.get("_id") or "")
+    badge_view_url = f"{public_base_url}/api/badge/{guest_id}"
+
+    html = f"""
+<!DOCTYPE html>
+<html lang="tr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{subject}</title></head>
+<body style="margin:0;padding:0;background:#f4f4f7;font-family:'Helvetica Neue',Arial,sans-serif;color:#22316a;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f4f4f7;padding:40px 20px;">
+    <tr><td align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+
+        <!-- Header -->
+        <tr><td style="background:{accent_bg};padding:30px 40px;text-align:center;">
+          <div style="color:{accent};font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;">Kayıt Onayı</div>
+          <div style="color:{accent_text};font-size:24px;font-weight:700;margin-top:6px;font-family:Georgia,serif;">{label}</div>
+          <div style="color:{accent_text};opacity:0.8;font-size:13px;margin-top:4px;">{sub_label}</div>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:40px;">
+          <p style="font-size:18px;color:#22316a;margin:0 0 16px 0;font-weight:600;">Sayın {html_escape.escape(name)},</p>
+          <p style="font-size:14px;line-height:1.7;color:#555;margin:0 0 20px 0;">
+            {intro} Aşağıda kayıt detaylarınızı bulabilirsiniz. Etkinlik günü <strong>yaka kartınızın çıktısını yanınızda</strong> getirmeniz veya telefonunuzdaki kareyi kayıt masasında okutmanız yeterlidir.
+          </p>
+
+          <!-- Info card -->
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f8f9fb;border-left:4px solid {accent};border-radius:6px;margin:24px 0;">
+            <tr><td style="padding:18px 22px;">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Sıra Numaranız</div>
+              <div style="font-size:24px;color:#22316a;font-weight:700;font-family:Georgia,serif;">#{seq_number}</div>
+              <div style="height:1px;background:#e1e3e9;margin:12px 0;"></div>
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Etkinlik</div>
+              <div style="font-size:14px;color:#22316a;font-weight:600;">{label}</div>
+              <div style="font-size:13px;color:#555;margin-top:2px;">{venue_info}</div>
+              <div style="font-size:13px;color:#555;">Hilton İstanbul Bosphorus</div>
+            </td></tr>
+          </table>
+
+          <!-- Badge attachment notice -->
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:{accent_bg};border-radius:6px;margin:24px 0;">
+            <tr><td style="padding:22px;text-align:center;">
+              <div style="font-size:12px;color:{accent};text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px;">Yaka Kartınız</div>
+              <div style="color:{accent_text};font-size:14px;line-height:1.6;margin-bottom:14px;">
+                Yaka kartınız bu e-postanın ekinde <strong>PNG dosyası</strong> olarak yer almaktadır.
+                Üzerindeki <strong>QR kodu</strong> giriş günü kayıt masasında okutarak hızlıca check-in yapabilirsiniz.
+              </div>
+              <a href="{badge_view_url}" style="display:inline-block;background:{accent};color:{("#22316a" if is_summit else "#fff")};padding:11px 28px;border-radius:6px;font-weight:600;text-decoration:none;font-size:14px;">
+                Yaka Kartını Tarayıcıda Aç
+              </a>
+            </td></tr>
+          </table>
+
+          <p style="font-size:13px;color:#888;line-height:1.6;margin:24px 0 0 0;">
+            Sorularınız için bize <a href="mailto:noreply@arsayatirimzirvesi.com" style="color:{accent};">noreply@arsayatirimzirvesi.com</a> adresinden ulaşabilirsiniz.<br>
+            Etkinlik günü görüşmek üzere!
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="background:#f8f9fb;padding:24px 40px;text-align:center;border-top:1px solid #e1e3e9;">
+          <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">Arsa Yatırım Zirvesi 2026</div>
+          <div style="font-size:11px;color:#aaa;margin-top:6px;">FIRAT CONSTRUCTION YAPI A.Ş.</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px;"><a href="https://arsayatirimzirvesi.com" style="color:#aaa;text-decoration:none;">arsayatirimzirvesi.com</a></div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+"""
+    return subject, html
 
 
 # --- Doc Cleaner ---
@@ -526,22 +635,29 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
     }
     result = await db.guests.insert_one(doc)
     guest_id = str(result.inserted_id)
-    html = f"""
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;color:#1F2937;padding:40px;border-radius:8px;border:1px solid #E5E7EB">
-      <div style="border-top:3px solid #22316a;padding-top:24px">
-      <h1 style="color:#22316a;font-size:22px;margin-bottom:16px">Arsa Yatırım Zirvesi 2026</h1>
-      <p>Sayın <strong>{body.name}</strong>,</p>
-      <p style="margin-top:12px">Zirve ziyaretçi kaydınız başarıyla alınmıştır. Sizi aramızda görmekten mutluluk duyacağız.</p>
-      <div style="background:#F8F9FB;border-radius:6px;padding:16px;margin:20px 0;border-left:4px solid #22316a">
-        <p style="color:#22316a;margin:4px 0"><strong>Tarih:</strong> 21 Mayıs 2026, Perşembe</p>
-        <p style="color:#22316a;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus - Zirve Salonu</p>
-        <p style="color:#22316a;margin:4px 0"><strong>Adres:</strong> Harbiye, Cumhuriyet Cd. No:50, 34367 Şişli/İstanbul</p>
-      </div>
-      <p>Yaka kartınız etkinlik günü kayıt masasında teslim edilecektir.</p>
-      <p style="color:#9CA3AF;font-size:12px;margin-top:24px">© 2026 Arsa Yatırım Zirvesi</p>
-      </div>
-    </div>"""
-    background_tasks.add_task(send_email, body.email.lower(), "Arsa Yatırım Zirvesi 2026 - Ziyaretçi Kayıt Onayı", html)
+
+    # Compute sequence number (oldest first = #1)
+    seq = await db.guests.count_documents({
+        "visit_type": ({"$in": ["summit", None]} if visit_type == "summit" else "fair"),
+        "created_at": {"$lte": doc["created_at"]},
+    })
+
+    # Generate badge PNG and queue email with attachment
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    try:
+        guest_with_id = {**doc, "_id": result.inserted_id}
+        badge_png = render_badge_png(guest_with_id, seq)
+        attachments = [{
+            "content_bytes": badge_png,
+            "filename": f"yaka-karti-{guest_id[-8:]}.png",
+            "mime_type": "image/png",
+        }]
+    except Exception as e:
+        logger.error(f"Badge PNG generation failed: {e}")
+        attachments = None
+
+    subject, html = render_register_confirmation_email({**doc, "_id": result.inserted_id}, seq, public_base)
+    background_tasks.add_task(send_email, body.email.lower(), subject, html, attachments)
     return {"id": guest_id, "message": "Ziyaretçi kaydınız alınmıştır", "badge_url": f"/api/badge/{guest_id}"}
 
 
@@ -633,10 +749,26 @@ async def generate_badge(guest_id: str):
     qr = qrcode.QRCode(version=1, box_size=6, border=2)
     qr.add_data(f"AYZ2026-{guest_id}")
     qr.make(fit=True)
-    img = qr.make_image(fill_color="#0A1128", back_color="white")
+    visit_type = guest.get("visit_type") or "summit"
+    accent = "#D4AF37" if visit_type == "summit" else "#22316a"
+    bg_grad_a = "#22316a" if visit_type == "summit" else "#D4AF37"
+    bg_grad_b = "#0F1B3F" if visit_type == "summit" else "#B89020"
+    text_main = "#fff" if visit_type == "summit" else "#22316a"
+    text_sub_color = "rgba(255,255,255,0.55)" if visit_type == "summit" else "rgba(34,49,106,0.7)"
+    label = "ZİRVE KATILIMI" if visit_type == "summit" else "FUAR ZİYARETÇİSİ"
+
+    img = qr.make_image(fill_color=("#0A1128" if visit_type == "summit" else "#22316a"), back_color="white")
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
+
+    # Compute sequence number (oldest first = #1)
+    seq = await db.guests.count_documents({
+        "visit_type": (
+            {"$in": ["summit", None]} if visit_type == "summit" else "fair"
+        ),
+        "created_at": {"$lte": guest.get("created_at", "")},
+    })
 
     name = html_escape.escape(guest.get("name") or "")
     company = html_escape.escape(guest.get("company") or "")
@@ -650,29 +782,33 @@ async def generate_badge(guest_id: str):
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
 body{{font-family:'Outfit',sans-serif;background:#f5f5f5;display:flex;justify-content:center;align-items:center;min-height:100vh;flex-direction:column;gap:20px}}
-.badge{{width:340px;height:500px;background:linear-gradient(135deg,#0A1128 0%,#14213D 100%);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 20px 60px rgba(0,0,0,0.4);border:2px solid rgba(212,175,55,0.4);position:relative;overflow:hidden}}
-.badge::before{{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#D4AF37,#FDB813,#D4AF37)}}
-.badge::after{{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#D4AF37,#FDB813,#D4AF37)}}
+.badge{{width:340px;height:520px;background:linear-gradient(135deg,{bg_grad_a} 0%,{bg_grad_b} 100%);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative;overflow:hidden}}
+.badge::before{{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:{accent}}}
+.badge::after{{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:{accent}}}
 .event-header{{text-align:center}}
-.event-name{{font-family:'Playfair Display',serif;color:#D4AF37;font-size:13px;letter-spacing:2px;text-transform:uppercase}}
-.event-date{{color:rgba(255,255,255,0.55);font-size:11px;margin-top:4px}}
-.avatar{{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#D4AF37,#FDB813);display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Playfair Display',serif;color:#0A1128;font-weight:700;border:3px solid rgba(212,175,55,0.5);margin-bottom:12px}}
+.event-name{{font-family:'Playfair Display',serif;color:{accent};font-size:13px;letter-spacing:2px;text-transform:uppercase}}
+.event-date{{color:{text_sub_color};font-size:11px;margin-top:4px}}
+.tag{{display:inline-block;padding:4px 10px;background:{accent};color:{("#22316a" if visit_type == "summit" else "#fff")};font-size:9px;letter-spacing:1.5px;font-weight:600;border-radius:3px;margin-top:8px}}
+.seq{{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.15);color:{text_main};padding:3px 9px;border-radius:5px;font-size:10px;font-family:'Outfit',sans-serif;font-weight:700;letter-spacing:0.5px;border:1px solid {accent}}}
+.avatar{{width:88px;height:88px;border-radius:50%;background:{accent};display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Playfair Display',serif;color:{("#22316a" if visit_type == "summit" else "#fff")};font-weight:700;border:3px solid rgba(255,255,255,0.3);margin-bottom:12px}}
 .person-info{{text-align:center}}
-.person-name{{font-family:'Playfair Display',serif;color:#fff;font-size:20px;font-weight:700}}
-.person-title{{color:#D4AF37;font-size:12px;margin-top:5px;letter-spacing:0.5px}}
-.person-company{{color:rgba(255,255,255,0.55);font-size:12px;margin-top:3px}}
+.person-name{{font-family:'Playfair Display',serif;color:{text_main};font-size:20px;font-weight:700}}
+.person-title{{color:{accent};font-size:12px;margin-top:5px;letter-spacing:0.5px}}
+.person-company{{color:{text_sub_color};font-size:12px;margin-top:3px}}
 .qr-wrap{{background:white;border-radius:8px;padding:8px}}
-.badge-id{{color:rgba(255,255,255,0.35);font-size:10px;letter-spacing:1px}}
-.print-btn{{background:#D4AF37;color:#0A1128;border:none;padding:12px 32px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;font-size:14px;transition:all 0.2s}}
-.print-btn:hover{{background:#FDB813;transform:translateY(-1px)}}
+.badge-id{{color:{text_sub_color};font-size:10px;letter-spacing:1px}}
+.print-btn{{background:{accent};color:{("#22316a" if visit_type == "summit" else "#fff")};border:none;padding:12px 32px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;font-size:14px;transition:all 0.2s}}
+.print-btn:hover{{transform:translateY(-1px)}}
 @media print{{body{{background:white}}.print-btn{{display:none}}}}
 </style></head>
 <body>
 <button class="print-btn" onclick="window.print()">Yaka Kartını Yazdır</button>
 <div class="badge">
+  <span class="seq">#{seq}</span>
   <div class="event-header">
     <div class="event-name">ARSA YATIRIM ZİRVESİ 2026</div>
     <div class="event-date">21 Mayıs 2026 | Hilton İstanbul Bosphorus</div>
+    <div class="tag">{label}</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:center">
     <div class="avatar">{initials}</div>
@@ -687,6 +823,167 @@ body{{font-family:'Outfit',sans-serif;background:#f5f5f5;display:flex;justify-co
 </div>
 </body></html>"""
     return HTMLResponse(html)
+
+
+def render_badge_png(guest: dict, seq_number: int) -> bytes:
+    """Generate a badge as PNG image (for email attachments).
+    Uses Pillow to draw a 680x1040 badge with a QR code."""
+    from PIL import Image, ImageDraw, ImageFont
+
+    visit_type = guest.get("visit_type") or "summit"
+    is_summit = visit_type == "summit"
+    bg_a = (34, 49, 106) if is_summit else (212, 175, 55)  # navy / gold
+    bg_b = (15, 27, 63) if is_summit else (184, 144, 32)
+    accent = (212, 175, 55) if is_summit else (34, 49, 106)
+    text_main = (255, 255, 255) if is_summit else (34, 49, 106)
+    text_sub = (255, 255, 255, 140) if is_summit else (34, 49, 106, 180)
+    accent_text = (34, 49, 106) if is_summit else (255, 255, 255)
+    label_text = "ZİRVE KATILIMI" if is_summit else "FUAR ZİYARETÇİSİ"
+
+    W, H = 680, 1040
+    img = Image.new("RGB", (W, H), bg_a)
+    # Vertical gradient
+    for y in range(H):
+        r = int(bg_a[0] + (bg_b[0] - bg_a[0]) * y / H)
+        g = int(bg_a[1] + (bg_b[1] - bg_a[1]) * y / H)
+        b = int(bg_a[2] + (bg_b[2] - bg_a[2]) * y / H)
+        for x in range(W):
+            img.putpixel((x, y), (r, g, b))
+
+    draw = ImageDraw.Draw(img, "RGBA")
+
+    # Top & bottom accent bars
+    draw.rectangle([(0, 0), (W, 10)], fill=accent)
+    draw.rectangle([(0, H - 6), (W, H)], fill=accent)
+
+    # Try to load a font - fall back to default
+    def get_font(size):
+        for path in [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        ]:
+            try:
+                return ImageFont.truetype(path, size)
+            except Exception:
+                continue
+        return ImageFont.load_default()
+
+    def get_font_regular(size):
+        for path in [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        ]:
+            try:
+                return ImageFont.truetype(path, size)
+            except Exception:
+                continue
+        return ImageFont.load_default()
+
+    f_event = get_font(22)
+    f_date = get_font_regular(16)
+    f_label = get_font(20)
+    f_name = get_font(40)
+    f_title = get_font_regular(20)
+    f_company = get_font_regular(20)
+    f_seq = get_font(22)
+    f_id = get_font_regular(14)
+
+    # Sequence number (top right)
+    seq_text = f"#{seq_number}"
+    bbox = draw.textbbox((0, 0), seq_text, font=f_seq)
+    seq_w = bbox[2] - bbox[0]
+    draw.rounded_rectangle([(W - seq_w - 70, 30), (W - 30, 75)], radius=6, fill=accent)
+    draw.text((W - seq_w - 50, 38), seq_text, fill=accent_text, font=f_seq)
+
+    # Header
+    def center_text(y, text, font, color):
+        bbox = draw.textbbox((0, 0), text, font=font)
+        w = bbox[2] - bbox[0]
+        draw.text(((W - w) / 2, y), text, fill=color, font=font)
+
+    center_text(60, "ARSA YATIRIM ZİRVESİ 2026", f_event, accent)
+    center_text(95, "21 Mayıs 2026 · Hilton İstanbul Bosphorus", f_date, text_sub[:3])
+
+    # Tag
+    tag_pad_x, tag_pad_y = 16, 8
+    bbox = draw.textbbox((0, 0), label_text, font=f_label)
+    label_w = bbox[2] - bbox[0]
+    label_h = bbox[3] - bbox[1]
+    tag_x = (W - label_w - tag_pad_x * 2) / 2
+    draw.rounded_rectangle(
+        [(tag_x, 130), (tag_x + label_w + tag_pad_x * 2, 130 + label_h + tag_pad_y * 2)],
+        radius=5, fill=accent
+    )
+    draw.text((tag_x + tag_pad_x, 130 + tag_pad_y), label_text, fill=accent_text, font=f_label)
+
+    # Avatar circle with initials
+    name = (guest.get("name") or "").strip()
+    initials = "".join([w[0].upper() for w in name.split()[:2]]) if name else "K"
+    av_size = 180
+    av_x = (W - av_size) / 2
+    av_y = 230
+    draw.ellipse([(av_x, av_y), (av_x + av_size, av_y + av_size)], fill=accent, outline=text_main, width=4)
+    f_initials = get_font(72)
+    bbox = draw.textbbox((0, 0), initials, font=f_initials)
+    init_w = bbox[2] - bbox[0]
+    init_h = bbox[3] - bbox[1]
+    draw.text((av_x + (av_size - init_w) / 2, av_y + (av_size - init_h) / 2 - 8),
+              initials, fill=accent_text, font=f_initials)
+
+    # Name + title + company
+    center_text(450, name[:30] if name else "Kayıtlı Misafir", f_name, text_main)
+    title_val = (guest.get("title") or "").strip()
+    if title_val:
+        center_text(510, title_val[:40], f_title, accent)
+    company = (guest.get("company") or "").strip()
+    if company:
+        center_text(540, company[:40], f_company, text_sub[:3])
+
+    # QR code
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(f"AYZ2026-{guest.get('_id') or ''}")
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color=(10, 17, 40), back_color="white").convert("RGB")
+    qr_size = 240
+    qr_img = qr_img.resize((qr_size, qr_size))
+    qr_x = int((W - qr_size) / 2)
+    qr_y = 640
+    # White rounded backdrop for QR
+    draw.rounded_rectangle([(qr_x - 16, qr_y - 16), (qr_x + qr_size + 16, qr_y + qr_size + 16)], radius=12, fill=(255, 255, 255))
+    img.paste(qr_img, (qr_x, qr_y))
+
+    # Badge ID at bottom
+    guest_id = str(guest.get("_id") or "")
+    badge_id = f"AYZ2026-{guest_id[-8:].upper()}"
+    center_text(940, badge_id, f_id, text_sub[:3])
+
+    # Save to bytes
+    out = io.BytesIO()
+    img.save(out, format="PNG", optimize=True)
+    return out.getvalue()
+
+
+@api_router.get("/badge/{guest_id}/png")
+async def generate_badge_png(guest_id: str):
+    """Returns the visitor badge as a downloadable PNG image."""
+    try:
+        guest = await db.guests.find_one({"_id": ObjectId(guest_id)})
+    except Exception:
+        raise HTTPException(400, "Geçersiz ID")
+    if not guest:
+        raise HTTPException(404, "Misafir bulunamadı")
+
+    visit_type = guest.get("visit_type") or "summit"
+    seq = await db.guests.count_documents({
+        "visit_type": ({"$in": ["summit", None]} if visit_type == "summit" else "fair"),
+        "created_at": {"$lte": guest.get("created_at", "")},
+    })
+    png_bytes = render_badge_png(guest, seq)
+    return Response(
+        content=png_bytes,
+        media_type="image/png",
+        headers={"Content-Disposition": f'inline; filename="yaka-karti-{guest_id[-8:]}.png"'},
+    )
 
 
 # ==================== ADMIN DASHBOARD ====================
