@@ -186,11 +186,16 @@ export default function VisitorRegisterPage() {
                     : "hover:shadow-2xl hover:ring-summit-navy/30 hover:-translate-y-1 cursor-pointer"}`}
                 data-testid="visit-option-summit"
               >
-                <div
-                  className="w-full h-52 bg-cover bg-center"
-                  style={{ backgroundImage: "url(https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg)" }}
-                  aria-hidden="true"
-                />
+                <div className="relative w-full overflow-hidden bg-summit-navy aspect-[16/9] sm:aspect-[5/3]">
+                  <img
+                    src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg"
+                    alt="Arsa Yatırım Zirvesi"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: "center" }}
+                    loading="eager"
+                    decoding="async"
+                  />
+                </div>
                 <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 rounded-md bg-summit-navy/10 flex items-center justify-center text-summit-navy group-hover:bg-summit-navy group-hover:text-white transition-colors">
@@ -324,13 +329,14 @@ export default function VisitorRegisterPage() {
                 <span className="absolute top-4 right-4 z-10 px-2.5 py-0.5 bg-summit-accent text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider rounded shadow">
                   Sınırsız Kayıt
                 </span>
-                <div className="w-full h-52 overflow-hidden bg-summit-navy">
+                <div className="relative w-full overflow-hidden bg-summit-navy aspect-[16/9] sm:aspect-[5/3]">
                   <img
                     src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/tnzjqtb2_fuar%20alan%C4%B1.jpeg"
                     alt="Fuar alanı standları"
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                     style={{ objectPosition: "center 88%" }}
-                    aria-hidden="true"
+                    loading="eager"
+                    decoding="async"
                   />
                 </div>
                 <div className="p-6">
