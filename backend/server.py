@@ -684,8 +684,8 @@ async def register_exhibitor(body: ExhibitorCreate, background_tasks: Background
       <p>Sayın <strong>{body.contact_name}</strong>,</p>
       <p style="margin-top:12px"><strong>{body.company_name}</strong> firması adına yaptığınız fuar stant başvurusu tarafımıza ulaşmıştır. En kısa sürede sizinle iletişime geçeceğiz.</p>
       <div style="background:#F8F9FB;border-radius:6px;padding:16px;margin:20px 0;border-left:4px solid #22316a">
-        <p style="color:#22316a;margin:4px 0"><strong>Tarih:</strong> 21 Mayıs 2026, Perşembe</p>
-        <p style="color:#22316a;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus - Zirve Salonu</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Fuar Tarihleri:</strong> 20-21 Mayıs 2026 (2 gün)</p>
+        <p style="color:#22316a;margin:4px 0"><strong>Yer:</strong> Hilton İstanbul Bosphorus - Connie Salonları</p>
         <p style="color:#22316a;margin:4px 0"><strong>Stant Tercihiniz:</strong> {body.stand_preference or '—'}</p>
       </div>
       <p>Stant alanı, fiyatlandırma ve detaylı bilgi için ekibimiz kısa süre içinde iletişime geçecektir.</p>
@@ -770,6 +770,7 @@ async def generate_badge(guest_id: str):
         "created_at": {"$lte": guest.get("created_at", "")},
     })
 
+    event_date_line = "21 Mayıs 2026 | Hilton İstanbul Bosphorus" if visit_type == "summit" else "20-21 Mayıs 2026 | Hilton İstanbul Bosphorus"
     name = html_escape.escape(guest.get("name") or "")
     company = html_escape.escape(guest.get("company") or "")
     title_val = html_escape.escape(guest.get("title") or "")
@@ -807,7 +808,7 @@ body{{font-family:'Outfit',sans-serif;background:#f5f5f5;display:flex;justify-co
   <span class="seq">#{seq}</span>
   <div class="event-header">
     <div class="event-name">ARSA YATIRIM ZİRVESİ 2026</div>
-    <div class="event-date">21 Mayıs 2026 | Hilton İstanbul Bosphorus</div>
+    <div class="event-date">{event_date_line}</div>
     <div class="tag">{label}</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:center">
@@ -920,7 +921,8 @@ def render_badge_png(guest: dict, seq_number: int) -> bytes:
 
     # Event header
     center_text(80, "ARSA YATIRIM ZİRVESİ 2026", f_event, NAVY)
-    center_text(115, "21 Mayıs 2026 · Hilton İstanbul Bosphorus", f_date, (90, 90, 90))
+    date_line = "21 Mayıs 2026 · Hilton İstanbul Bosphorus" if is_summit else "20-21 Mayıs 2026 · Hilton İstanbul Bosphorus"
+    center_text(115, date_line, f_date, (90, 90, 90))
 
     # Tag (event type label)
     bbox = draw.textbbox((0, 0), label_text, font=f_label)
