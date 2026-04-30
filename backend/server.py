@@ -748,11 +748,13 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
     if visit_type not in ("summit", "fair"):
         visit_type = "summit"
 
-    # === Validate invite code (mandatory) ===
-    code_check = await _check_invite_code(body.invite_code, visit_type)
-    if not code_check["valid"]:
-        raise HTTPException(400, code_check["reason"])
-    invite_code_doc = code_check["doc"]
+    # === Validate invite code (only required for SUMMIT, fair is open) ===
+    invite_code_doc = None
+    if visit_type == "summit":
+        code_check = await _check_invite_code(body.invite_code, visit_type)
+        if not code_check["valid"]:
+            raise HTTPException(400, code_check["reason"])
+        invite_code_doc = code_check["doc"]
 
     existing = await db.guests.find_one({"email": body.email.lower()})
     if existing:

@@ -93,7 +93,8 @@ export default function VisitorRegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (codeStatus !== "valid") {
+    // Davet kodu sadece Zirve için zorunlu
+    if (visitType === "summit" && codeStatus !== "valid") {
       setError("Lütfen geçerli bir davet kodu girin ve doğrulayın.");
       return;
     }
@@ -435,11 +436,12 @@ export default function VisitorRegisterPage() {
                 </div>
               </div>
 
-              {/* === INVITE CODE FIELD === */}
+              {/* === INVITE CODE FIELD (only for SUMMIT) === */}
+              {visitType === "summit" && (
               <div className="pt-4 border-t border-gray-100">
                 <label className={labelCls}>Davet Kodu *</label>
                 <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-                  Etkinliğe katılım için size verilen davet kodunu girin. Kod yoksa
+                  Zirveye katılım için size verilen davet kodunu girin. Kod yoksa
                   <a href="mailto:info@arsayatirimzirvesi.com" className="text-summit-navy font-semibold hover:underline ml-1">info@arsayatirimzirvesi.com</a> adresinden talep edebilirsiniz.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -491,6 +493,7 @@ export default function VisitorRegisterPage() {
                   </p>
                 )}
               </div>
+              )}
 
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-600 text-sm" data-testid="visitor-error-message">
@@ -498,10 +501,14 @@ export default function VisitorRegisterPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading || codeStatus !== "valid"}
+              <button type="submit" disabled={loading || (visitType === "summit" && codeStatus !== "valid")}
                 className="w-full btn-navy py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
                 data-testid="submit-visitor-btn">
-                {loading ? "Kaydediliyor..." : codeStatus !== "valid" ? "Önce davet kodunu doğrulayın" : `${meta.formTitle}nı Tamamla`}
+                {loading
+                  ? "Kaydediliyor..."
+                  : visitType === "summit" && codeStatus !== "valid"
+                    ? "Önce davet kodunu doğrulayın"
+                    : `${meta.formTitle}nı Tamamla`}
               </button>
 
               <p className="text-gray-500 text-xs text-center">
