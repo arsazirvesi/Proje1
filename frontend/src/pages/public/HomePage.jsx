@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2 } from "lucide-react";
+import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 function useCountdown(targetDate) {
@@ -411,6 +411,200 @@ export default function HomePage() {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FUAR ALANI HIGHLIGHT ===== */}
+      <section className="py-14 sm:py-20 bg-gradient-to-br from-summit-paper via-white to-summit-paper relative overflow-hidden" data-testid="fair-highlight-section">
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-summit-accent/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-summit-navy/10 blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            {/* IMAGE */}
+            <div className="lg:col-span-7 relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-summit-navy/10">
+                <img
+                  src={`${API}/uploads/fair_stands.jpeg?v=2`}
+                  alt="8. Gayrimenkul Proje Yatırım Fuarı stantları"
+                  className="w-full h-72 sm:h-96 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-summit-navy/60 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 text-white">
+                  <span className="inline-block bg-summit-accent text-summit-navy px-3 py-1 rounded text-[0.65rem] font-bold uppercase tracking-widest mb-2 shadow-lg">
+                    8. Yıl
+                  </span>
+                  <p className="font-heading text-2xl sm:text-3xl drop-shadow-lg">Gayrimenkul Proje Yatırım Fuarı</p>
+                </div>
+              </div>
+              {/* Stats overlay */}
+              <div className="grid grid-cols-3 gap-3 mt-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-3 text-center shadow-sm">
+                  <div className="font-heading text-summit-navy text-2xl font-bold">36</div>
+                  <div className="text-[0.65rem] text-gray-500 uppercase tracking-wider mt-0.5">Stant</div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-3 text-center shadow-sm">
+                  <div className="font-heading text-summit-navy text-2xl font-bold">2</div>
+                  <div className="text-[0.65rem] text-gray-500 uppercase tracking-wider mt-0.5">Gün</div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-3 text-center shadow-sm">
+                  <div className="font-heading text-summit-navy text-2xl font-bold">5K+</div>
+                  <div className="text-[0.65rem] text-gray-500 uppercase tracking-wider mt-0.5">Ziyaretçi</div>
+                </div>
+              </div>
+            </div>
+
+            {/* TEXT */}
+            <div className="lg:col-span-5">
+              <span className="section-overline">Fuar Alanı</span>
+              <h2 className="gyoder-section-title inline-block mt-3">Maketler, Projeler, Yüz Yüze Görüşmeler</h2>
+              <p className="text-gray-600 text-base mt-5 leading-relaxed">
+                Türkiye'nin önde gelen müteahhit ve gayrimenkul firmalarının <strong className="text-summit-navy">36 standta</strong> sergilediği projeleri yerinde inceleyin.
+                Maketleri görün, sektör temsilcileri ile <strong className="text-summit-navy">birebir görüşün</strong>, doğrudan kaynak yatırımcıdan bilgi alın.
+              </p>
+
+              <ul className="mt-6 space-y-3 text-sm">
+                <li className="flex items-start gap-3 text-gray-700">
+                  <div className="w-7 h-7 rounded-full bg-summit-accent/20 flex items-center justify-center shrink-0">
+                    <Check size={14} className="text-summit-navy" strokeWidth={3} />
+                  </div>
+                  <span><strong className="text-summit-navy">Sınırsız ücretsiz katılım</strong> — kayıt formu doldurmanız yeterli</span>
+                </li>
+                <li className="flex items-start gap-3 text-gray-700">
+                  <div className="w-7 h-7 rounded-full bg-summit-accent/20 flex items-center justify-center shrink-0">
+                    <Check size={14} className="text-summit-navy" strokeWidth={3} />
+                  </div>
+                  <span>20-21 Mayıs, dilediğiniz saatte giriş — esnek program</span>
+                </li>
+                <li className="flex items-start gap-3 text-gray-700">
+                  <div className="w-7 h-7 rounded-full bg-summit-accent/20 flex items-center justify-center shrink-0">
+                    <Check size={14} className="text-summit-navy" strokeWidth={3} />
+                  </div>
+                  <span>Zirve katılımcısıysanız <strong className="text-summit-navy">ek başvuruya gerek yok</strong></span>
+                </li>
+              </ul>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  to="/fuar-alani"
+                  className="inline-flex items-center gap-2 bg-summit-navy hover:bg-summit-navy-dark text-white px-5 py-3 rounded-md text-sm font-semibold shadow-md hover:shadow-lg transition-all"
+                  data-testid="fair-highlight-detail-btn"
+                >
+                  <Store size={16} /> Fuar Alanını İncele <ArrowRight size={14} />
+                </Link>
+                <Link
+                  to="/ziyaretci-kaydi"
+                  className="inline-flex items-center gap-2 bg-summit-accent hover:bg-yellow-400 text-summit-navy px-5 py-3 rounded-md text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                  data-testid="fair-highlight-register-btn"
+                >
+                  Ücretsiz Kaydol <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SPONSORLUK DAVETİ ===== */}
+      <section className="py-14 sm:py-20 bg-summit-navy relative overflow-hidden" data-testid="sponsor-invite-section">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
+        />
+        <div className="absolute -top-32 right-0 w-96 h-96 rounded-full bg-summit-accent/10 blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            {/* TEXT */}
+            <div className="lg:col-span-7 text-white order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 bg-summit-accent/20 border border-summit-accent/40 px-3 py-1.5 rounded-full mb-5">
+                <Sparkles size={13} className="text-summit-accent" />
+                <span className="text-summit-accent text-[0.65rem] font-bold uppercase tracking-[0.2em]">
+                  Sponsor Başvuruları Açıldı
+                </span>
+              </div>
+              <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl leading-[1.1] mb-5">
+                Türkiye'nin en prestijli<br />
+                <span className="text-summit-accent italic">arsa yatırım zirvesinde</span><br />
+                yer alın
+              </h2>
+              <p className="text-white/80 text-base leading-relaxed mb-7 max-w-xl">
+                600+ üst düzey yatırımcı, 36 sektör liderini buluşturan zirvede markanızı hedef kitleye ulaştırın.
+                <strong className="text-white"> Altın, Gümüş ve Bronz</strong> sponsor paketleri ile başvurular devam ediyor.
+              </p>
+
+              {/* Sponsor tier mini-grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-7">
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center opacity-60">
+                  <Crown size={20} className="mx-auto text-summit-accent mb-1" />
+                  <div className="text-[0.7rem] text-white/70 uppercase tracking-wider font-semibold">Ana Sponsor</div>
+                  <div className="text-[0.6rem] text-red-300 font-bold mt-0.5">VERİLDİ</div>
+                </div>
+                <div className="bg-summit-accent/15 border border-summit-accent/40 rounded-lg p-3 text-center ring-2 ring-summit-accent/40">
+                  <Award size={20} className="mx-auto text-summit-accent mb-1" />
+                  <div className="text-[0.7rem] text-white uppercase tracking-wider font-semibold">Altın</div>
+                  <div className="text-[0.6rem] text-summit-accent font-bold mt-0.5">EN POPÜLER</div>
+                </div>
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
+                  <Award size={20} className="mx-auto text-slate-300 mb-1" />
+                  <div className="text-[0.7rem] text-white/80 uppercase tracking-wider font-semibold">Gümüş</div>
+                  <div className="text-[0.6rem] text-green-400 font-bold mt-0.5">MÜSAİT</div>
+                </div>
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-3 text-center">
+                  <Award size={20} className="mx-auto text-orange-400 mb-1" />
+                  <div className="text-[0.7rem] text-white/80 uppercase tracking-wider font-semibold">Bronz</div>
+                  <div className="text-[0.6rem] text-green-400 font-bold mt-0.5">MÜSAİT</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/konusmaci-basvuru"
+                  className="inline-flex items-center gap-2 bg-summit-accent hover:bg-yellow-400 text-summit-navy px-6 py-3 rounded-md text-sm font-bold shadow-lg hover:shadow-xl transition-all"
+                  data-testid="sponsor-invite-cta"
+                >
+                  <Crown size={16} /> Sponsor Olarak Başvur <ArrowRight size={14} />
+                </Link>
+                <Link
+                  to="/konusmaci-basvuru"
+                  className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/30 text-white hover:bg-white/20 px-6 py-3 rounded-md text-sm font-semibold transition-colors"
+                  data-testid="speaker-invite-cta"
+                >
+                  <Mic2 size={16} /> Konuşmacı Başvurusu
+                </Link>
+              </div>
+            </div>
+
+            {/* IMAGE / TESTIMONIAL */}
+            <div className="lg:col-span-5 order-1 lg:order-2">
+              <div className="relative">
+                <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+                  <img
+                    src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/01rt3h3r_IMG_4927.jpeg"
+                    alt="Sponsor değer önerisi"
+                    className="w-full h-72 sm:h-96 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-summit-navy via-summit-navy/30 to-transparent" />
+                </div>
+                {/* Testimonial card overlay */}
+                <div className="absolute -bottom-5 left-4 right-4 sm:left-6 sm:right-6 bg-white rounded-xl p-4 shadow-2xl border border-summit-accent/20">
+                  <div className="flex gap-0.5 mb-2">
+                    {[...Array(5)].map((_, k) => (
+                      <Star key={k} size={12} className="text-summit-accent fill-summit-accent" />
+                    ))}
+                  </div>
+                  <p className="text-summit-navy text-xs leading-relaxed italic">
+                    "Standımıza gelen ziyaretçilerin <strong>%72'si karar mercii</strong> kişilerdi. Hiçbir fuarda bu kadar kaliteli izleyici görmedik."
+                  </p>
+                  <p className="text-gray-500 text-[0.65rem] mt-2 font-semibold uppercase tracking-wider">
+                    Tolga A. · Marina Project
+                  </p>
+                </div>
+              </div>
+              {/* spacer for the absolute card */}
+              <div className="h-10" />
+            </div>
           </div>
         </div>
       </section>
