@@ -76,23 +76,79 @@ export default function CheckInPage() {
   const startScanner = async () => {
     setError("");
     setResult(null);
+
+    // 1) Secure context check (camera REQUIRES HTTPS or localhost)
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      setError(
+        "Kamera erişimi için HTTPS gerekli. Bu sayfa HTTP üzerinden açıldığı için tarayıcı kameraya izin vermez. Lütfen https:// ile başlayan adresten açın."
+      );
+      return;
+    }
+
+    // 2) Browser support check
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError(
+        "Tarayıcınız kamera erişimini desteklemiyor. Lütfen güncel Chrome / Safari / Edge kullanın."
+      );
+      return;
+    }
+
     try {
+      // 3) Force a permission prompt FIRST. This gives a much clearer error
+      // than html5-qrcode's wrapped messages when permission is denied.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      // We just wanted permission; release the stream so html5-qrcode can take over
+      stream.getTracks().forEach((t) => t.stop());
+
       const html5QrCode = new Html5Qrcode(SCANNER_ELEMENT_ID);
       scannerRef.current = html5QrCode;
       const config = { fps: 10, qrbox: { width: 260, height: 260 }, aspectRatio: 1.0 };
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => verifyCode(decodedText),
-        () => {/* per-frame errors are noisy; ignore */}
-      );
+
+      // 4) Try with rear camera first; fall back to ANY camera if that fails
+      try {
+        await html5QrCode.start(
+          { facingMode: { ideal: "environment" } },
+          config,
+          (decodedText) => verifyCode(decodedText),
+          () => {/* per-frame errors are noisy; ignore */}
+        );
+      } catch (envErr) {
+        // Fallback: pick first available camera
+        const cameras = await Html5Qrcode.getCameras();
+        if (!cameras || cameras.length === 0) {
+          throw new Error("Cihazda kamera bulunamadı");
+        }
+        // Prefer a camera whose label hints at "back" / "rear" / "environment"
+        const back = cameras.find((c) => /back|rear|environment|arka/i.test(c.label || ""));
+        const chosen = back || cameras[cameras.length - 1];
+        await html5QrCode.start(
+          chosen.id,
+          config,
+          (decodedText) => verifyCode(decodedText),
+          () => {}
+        );
+      }
       setScanning(true);
     } catch (err) {
-      setError(
-        err?.message?.includes("Permission") || err?.name === "NotAllowedError"
-          ? "Kamera izni reddedildi. Tarayıcı ayarlarından kamera erişimini açın."
-          : `Kamera başlatılamadı: ${err?.message || "Bilinmeyen hata"}. Manuel kod girişi kullanabilirsiniz.`
-      );
+      const name = err?.name || "";
+      const msg = err?.message || "";
+      let friendly;
+      if (name === "NotAllowedError" || /Permission|denied/i.test(msg)) {
+        friendly =
+          "Kamera izni reddedilmiş. Adres çubuğunun solundaki 🔒 / kilit ikonuna tıklayıp 'Kamera' iznini 'İzin Ver' yapın, ardından sayfayı yenileyin.";
+      } else if (name === "NotFoundError" || /no camera|kamera bulunamadı/i.test(msg)) {
+        friendly = "Cihazda erişilebilir bir kamera bulunamadı.";
+      } else if (name === "NotReadableError" || /in use|already/i.test(msg)) {
+        friendly = "Kamera başka bir uygulama tarafından kullanılıyor. Diğer kamera kullanan uygulamaları kapatıp tekrar deneyin.";
+      } else if (name === "OverconstrainedError") {
+        friendly = "Cihazınızda istenilen kamera modu bulunamadı. Tekrar deneyin (ön kameraya geçilecek).";
+      } else {
+        friendly = `Kamera başlatılamadı: ${msg || name || "Bilinmeyen hata"}. Manuel kod girişini deneyebilirsiniz.`;
+      }
+      setError(friendly);
       setScanning(false);
     }
   };
