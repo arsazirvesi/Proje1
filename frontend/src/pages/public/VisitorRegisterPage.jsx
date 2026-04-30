@@ -186,7 +186,7 @@ export default function VisitorRegisterPage() {
                     : "hover:shadow-2xl hover:ring-summit-navy/30 hover:-translate-y-1 cursor-pointer"}`}
                 data-testid="visit-option-summit"
               >
-                <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 200 }}>
+                <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 280 }}>
                   <img
                     src="https://customer-assets.emergentagent.com/job_arsa-yatirim-zirvesi/artifacts/6ol0ek8g_Arsa%20Yat%C4%B1r%C4%B1m%20Zirvesi.jpeg"
                     alt="Arsa Yatırım Zirvesi"
@@ -324,7 +324,7 @@ export default function VisitorRegisterPage() {
                 className="group text-left bg-white rounded-md overflow-hidden transition-all shadow-md ring-1 ring-summit-accent/30 hover:shadow-2xl hover:ring-summit-accent hover:-translate-y-1 cursor-pointer relative"
                 data-testid="visit-option-fair"
               >
-                <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 200 }}>
+                <div className="relative w-full overflow-hidden bg-summit-navy" style={{ height: 280 }}>
                   <img
                     src={`${API}/uploads/fair_stands.jpeg?v=${Date.now()}`}
                     alt="Fuar alanı standları"
