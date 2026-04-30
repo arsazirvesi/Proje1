@@ -126,6 +126,26 @@ class GuestCreate(BaseModel):
     interest_area: Optional[str] = None
     participant_type: Optional[str] = None
     visit_type: Optional[str] = "summit"  # "summit" | "fair"
+    invite_code: Optional[str] = None  # required at runtime via validator below
+
+class InviteCodeCreate(BaseModel):
+    code: str
+    label: Optional[str] = None
+    valid_for: str = "both"  # "summit" | "fair" | "both"
+    max_uses: int = 0  # 0 = unlimited
+    is_active: bool = True
+    expires_at: Optional[str] = None  # ISO date or None
+
+class InviteCodeUpdate(BaseModel):
+    label: Optional[str] = None
+    valid_for: Optional[str] = None
+    max_uses: Optional[int] = None
+    is_active: Optional[bool] = None
+    expires_at: Optional[str] = None
+
+class InviteCodeValidate(BaseModel):
+    code: str
+    visit_type: str = "summit"
 
 class ExhibitorCreate(BaseModel):
     company_name: str
@@ -598,6 +618,54 @@ async def register_member(body: MemberCreate, background_tasks: BackgroundTasks)
 SUMMIT_CAPACITY = 600
 
 
+# ==================== INVITE CODE HELPER ====================
+
+async def _check_invite_code(raw_code: Optional[str], visit_type: str) -> dict:
+    """Validate an invite code for the given visit type.
+    Returns {valid: bool, reason?: str, doc?: dict}."""
+    if not raw_code or not raw_code.strip():
+        return {"valid": False, "reason": "Lütfen davet kodunuzu girin. Kayıt bu kod olmadan tamamlanamaz."}
+    code = raw_code.strip().upper()
+    doc = await db.invite_codes.find_one({"code": code})
+    if not doc:
+        return {"valid": False, "reason": "Girdiğiniz davet kodu sistemde bulunamadı."}
+    if not doc.get("is_active", True):
+        return {"valid": False, "reason": "Bu davet kodu pasif durumda. Yetkili ile iletişime geçin."}
+    valid_for = doc.get("valid_for", "both")
+    if valid_for not in ("both", visit_type):
+        label = "Zirve" if visit_type == "summit" else "Fuar"
+        other = "Fuar" if visit_type == "summit" else "Zirve"
+        return {"valid": False, "reason": f"Bu davet kodu {label} kaydı için geçerli değil. (Sadece {other} için tanımlı.)"}
+    expires_at = doc.get("expires_at")
+    if expires_at:
+        try:
+            exp_dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+            if datetime.now(timezone.utc) > exp_dt:
+                return {"valid": False, "reason": "Bu davet kodunun süresi dolmuş."}
+        except (ValueError, AttributeError):
+            pass
+    max_uses = doc.get("max_uses", 0) or 0
+    used_count = doc.get("used_count", 0) or 0
+    if max_uses > 0 and used_count >= max_uses:
+        return {"valid": False, "reason": "Bu davet kodu kullanım hakkı tükenmiş."}
+    return {"valid": True, "doc": doc}
+
+
+@api_router.post("/register/validate-code")
+async def public_validate_invite_code(body: InviteCodeValidate):
+    """Pre-validate an invite code BEFORE submitting the registration form."""
+    visit_type = body.visit_type if body.visit_type in ("summit", "fair") else "summit"
+    res = await _check_invite_code(body.code, visit_type)
+    if not res["valid"]:
+        return {"valid": False, "reason": res["reason"]}
+    doc = res["doc"]
+    return {
+        "valid": True,
+        "label": doc.get("label") or "",
+        "valid_for": doc.get("valid_for", "both"),
+    }
+
+
 @api_router.get("/register/capacity")
 async def get_register_capacity():
     # Only count VERIFIED visitors towards capacity (spam-proof)
@@ -676,6 +744,16 @@ def render_verify_email(guest: dict, verify_url: str) -> tuple[str, str]:
 
 @api_router.post("/register/guest")
 async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
+    visit_type = (body.visit_type or "summit").lower()
+    if visit_type not in ("summit", "fair"):
+        visit_type = "summit"
+
+    # === Validate invite code (mandatory) ===
+    code_check = await _check_invite_code(body.invite_code, visit_type)
+    if not code_check["valid"]:
+        raise HTTPException(400, code_check["reason"])
+    invite_code_doc = code_check["doc"]
+
     existing = await db.guests.find_one({"email": body.email.lower()})
     if existing:
         # If existing but not yet verified, resend verification
@@ -699,10 +777,6 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
             }
         raise HTTPException(400, "Bu e-posta ile zaten doğrulanmış bir kayıt var.")
 
-    visit_type = (body.visit_type or "summit").lower()
-    if visit_type not in ("summit", "fair"):
-        visit_type = "summit"
-
     # Enforce capacity for the summit (count only VERIFIED summit guests)
     if visit_type == "summit":
         summit_count = await db.guests.count_documents({
@@ -717,10 +791,13 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
 
     token = secrets.token_urlsafe(32)
     now_iso = datetime.now(timezone.utc).isoformat()
+    payload = body.model_dump()
+    payload.pop("invite_code", None)  # don't store on guest doc directly
     doc = {
-        **body.model_dump(),
+        **payload,
         "email": body.email.lower(),
         "visit_type": visit_type,
+        "invite_code": (body.invite_code or "").strip().upper(),
         "created_at": now_iso,
         "updated_at": now_iso,
         "badge_printed": False,
@@ -733,6 +810,13 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
     }
     result = await db.guests.insert_one(doc)
     guest_id = str(result.inserted_id)
+
+    # Increment invite code usage
+    if invite_code_doc:
+        await db.invite_codes.update_one(
+            {"_id": invite_code_doc["_id"]},
+            {"$inc": {"used_count": 1}, "$set": {"last_used_at": now_iso}},
+        )
 
     # Send verification email (NO badge yet)
     public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
@@ -1374,6 +1458,73 @@ async def admin_checkin_reset(guest_id: str, admin: dict = Depends(get_admin_use
     if res.matched_count == 0:
         raise HTTPException(404, "Ziyaretçi bulunamadı")
     return {"reset": True}
+
+
+# ==================== INVITE CODES (Admin CRUD) ====================
+
+@api_router.get("/admin/invite-codes")
+async def admin_list_invite_codes(admin: dict = Depends(get_admin_user)):
+    docs = await db.invite_codes.find({}).sort("created_at", -1).to_list(500)
+    return [clean_doc(d) for d in docs]
+
+
+@api_router.post("/admin/invite-codes")
+async def admin_create_invite_code(body: InviteCodeCreate, admin: dict = Depends(get_admin_user)):
+    code = body.code.strip().upper()
+    if not code or len(code) < 3:
+        raise HTTPException(400, "Kod en az 3 karakter olmalı")
+    existing = await db.invite_codes.find_one({"code": code})
+    if existing:
+        raise HTTPException(400, f"'{code}' kodu zaten mevcut")
+    valid_for = body.valid_for if body.valid_for in ("summit", "fair", "both") else "both"
+    now_iso = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "code": code,
+        "label": (body.label or "").strip(),
+        "valid_for": valid_for,
+        "max_uses": max(0, int(body.max_uses or 0)),
+        "used_count": 0,
+        "is_active": bool(body.is_active),
+        "expires_at": body.expires_at or None,
+        "created_at": now_iso,
+        "created_by": admin.get("email", "admin"),
+    }
+    result = await db.invite_codes.insert_one(doc)
+    return clean_doc({**doc, "_id": result.inserted_id})
+
+
+@api_router.put("/admin/invite-codes/{code_id}")
+async def admin_update_invite_code(code_id: str, body: InviteCodeUpdate, admin: dict = Depends(get_admin_user)):
+    if not ObjectId.is_valid(code_id):
+        raise HTTPException(404, "Kod bulunamadı")
+    update = {}
+    if body.label is not None:
+        update["label"] = body.label.strip()
+    if body.valid_for is not None and body.valid_for in ("summit", "fair", "both"):
+        update["valid_for"] = body.valid_for
+    if body.max_uses is not None:
+        update["max_uses"] = max(0, int(body.max_uses))
+    if body.is_active is not None:
+        update["is_active"] = bool(body.is_active)
+    if body.expires_at is not None:
+        update["expires_at"] = body.expires_at or None
+    if not update:
+        raise HTTPException(400, "Güncellenecek alan yok")
+    result = await db.invite_codes.update_one({"_id": ObjectId(code_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Kod bulunamadı")
+    doc = await db.invite_codes.find_one({"_id": ObjectId(code_id)})
+    return clean_doc(doc)
+
+
+@api_router.delete("/admin/invite-codes/{code_id}")
+async def admin_delete_invite_code(code_id: str, admin: dict = Depends(get_admin_user)):
+    if not ObjectId.is_valid(code_id):
+        raise HTTPException(404, "Kod bulunamadı")
+    result = await db.invite_codes.delete_one({"_id": ObjectId(code_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Kod bulunamadı")
+    return {"deleted": True}
 
 
 # ==================== ADMIN USERS (Admin Account Management) ====================

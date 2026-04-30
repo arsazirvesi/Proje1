@@ -4,7 +4,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import {
   CheckCircle, User, Mail, Phone, Building2, MapPin, Briefcase, FileText,
-  ExternalLink, Ticket, Store, ArrowLeft, Users as UsersIcon, Check, Info
+  ExternalLink, Ticket, Store, ArrowLeft, Users as UsersIcon, Check, Info, KeyRound, Loader2, X
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
@@ -51,18 +51,52 @@ export default function VisitorRegisterPage() {
   const [capacity, setCapacity] = useState(null);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", title: "",
-    city: "", expectations: "", interest_area: "", participant_type: ""
+    city: "", expectations: "", interest_area: "", participant_type: "",
+    invite_code: "",
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [codeStatus, setCodeStatus] = useState(null); // null | "checking" | "valid" | "invalid"
+  const [codeMessage, setCodeMessage] = useState("");
 
   useEffect(() => {
     axios.get(`${API}/register/capacity`).then(r => setCapacity(r.data)).catch(() => {});
   }, []);
 
+  // Validate invite code on blur or after typing
+  const validateCode = async () => {
+    const code = (form.invite_code || "").trim();
+    if (!code) {
+      setCodeStatus(null);
+      setCodeMessage("");
+      return;
+    }
+    setCodeStatus("checking");
+    try {
+      const { data } = await axios.post(`${API}/register/validate-code`, {
+        code,
+        visit_type: visitType || "summit",
+      });
+      if (data.valid) {
+        setCodeStatus("valid");
+        setCodeMessage(data.label ? `Kod geçerli (${data.label})` : "Kod geçerli");
+      } else {
+        setCodeStatus("invalid");
+        setCodeMessage(data.reason || "Kod geçersiz");
+      }
+    } catch {
+      setCodeStatus("invalid");
+      setCodeMessage("Kod doğrulanamadı");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (codeStatus !== "valid") {
+      setError("Lütfen geçerli bir davet kodu girin ve doğrulayın.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -401,16 +435,73 @@ export default function VisitorRegisterPage() {
                 </div>
               </div>
 
+              {/* === INVITE CODE FIELD === */}
+              <div className="pt-4 border-t border-gray-100">
+                <label className={labelCls}>Davet Kodu *</label>
+                <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+                  Etkinliğe katılım için size verilen davet kodunu girin. Kod yoksa
+                  <a href="mailto:info@arsayatirimzirvesi.com" className="text-summit-navy font-semibold hover:underline ml-1">info@arsayatirimzirvesi.com</a> adresinden talep edebilirsiniz.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <KeyRound size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Örn: VIP2026"
+                      value={form.invite_code}
+                      onChange={e => {
+                        const v = e.target.value.toUpperCase();
+                        setForm({...form, invite_code: v});
+                        if (codeStatus) { setCodeStatus(null); setCodeMessage(""); }
+                      }}
+                      onBlur={validateCode}
+                      className={`w-full bg-white border rounded-md pl-9 pr-9 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none transition-colors uppercase tracking-wider font-semibold
+                        ${codeStatus === "valid" ? "border-green-500 bg-green-50" :
+                          codeStatus === "invalid" ? "border-red-400 bg-red-50" :
+                          "border-gray-200 focus:border-summit-navy"}`}
+                      data-testid="input-invite-code"
+                    />
+                    {codeStatus === "checking" && (
+                      <Loader2 size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />
+                    )}
+                    {codeStatus === "valid" && (
+                      <Check size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600" />
+                    )}
+                    {codeStatus === "invalid" && (
+                      <X size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500" />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={validateCode}
+                    disabled={!form.invite_code || codeStatus === "checking"}
+                    className="bg-summit-navy text-white rounded-md px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-summit-navy-dark transition-colors"
+                    data-testid="btn-validate-code"
+                  >
+                    {codeStatus === "checking" ? "Kontrol..." : "Kodu Doğrula"}
+                  </button>
+                </div>
+                {codeMessage && (
+                  <p className={`text-xs mt-2 font-medium ${
+                    codeStatus === "valid" ? "text-green-700" :
+                    codeStatus === "invalid" ? "text-red-600" : "text-gray-500"
+                  }`} data-testid="code-feedback">
+                    {codeStatus === "valid" ? "✓ " : codeStatus === "invalid" ? "✗ " : ""}{codeMessage}
+                  </p>
+                )}
+              </div>
+
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-600 text-sm" data-testid="visitor-error-message">
                   {error}
                 </div>
               )}
 
-              <button type="submit" disabled={loading}
+              <button type="submit" disabled={loading || codeStatus !== "valid"}
                 className="w-full btn-navy py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
                 data-testid="submit-visitor-btn">
-                {loading ? "Kaydediliyor..." : `${meta.formTitle}nı Tamamla`}
+                {loading ? "Kaydediliyor..." : codeStatus !== "valid" ? "Önce davet kodunu doğrulayın" : `${meta.formTitle}nı Tamamla`}
               </button>
 
               <p className="text-gray-500 text-xs text-center">
