@@ -28,16 +28,16 @@ const participantTypes = [
 const VISIT_META = {
   summit: {
     key: "summit",
-    tag: "Zirve Katılımı",
+    tag: "Zirve + Fuar Ziyareti",
     title: "Arsa Yatırım Zirvesi 2026",
-    subtitle: "Konferans · Panel · Networking · Tam Gün Katılım",
-    formTitle: "Zirve Ziyaretçi Kaydı",
-    formSubtitle: "21 Mayıs Perşembe günü, Hilton İstanbul Bosphorus Zirve Salonu'ndaki konferans ve panel programına katılmak için formu doldurun.",
+    subtitle: "Konferans · Panel · Networking · Tam Gün + Fuar Geçişi Dahil",
+    formTitle: "Zirve + Fuar Ziyaret Kaydı",
+    formSubtitle: "21 Mayıs Perşembe günü, Hilton İstanbul Bosphorus Zirve Salonu'ndaki konferans ve panel programına katılmak için formu doldurun. Bu kayıt aynı zamanda fuar alanına ek başvuru olmadan giriş hakkı verir.",
     successMessage: "Arsa Yatırım Zirvesi 2026 ziyaretçi kaydınız başarıyla alınmıştır.",
   },
   fair: {
     key: "fair",
-    tag: "Fuar Ziyareti",
+    tag: "Sadece Fuar Ziyareti",
     title: "8. Gayrimenkul Proje Yatırım Fuarı",
     subtitle: "Proje Fuarı · Maket Sergisi · Yatırım Fırsatları · Sınırsız Katılım",
     formTitle: "Fuar Ziyaret Kaydı",
@@ -210,34 +210,105 @@ export default function VisitorRegisterPage() {
                   <li className="flex items-start gap-2"><Check size={13} className="text-summit-navy mt-0.5 shrink-0" /> Fuara da ek başvuru olmadan geçiş</li>
                 </ul>
 
-                {/* Capacity meter */}
+                {/* === LIVE CAPACITY METER (highly visible — FOMO design) === */}
                 <div className="mt-5 pt-4 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className={`font-semibold ${summitFull ? "text-red-600" : "text-summit-navy"}`}>
-                      {summitFull ? "Kontenjan Doldu" : "Sınırlı Kontenjan"}
-                    </span>
-                    {summitCap && (
-                      <span className="text-gray-500">
-                        {summitCap.registered} / {summitCap.capacity} kişi
-                      </span>
-                    )}
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all ${summitFull ? "bg-red-500" : fillPct > 80 ? "bg-summit-accent" : "bg-summit-navy"}`}
-                      style={{ width: `${fillPct}%` }}
-                    />
-                  </div>
-                  {summitCap && !summitFull && (
-                    <p className="text-[0.65rem] text-gray-500 mt-1.5">
-                      {summitCap.remaining} kişilik yer kaldı
-                    </p>
-                  )}
+                  {summitCap && (() => {
+                    const remaining = summitCap.remaining;
+                    const isCritical = remaining <= 50 && remaining > 0;
+                    const isLow = remaining <= 150 && remaining > 50;
+                    const meterColor = summitFull
+                      ? "bg-gradient-to-r from-red-600 to-red-500"
+                      : isCritical
+                        ? "bg-gradient-to-r from-red-500 via-orange-500 to-amber-500"
+                        : isLow
+                          ? "bg-gradient-to-r from-amber-500 to-yellow-400"
+                          : "bg-gradient-to-r from-summit-navy to-summit-accent";
+                    return (
+                      <>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5">
+                            {/* Live pulse dot */}
+                            <span className="relative flex h-2 w-2">
+                              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${summitFull ? "bg-red-500" : isCritical ? "bg-red-500" : isLow ? "bg-amber-500" : "bg-green-500"}`}></span>
+                              <span className={`relative inline-flex rounded-full h-2 w-2 ${summitFull ? "bg-red-600" : isCritical ? "bg-red-600" : isLow ? "bg-amber-600" : "bg-green-600"}`}></span>
+                            </span>
+                            <span className={`text-[0.65rem] font-bold uppercase tracking-widest ${summitFull ? "text-red-600" : isCritical ? "text-red-600" : isLow ? "text-amber-700" : "text-summit-navy"}`}>
+                              {summitFull ? "Kontenjan Doldu" : "Canlı Kontenjan"}
+                            </span>
+                          </div>
+                          <span className="text-[0.65rem] uppercase tracking-wider text-gray-500 font-semibold">
+                            {summitCap.registered} / {summitCap.capacity}
+                          </span>
+                        </div>
+
+                        {/* HUGE Counter — kalan yer */}
+                        {!summitFull && (
+                          <div className="flex items-baseline gap-2 mb-3">
+                            <span className={`font-heading text-4xl font-black leading-none tabular-nums
+                              ${isCritical ? "text-red-600" : isLow ? "text-amber-600" : "text-summit-navy"}`}
+                              data-testid="capacity-remaining-big">
+                              {remaining}
+                            </span>
+                            <span className={`text-xs font-semibold uppercase tracking-wider
+                              ${isCritical ? "text-red-600" : isLow ? "text-amber-700" : "text-gray-600"}`}>
+                              kişilik yer kaldı
+                            </span>
+                          </div>
+                        )}
+                        {summitFull && (
+                          <div className="flex items-baseline gap-2 mb-3">
+                            <span className="font-heading text-3xl font-black leading-none text-red-600">
+                              0
+                            </span>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-red-600">
+                              boş yer kalmadı
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Progress bar — bigger, gradient, pulse on critical */}
+                        <div className={`relative w-full h-3 bg-gray-100 rounded-full overflow-hidden border ${isCritical && !summitFull ? "border-red-200 ring-2 ring-red-500/20" : "border-gray-200"}`}>
+                          <div
+                            className={`h-full ${meterColor} transition-all duration-1000 relative`}
+                            style={{ width: `${fillPct}%` }}
+                          >
+                            {/* Animated stripe overlay for critical state */}
+                            {(isCritical || summitFull) && (
+                              <div className="absolute inset-0 opacity-30"
+                                style={{
+                                  backgroundImage: "linear-gradient(45deg,rgba(255,255,255,0.4) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.4) 75%,transparent 75%,transparent)",
+                                  backgroundSize: "16px 16px",
+                                  animation: "stripeMove 1s linear infinite"
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Urgency message */}
+                        {!summitFull && isCritical && (
+                          <p className="mt-2.5 text-[0.7rem] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1.5">
+                            ⚠ Acil! Son birkaç yer — hemen kaydol
+                          </p>
+                        )}
+                        {!summitFull && isLow && !isCritical && (
+                          <p className="mt-2.5 text-[0.7rem] font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
+                            🔥 Hızlı dolduruyor — geç kalmayın
+                          </p>
+                        )}
+                        {!summitFull && !isCritical && !isLow && fillPct >= 50 && (
+                          <p className="mt-2.5 text-[0.7rem] font-semibold text-summit-navy uppercase tracking-wider flex items-center gap-1.5">
+                            📈 Yarıdan fazlası doldu
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
 
-                <div className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold
-                  ${summitFull ? "text-gray-400" : "text-summit-navy"}`}>
-                  {summitFull ? "Kayıt Kapandı" : "Zirveye Kaydol"}
+                <div className={`mt-5 inline-flex items-center gap-2 text-sm font-bold
+                  ${summitFull ? "text-gray-400" : "text-summit-navy group-hover:gap-3 transition-all"}`}>
+                  {summitFull ? "Kayıt Kapandı" : "Zirve + Fuar İçin Kaydol"}
                   {!summitFull && <ArrowLeft size={14} className="rotate-180" />}
                 </div>
                 </div>
