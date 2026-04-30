@@ -123,14 +123,14 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const exportCSV = () => {
     const showType = !forcedVisitType;
     const headers = showType
-      ? ["Sıra", "Ziyaret Tipi", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
-      : ["Sıra", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
+      ? ["Sıra", "Ziyaret Tipi", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
+      : ["Sıra", "Doğrulama", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
     const rows = [headers];
     items.forEach((g, i) => {
       const verifiedStr = g.is_verified ? "Evet" : "Bekliyor";
       const verifiedAt = g.verified_at ? g.verified_at.slice(0, 10) : "";
       const base = [g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
-        g.participant_type || "", g.interest_area || "", g.status || "new", g.created_at?.slice(0,10), verifiedAt];
+        g.participant_type || "", g.interest_area || "", g.invite_code || "", g.status || "new", g.created_at?.slice(0,10), verifiedAt];
       rows.push(showType
         ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", verifiedStr, ...base]
         : [i + 1, verifiedStr, ...base]);
@@ -293,7 +293,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
-              placeholder="İsim, email, şirket, telefon ara..."
+              placeholder="İsim, email, şirket, telefon, davet kodu ara..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full bg-white border border-gray-200 rounded-md pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none max-w-md"
@@ -318,6 +318,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
                   <th className="hidden lg:table-cell">Şirket</th>
+                  <th className="hidden md:table-cell">Davet Kodu</th>
                   <th>Durum</th>
                   <th className="hidden sm:table-cell">Tarih</th>
                   <th>İşlem</th>
@@ -325,7 +326,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={forcedVisitType ? 9 : 10} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={forcedVisitType ? 10 : 11} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
                 )}
                 {items.map((g, i) => (
                   <tr key={g.id} data-testid={`guest-row-${g.id}`}>
@@ -338,6 +339,11 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                     <td className="text-gray-600">{g.email}</td>
                     <td className="hidden md:table-cell">{g.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{g.company || "-"}</td>
+                    <td className="hidden md:table-cell">
+                      {g.invite_code
+                        ? <code className="font-mono text-xs font-bold text-summit-navy bg-summit-paper px-2 py-0.5 rounded" data-testid={`invite-code-${g.id}`}>{g.invite_code}</code>
+                        : <span className="text-gray-300 text-xs">—</span>}
+                    </td>
                     <td><StatusBadge status={g.status || "new"} /></td>
                     <td className="hidden sm:table-cell">{g.created_at?.slice(0,10)}</td>
                     <td>
@@ -390,12 +396,13 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                 ["Şehir", detail.city],
                 ["Katılımcı Türü", detail.participant_type],
                 ["İlgi Alanı", detail.interest_area],
+                ["Davet Kodu", detail.invite_code],
                 ["Beklentiler", detail.expectations],
                 ["Kayıt Tarihi", detail.created_at?.slice(0,16).replace("T", " ")],
               ].filter(([, v]) => v).map(([k, v]) => (
                 <div key={k}>
                   <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{k}</div>
-                  <div className="text-summit-navy text-sm">{v}</div>
+                  <div className={`text-summit-navy text-sm ${k === "Davet Kodu" ? "font-mono font-bold inline-block bg-summit-paper px-2 py-0.5 rounded" : ""}`}>{v}</div>
                 </div>
               ))}
 

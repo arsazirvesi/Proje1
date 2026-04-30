@@ -1640,6 +1640,7 @@ async def admin_get_guests(
             {"email": {"$regex": q, "$options": "i"}},
             {"company": {"$regex": q, "$options": "i"}},
             {"phone": {"$regex": q, "$options": "i"}},
+            {"invite_code": {"$regex": q, "$options": "i"}},
         ]
         if "$or" in query:
             existing_or = query.pop("$or")
