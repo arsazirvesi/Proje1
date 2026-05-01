@@ -6,7 +6,7 @@ import { Clock, Users, Coffee, MessageSquare } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 const SESSION_TYPES = {
-  talk: { label: "Sunum", color: "bg-summit-gold text-summit-navy", border: "border-l-summit-gold" },
+  talk: { label: "Sunum", color: "bg-summit-navy text-white", border: "border-l-summit-navy" },
   panel: { label: "Panel", color: "bg-purple-500 text-white", border: "border-l-purple-500" },
   break: { label: "Ara", color: "bg-slate-500 text-white", border: "border-l-slate-500" },
   networking: { label: "Networking", color: "bg-green-600 text-white", border: "border-l-green-500" },
