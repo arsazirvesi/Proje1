@@ -352,6 +352,7 @@ class InvestmentItem(BaseModel):
 class InvestmentGameSubmit(BaseModel):
     name: str = Field(..., min_length=2, max_length=120)
     phone: str = Field(..., min_length=6, max_length=30)
+    email: EmailStr
     age: int = Field(..., ge=10, le=120)
     profession: str = Field(..., min_length=2, max_length=120)
     items: List[InvestmentItem] = Field(default_factory=list)
@@ -2091,6 +2092,7 @@ async def investment_game_submit(body: InvestmentGameSubmit, request: Request):
     doc = {
         "name": body.name.strip(),
         "phone": phone_clean,
+        "email": body.email.lower().strip(),
         "age": body.age,
         "profession": body.profession.strip(),
         "items": [it.model_dump() for it in body.items],
@@ -2238,7 +2240,7 @@ async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
     buf.write("\ufeff")  # BOM for Excel
     w = _csv.writer(buf)
     w.writerow([
-        "Kayıt Zamanı", "Ad Soyad", "Telefon", "Yaş", "Meslek",
+        "Kayıt Zamanı", "Ad Soyad", "Telefon", "E-posta", "Yaş", "Meslek",
         "Toplam Yatırım (TL)", "Kalan (TL)", "Yatırım Sayısı",
         "Portföy Özeti",
     ])
@@ -2254,6 +2256,7 @@ async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
             d.get("created_at", ""),
             d.get("name", ""),
             d.get("phone", ""),
+            d.get("email", ""),
             d.get("age", ""),
             d.get("profession", ""),
             d.get("total_spent", 0),

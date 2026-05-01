@@ -9,7 +9,7 @@ import {
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "📷 Yaka Kartı QR Tarama", href: "/admin/checkin", icon: ScanLine },
-  { label: "🎮 Yatırım Oyunu Kayıtları", href: "/admin/yatirim-oyunu", icon: Gamepad2 },
+  { label: "🎮 Yatırım Simülatörü Kayıtları", href: "/admin/yatirim-oyunu", icon: Gamepad2 },
   { label: "🎟 Davet Kodları", href: "/admin/davet-kodlari", icon: KeyRound },
   { label: "API Anahtarları (3. Parti)", href: "/admin/api-anahtarlari", icon: Shield },
   { label: "Visitego Entegrasyonu (Fuar)", href: "/admin/visitego", icon: Plug },

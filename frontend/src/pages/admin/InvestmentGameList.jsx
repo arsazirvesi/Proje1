@@ -68,7 +68,7 @@ export default function InvestmentGameList() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <h1 className="font-heading text-summit-navy text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <Gamepad2 size={26} /> Yatırım Dene — Oyun Kayıtları
+            <Gamepad2 size={26} /> Yatırım Simülatörü — Kayıtlar
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             Ziyaretçilerin 10.000.000 TL sanal bütçeyle yaptığı yatırım seçimleri.
@@ -176,7 +176,10 @@ export default function InvestmentGameList() {
                         <td className="px-3 py-2.5 text-gray-400">{open ? <ChevronUp size={15} /> : <ChevronDown size={15} />}</td>
                         <td className="px-3 py-2.5 text-xs text-gray-600 whitespace-nowrap">{new Date(e.created_at).toLocaleString("tr-TR")}</td>
                         <td className="px-3 py-2.5 font-semibold text-summit-navy">{e.name}</td>
-                        <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{e.phone}</td>
+                        <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
+                          <div>{e.phone}</div>
+                          {e.email && <div className="text-[11px] text-gray-500">{e.email}</div>}
+                        </td>
                         <td className="px-3 py-2.5 text-gray-700">{e.age}</td>
                         <td className="px-3 py-2.5 text-gray-700 max-w-[160px] truncate">{e.profession}</td>
                         <td className="px-3 py-2.5 text-right font-bold text-summit-navy tabular-nums whitespace-nowrap">{fmtTL(e.total_spent)}</td>

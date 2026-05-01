@@ -99,10 +99,10 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-3">
               <Link
                 to="/yatirim-oyunu"
-                className="group relative text-xs font-bold px-4 py-2 rounded-md text-summit-navy bg-gradient-to-r from-summit-gold-light to-summit-gold hover:shadow-lg hover:scale-105 transition-all inline-flex items-center gap-1.5"
+                className="group relative text-xs font-bold px-4 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all inline-flex items-center gap-1.5"
                 data-testid="nav-game-btn"
               >
-                <span className="animate-pulse">🎮</span> Yatırım Dene
+                <span className="animate-pulse">📊</span> Yatırım Simülatörü
               </Link>
               <Link
                 to="/ziyaretci-kaydi"
@@ -190,13 +190,13 @@ export default function Navbar() {
               {/* Game CTA */}
               <Link
                 to="/yatirim-oyunu"
-                className="mx-6 mb-2 flex items-center gap-3 p-4 bg-gradient-to-r from-summit-gold-light to-summit-gold rounded-lg text-summit-navy font-bold hover:shadow-lg transition-all"
+                className="mx-6 mb-2 flex items-center gap-3 p-4 bg-gradient-to-r from-amber-300 to-amber-400 rounded-lg text-summit-navy font-bold hover:shadow-lg hover:shadow-amber-500/30 transition-all"
                 data-testid="drawer-game-cta"
               >
-                <span className="text-2xl">🎮</span>
+                <span className="text-2xl">📊</span>
                 <div className="flex-1">
-                  <div className="text-sm font-bold">Yatırım Dene!</div>
-                  <div className="text-[11px] font-normal opacity-80">10M TL sanal bütçe · 1 dakikalık mini oyun</div>
+                  <div className="text-sm font-bold">Yatırım Simülatörü</div>
+                  <div className="text-[11px] font-normal opacity-80">Uzmanlar portföyünü değerlendirsin · 2 dakika</div>
                 </div>
                 <span className="text-[0.55rem] bg-summit-navy text-white px-2 py-1 rounded font-bold uppercase tracking-wide animate-pulse">Yeni</span>
               </Link>
