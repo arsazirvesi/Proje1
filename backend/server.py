@@ -336,6 +336,27 @@ class SeoSettings(BaseModel):
     custom_head_html: Optional[str] = None
 
 
+# --- Investment Game Models ---
+class InvestmentItem(BaseModel):
+    kind: str  # "daire" | "arsa"
+    city: str
+    district: str
+    budget: int
+    # Daire-specific
+    daire_type: Optional[str] = None  # "1+1" | "2+1" | "3+1" | "5+1"
+    # Arsa-specific
+    arsa_type: Optional[str] = None  # "tarla" | "arsa"
+    description: Optional[str] = None
+
+
+class InvestmentGameSubmit(BaseModel):
+    name: str = Field(..., min_length=2, max_length=120)
+    phone: str = Field(..., min_length=6, max_length=30)
+    age: int = Field(..., ge=10, le=120)
+    profession: str = Field(..., min_length=2, max_length=120)
+    items: List[InvestmentItem] = Field(default_factory=list)
+
+
 # --- Email Helper ---
 def send_email(to: str, subject: str, html: str, attachments: Optional[list] = None) -> bool:
     """Send email via SendGrid.
@@ -2017,6 +2038,235 @@ async def admin_visitego_test(admin: dict = Depends(get_admin_user)):
         }
     except Exception as e:
         return {"ok": False, "status": None, "response": "", "error": f"{type(e).__name__}: {e}", "payload_sent": payload}
+
+
+# ==================== ADMIN USERS (Admin Account Management) ====================
+
+# ==================== INVESTMENT GAME (Public + Admin) ====================
+
+INVESTMENT_GAME_BUDGET = 10_000_000  # 10 milyon TL başlangıç bütçesi
+MAX_ITEMS = 30  # anti-abuse
+
+def _validate_investment_items(items: List[InvestmentItem]) -> tuple[int, Optional[str]]:
+    """Returns (total_spent, error_message_or_none)."""
+    if not items:
+        return 0, "En az bir yatırım eklemelisiniz"
+    if len(items) > MAX_ITEMS:
+        return 0, f"Çok fazla yatırım ({MAX_ITEMS} ile sınırlı)"
+    total = 0
+    for it in items:
+        if it.kind not in ("daire", "arsa"):
+            return 0, "Geçersiz yatırım türü"
+        if it.budget <= 0:
+            return 0, "Bütçe pozitif olmalı"
+        if not it.city.strip() or not it.district.strip():
+            return 0, "İl ve ilçe boş olamaz"
+        if it.kind == "daire" and it.daire_type not in ("1+1", "2+1", "3+1", "5+1"):
+            return 0, "Daire tipi 1+1/2+1/3+1/5+1 olmalı"
+        if it.kind == "arsa" and it.arsa_type not in ("tarla", "arsa"):
+            return 0, "Arsa cinsi tarla veya arsa olmalı"
+        total += it.budget
+    if total > INVESTMENT_GAME_BUDGET:
+        return total, f"Toplam bütçe {INVESTMENT_GAME_BUDGET:,} TL'yi aşıyor"
+    return total, None
+
+
+@api_router.post("/investment-game/submit")
+async def investment_game_submit(body: InvestmentGameSubmit, request: Request):
+    total_spent, err = _validate_investment_items(body.items)
+    if err:
+        raise HTTPException(400, err)
+
+    # Light anti-abuse: same phone in last 10 min = update instead of duplicate row
+    phone_clean = body.phone.strip()
+    ten_min_ago = datetime.now(timezone.utc) - timedelta(minutes=10)
+    existing = await db.investment_game.find_one({
+        "phone": phone_clean,
+        "created_at": {"$gte": ten_min_ago.isoformat()},
+    })
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    ip = (request.headers.get("x-forwarded-for") or request.client.host if request.client else "") or ""
+
+    doc = {
+        "name": body.name.strip(),
+        "phone": phone_clean,
+        "age": body.age,
+        "profession": body.profession.strip(),
+        "items": [it.model_dump() for it in body.items],
+        "total_spent": total_spent,
+        "remaining": INVESTMENT_GAME_BUDGET - total_spent,
+        "starting_budget": INVESTMENT_GAME_BUDGET,
+        "ip": ip.split(",")[0].strip()[:45],
+        "user_agent": (request.headers.get("user-agent") or "")[:300],
+        "updated_at": now_iso,
+    }
+
+    if existing:
+        await db.investment_game.update_one({"_id": existing["_id"]}, {"$set": doc})
+        gid = str(existing["_id"])
+        created_at = existing.get("created_at", now_iso)
+    else:
+        doc["created_at"] = now_iso
+        r = await db.investment_game.insert_one(doc)
+        gid = str(r.inserted_id)
+        created_at = now_iso
+
+    # Compute portfolio badges for fun UI
+    daire_count = sum(1 for it in body.items if it.kind == "daire")
+    arsa_count = sum(1 for it in body.items if it.kind == "arsa")
+    badges = []
+    if daire_count >= 3: badges.append({"id": "daire_avcisi", "label": "🏘️ Daire Avcısı", "description": f"{daire_count} daire aldın"})
+    if arsa_count >= 3: badges.append({"id": "arsa_krali", "label": "🌾 Arsa Kralı", "description": f"{arsa_count} arsa aldın"})
+    if daire_count > 0 and arsa_count > 0: badges.append({"id": "portfoy_ustasi", "label": "🎰 Portföy Ustası", "description": "Hem daire hem arsa"})
+    if total_spent == INVESTMENT_GAME_BUDGET: badges.append({"id": "all_in", "label": "💯 Tüm Parayı Yatırdın", "description": "Bütçenin tamamını değerlendirdin"})
+    if total_spent >= INVESTMENT_GAME_BUDGET * 0.9: badges.append({"id": "big_spender", "label": "💸 Büyük Yatırımcı", "description": "%90+ harcadın"})
+
+    cities = list({it.city.strip() for it in body.items if it.city.strip()})
+    if len(cities) >= 3: badges.append({"id": "multi_city", "label": "🗺️ Çoklu Şehir", "description": f"{len(cities)} şehirde yatırım"})
+
+    return {
+        "id": gid,
+        "name": doc["name"],
+        "total_spent": total_spent,
+        "remaining": doc["remaining"],
+        "starting_budget": INVESTMENT_GAME_BUDGET,
+        "items": doc["items"],
+        "badges": badges,
+        "daire_count": daire_count,
+        "arsa_count": arsa_count,
+        "created_at": created_at,
+        "updated": bool(existing),
+    }
+
+
+@api_router.get("/admin/investment-game")
+async def admin_investment_game_list(limit: int = 500, admin: dict = Depends(get_admin_user)):
+    limit = max(1, min(int(limit or 500), 2000))
+    docs = await db.investment_game.find().sort("created_at", -1).to_list(limit)
+    out = []
+    for d in docs:
+        d["id"] = str(d.pop("_id"))
+        out.append(d)
+    return out
+
+
+@api_router.get("/admin/investment-game/stats")
+async def admin_investment_game_stats(admin: dict = Depends(get_admin_user)):
+    total = await db.investment_game.count_documents({})
+    if total == 0:
+        return {
+            "total_players": 0, "avg_spent": 0, "total_items": 0,
+            "daire_count": 0, "arsa_count": 0,
+            "top_cities": [], "top_daire_types": [], "top_arsa_types": [],
+        }
+
+    pipeline_city = [
+        {"$unwind": "$items"},
+        {"$group": {"_id": "$items.city", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5},
+    ]
+    top_cities = [{"city": r["_id"], "count": r["count"]} async for r in db.investment_game.aggregate(pipeline_city) if r["_id"]]
+
+    pipeline_daire = [
+        {"$unwind": "$items"},
+        {"$match": {"items.kind": "daire"}},
+        {"$group": {"_id": "$items.daire_type", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+    ]
+    top_daire_types = [{"type": r["_id"] or "?", "count": r["count"]} async for r in db.investment_game.aggregate(pipeline_daire)]
+
+    pipeline_arsa = [
+        {"$unwind": "$items"},
+        {"$match": {"items.kind": "arsa"}},
+        {"$group": {"_id": "$items.arsa_type", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+    ]
+    top_arsa_types = [{"type": r["_id"] or "?", "count": r["count"]} async for r in db.investment_game.aggregate(pipeline_arsa)]
+
+    pipeline_agg = [
+        {"$group": {
+            "_id": None,
+            "avg_spent": {"$avg": "$total_spent"},
+            "total_items": {"$sum": {"$size": "$items"}},
+        }},
+    ]
+    agg = await db.investment_game.aggregate(pipeline_agg).to_list(1)
+    avg_spent = int(agg[0]["avg_spent"]) if agg else 0
+    total_items = int(agg[0]["total_items"]) if agg else 0
+
+    daire_count = 0
+    arsa_count = 0
+    async for r in db.investment_game.aggregate([
+        {"$unwind": "$items"},
+        {"$group": {"_id": "$items.kind", "count": {"$sum": 1}}},
+    ]):
+        if r["_id"] == "daire": daire_count = r["count"]
+        elif r["_id"] == "arsa": arsa_count = r["count"]
+
+    return {
+        "total_players": total,
+        "avg_spent": avg_spent,
+        "total_items": total_items,
+        "daire_count": daire_count,
+        "arsa_count": arsa_count,
+        "top_cities": top_cities,
+        "top_daire_types": top_daire_types,
+        "top_arsa_types": top_arsa_types,
+    }
+
+
+@api_router.delete("/admin/investment-game/{entry_id}")
+async def admin_investment_game_delete(entry_id: str, admin: dict = Depends(get_admin_user)):
+    if not ObjectId.is_valid(entry_id):
+        raise HTTPException(400, "Geçersiz ID")
+    r = await db.investment_game.delete_one({"_id": ObjectId(entry_id)})
+    if r.deleted_count == 0:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    return {"deleted": True}
+
+
+@api_router.get("/admin/investment-game/export")
+async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
+    """CSV export (Excel-ready, UTF-8 BOM)."""
+    from fastapi.responses import StreamingResponse
+    import io as _io, csv as _csv
+
+    docs = await db.investment_game.find().sort("created_at", -1).to_list(5000)
+    buf = _io.StringIO()
+    buf.write("\ufeff")  # BOM for Excel
+    w = _csv.writer(buf)
+    w.writerow([
+        "Kayıt Zamanı", "Ad Soyad", "Telefon", "Yaş", "Meslek",
+        "Toplam Yatırım (TL)", "Kalan (TL)", "Yatırım Sayısı",
+        "Portföy Özeti",
+    ])
+    for d in docs:
+        items = d.get("items", [])
+        summary_parts = []
+        for it in items:
+            if it.get("kind") == "daire":
+                summary_parts.append(f"Daire {it.get('daire_type','')} {it.get('city','')}/{it.get('district','')} ₺{it.get('budget',0):,}")
+            else:
+                summary_parts.append(f"{(it.get('arsa_type') or 'arsa').title()} {it.get('city','')}/{it.get('district','')} ₺{it.get('budget',0):,}")
+        w.writerow([
+            d.get("created_at", ""),
+            d.get("name", ""),
+            d.get("phone", ""),
+            d.get("age", ""),
+            d.get("profession", ""),
+            d.get("total_spent", 0),
+            d.get("remaining", 0),
+            len(items),
+            " | ".join(summary_parts),
+        ])
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="yatirim-oyunu.csv"'},
+    )
 
 
 # ==================== ADMIN USERS (Admin Account Management) ====================

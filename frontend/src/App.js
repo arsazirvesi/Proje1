@@ -17,6 +17,7 @@ import VisitorRegisterPage from "./pages/public/VisitorRegisterPage";
 import ExhibitorRegisterPage from "./pages/public/ExhibitorRegisterPage";
 import SpeakerApplicationPage from "./pages/public/SpeakerApplicationPage";
 import StaffScanPage from "./pages/public/StaffScanPage";
+import InvestmentGamePage from "./pages/public/InvestmentGamePage";
 import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
@@ -45,6 +46,7 @@ import CheckInPage from "./pages/admin/CheckInPage";
 import InviteCodesManagement from "./pages/admin/InviteCodesManagement";
 import ApiKeysManagement from "./pages/admin/ApiKeysManagement";
 import VisitegoSync from "./pages/admin/VisitegoSync";
+import InvestmentGameList from "./pages/admin/InvestmentGameList";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -87,6 +89,9 @@ function App() {
             {/* Public staff scanner (token in URL) */}
             <Route path="/tarama/:apiKey" element={<StaffScanPage />} />
 
+            {/* Investment Mini-Game */}
+            <Route path="/yatirim-oyunu" element={<InvestmentGamePage />} />
+
             {/* Backward compat redirects */}
             <Route path="/zirve-kaydi" element={<Navigate to="/ziyaretci-kaydi" replace />} />
             <Route path="/uyelik" element={<Navigate to="/ziyaretci-kaydi" replace />} />
@@ -99,6 +104,7 @@ function App() {
               <Route path="davet-kodlari" element={<InviteCodesManagement />} />
               <Route path="api-anahtarlari" element={<ApiKeysManagement />} />
               <Route path="visitego" element={<VisitegoSync />} />
+              <Route path="yatirim-oyunu" element={<InvestmentGameList />} />
               <Route path="ziyaretciler" element={<GuestList />} />
               <Route path="zirve-ziyaretcileri" element={
                 <GuestList forcedVisitType="summit" title="Zirve Ziyaretçileri"
