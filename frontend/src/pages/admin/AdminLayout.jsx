@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   LayoutDashboard, Users, UserCheck, Mic2, Award, Image, FileText,
-  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield
+  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug
 } from "lucide-react";
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { label: "📷 Yaka Kartı QR Tarama", href: "/admin/checkin", icon: ScanLine },
   { label: "🎟 Davet Kodları", href: "/admin/davet-kodlari", icon: KeyRound },
   { label: "API Anahtarları (3. Parti)", href: "/admin/api-anahtarlari", icon: Shield },
+  { label: "Visitego Entegrasyonu (Fuar)", href: "/admin/visitego", icon: Plug },
   { label: "⏱ Etkinlik Tarihi & Sayaç", href: "/admin/etkinlik-ayarlari", icon: Calendar },
   { label: "Ziyaretçiler (Tümü)", href: "/admin/ziyaretciler", icon: Users },
   { label: "Zirve Ziyaretçileri", href: "/admin/zirve-ziyaretcileri", icon: Ticket },
