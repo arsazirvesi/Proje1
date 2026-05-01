@@ -81,9 +81,14 @@ async def push_visitor(db, guest: dict) -> dict:
     qrcode = make_qrcode(str(guest.get("_id") or guest.get("guest_id") or ""))
 
     if not cfg["enabled"] or not cfg["token"]:
-        result = {"ok": False, "status": None, "response": "", "error": "visitego_disabled_or_no_token", "qrcode": qrcode}
-        await _log_sync(db, guest, result, payload=None)
-        return result
+        # Don't write a permanent failure log when integration isn't configured;
+        # otherwise these guests stay flagged as "failed" forever even after admin
+        # configures the token. Skip silently — bulk sync will pick them up later.
+        logger.info(
+            f"visitego push skipped (no token/disabled) for guest "
+            f"{guest.get('_id') or guest.get('guest_id')}"
+        )
+        return {"ok": False, "status": None, "response": "", "error": "visitego_disabled_or_no_token", "qrcode": qrcode, "skipped": True}
 
     # Scope filter
     visit_type = guest.get("visit_type", "summit")

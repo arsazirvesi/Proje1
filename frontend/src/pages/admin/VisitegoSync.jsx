@@ -114,6 +114,33 @@ export default function VisitegoSync() {
         </div>
       )}
 
+      {/* WARNING: integration not yet active */}
+      {(!cfg.enabled || !cfg.has_token) && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 flex items-start gap-3" data-testid="not-active-warning">
+          <AlertCircle size={22} className="text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-bold text-amber-900 mb-1">⚠ Visitego entegrasyonu HENÜZ AKTİF DEĞİL</div>
+            <div className="text-sm text-amber-800 leading-relaxed">
+              {!cfg.has_token && <span>• Token girilmemiş veya kaydedilmemiş.<br/></span>}
+              {cfg.has_token && !cfg.enabled && <span>• Token kayıtlı ama <strong>"Entegrasyon Aktif"</strong> kapalı.<br/></span>}
+              <strong>Aşağıdaki ayarları doldurup mutlaka <em>"Ayarları Kaydet"</em> butonuna basın.</strong> Aksi halde yeni doğrulanan misafirler Visitego'ya gitmez.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WARNING: unsaved changes */}
+      {cfg.has_token && cfg.enabled && (
+        (token.trim() !== "" || enabled !== cfg.enabled || autoPush !== cfg.auto_push || scope !== cfg.scope) && (
+          <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-3 flex items-start gap-3" data-testid="unsaved-warning">
+            <AlertCircle size={18} className="text-blue-600 shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-900">
+              <strong>Kaydedilmemiş değişiklikleriniz var.</strong> Yeni ayarlarınızın etkin olması için <em>"Ayarları Kaydet"</em> butonuna basın.
+            </div>
+          </div>
+        )
+      )}
+
       {/* STATS */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="visitego-stats">
