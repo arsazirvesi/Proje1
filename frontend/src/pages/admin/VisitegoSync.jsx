@@ -223,6 +223,27 @@ export default function VisitegoSync() {
           >
             <Save size={15} /> {savingCfg ? "Kaydediliyor…" : "Ayarları Kaydet"}
           </button>
+          {cfg.has_token && !cfg.enabled && (
+            <button
+              type="button"
+              onClick={async () => {
+                setSavingCfg(true); setError("");
+                try {
+                  await axios.put(`${API}/admin/visitego/config`,
+                    { enabled: true, auto_push: true, scope }, { withCredentials: true });
+                  await load();
+                } catch (err) {
+                  setError(err.response?.data?.detail || "Aktive edilemedi");
+                } finally { setSavingCfg(false); }
+              }}
+              disabled={savingCfg}
+              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50 animate-pulse"
+              data-testid="quick-activate-btn"
+              title="Token zaten kayıtlı, tek tıkla entegrasyonu aktif et"
+            >
+              <CheckCircle2 size={15} /> ⚡ Hızlı Aktif Et
+            </button>
+          )}
           <button
             type="button"
             onClick={runTest}
