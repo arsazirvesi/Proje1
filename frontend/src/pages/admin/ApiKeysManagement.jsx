@@ -12,6 +12,35 @@ const VALID_FOR_LABEL = {
   fair: { label: "Sadece Fuar", color: "bg-amber-100 text-amber-800" },
 };
 
+/** Robust clipboard copy with execCommand fallback for sandboxed iframes. */
+function safeCopy(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      return true;
+    }
+  } catch {/* ignore */}
+  return fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    ta.setAttribute("readonly", "");
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 export default function ApiKeysManagement() {
   const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +48,7 @@ export default function ApiKeysManagement() {
   const [form, setForm] = useState({ label: "", valid_for: "fair" });
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
-  const [copiedLinkId, setCopiedLinkId] = useState(null);
+  const [linkModalKey, setLinkModalKey] = useState(null); // {key, label} when open
   const [revealedId, setRevealedId] = useState(null);
   const [showDocs, setShowDocs] = useState(false);
 
@@ -70,7 +99,7 @@ export default function ApiKeysManagement() {
   };
 
   const copyKey = (id, key) => {
-    navigator.clipboard.writeText(key);
+    safeCopy(key);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1800);
   };
@@ -78,12 +107,6 @@ export default function ApiKeysManagement() {
   const scanLinkFor = (key) => {
     const origin = (typeof window !== "undefined") ? window.location.origin : "";
     return `${origin}/tarama/${key}`;
-  };
-
-  const copyScanLink = (id, key) => {
-    navigator.clipboard.writeText(scanLinkFor(key));
-    setCopiedLinkId(id);
-    setTimeout(() => setCopiedLinkId(null), 1800);
   };
 
   const maskedKey = (key) => key.slice(0, 6) + "•".repeat(20) + key.slice(-4);
@@ -258,24 +281,13 @@ export default function ApiKeysManagement() {
                       <td className="px-4 py-3 text-right">
                         <div className="inline-flex items-center gap-1 justify-end">
                           <button
-                            onClick={() => copyScanLink(k.id, k.key)}
+                            onClick={() => setLinkModalKey({ key: k.key, label: k.label })}
                             className="inline-flex items-center gap-1.5 text-xs font-semibold text-summit-navy bg-summit-paper hover:bg-summit-gold/10 border border-gray-200 px-2.5 py-1.5 rounded transition-colors"
-                            title="Mobil tarama linkini kopyala (görevliye gönder)"
-                            data-testid={`copy-scan-link-${k.id}`}
+                            title="Mobil tarama linkini göster (kopyala / paylaş)"
+                            data-testid={`open-link-modal-${k.id}`}
                           >
-                            {copiedLinkId === k.id ? <Check size={13} className="text-green-600" /> : <Smartphone size={13} />}
-                            {copiedLinkId === k.id ? "Kopyalandı" : "Mobil Link"}
+                            <Smartphone size={13} /> Mobil Bağlantı
                           </button>
-                          <a
-                            href={scanLinkFor(k.key)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 text-gray-500 hover:text-summit-navy hover:bg-summit-paper rounded transition-colors"
-                            title="Mobil tarama sayfasını aç"
-                            data-testid={`open-scan-link-${k.id}`}
-                          >
-                            <ExternalLink size={14} />
-                          </a>
                           <button
                             onClick={() => handleDelete(k.id, k.label)}
                             className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
@@ -293,6 +305,115 @@ export default function ApiKeysManagement() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* MOBILE LINK MODAL */}
+      {linkModalKey && (
+        <MobileLinkModal
+          apiKey={linkModalKey.key}
+          label={linkModalKey.label}
+          link={scanLinkFor(linkModalKey.key)}
+          onClose={() => setLinkModalKey(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function MobileLinkModal({ apiKey, label, link, onClose }) {
+  const [copied, setCopied] = useState(false);
+  const taRef = React.useRef(null);
+
+  const doCopy = () => {
+    if (taRef.current) {
+      taRef.current.select();
+      taRef.current.setSelectionRange(0, link.length);
+    }
+    const ok = safeCopy(link);
+    setCopied(ok);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // WhatsApp share helper — opens prefilled chat picker on mobile, web on desktop
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(
+    `Arsa Yatırım Zirvesi - Yaka Kartı Tarama Linki\n\nAşağıdaki linki telefonda aç ve "Kamerayı Başlat" de.\n\n${link}\n\nBu link sadece sana özeldir, kimseyle paylaşma.`
+  )}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+      onClick={onClose}
+      data-testid="mobile-link-modal"
+    >
+      <div
+        className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h3 className="font-heading text-summit-navy text-lg font-bold flex items-center gap-2">
+              <Smartphone size={18} /> Mobil Tarama Linki
+            </h3>
+            <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-gray-400 hover:text-summit-navy hover:bg-summit-paper rounded transition-colors"
+            data-testid="close-link-modal"
+            aria-label="Kapat"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-700 mb-2">
+          Aşağıdaki linki kapıdaki görevlinin telefonuna gönderin. Telefonda açıp <strong>"Kamerayı Başlat"</strong> demeleri yeterli — login gerektirmez.
+        </p>
+
+        <textarea
+          ref={taRef}
+          readOnly
+          value={link}
+          rows={3}
+          onFocus={(e) => e.target.select()}
+          className="w-full bg-summit-paper border border-gray-200 rounded-md p-3 text-summit-navy text-xs font-mono break-all focus:outline-none focus:border-summit-navy resize-none"
+          data-testid="modal-link-textarea"
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4">
+          <button
+            onClick={doCopy}
+            className="bg-summit-navy hover:bg-summit-navy-dark text-white rounded-md px-4 py-2.5 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+            data-testid="modal-copy-btn"
+          >
+            {copied ? <><Check size={15} /> Kopyalandı</> : <><Copy size={15} /> Kopyala</>}
+          </button>
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white border border-summit-navy text-summit-navy hover:bg-summit-paper rounded-md px-4 py-2.5 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+            data-testid="modal-open-btn"
+          >
+            <ExternalLink size={15} /> Yeni Sekmede Aç
+          </a>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#25D366] hover:bg-[#1ebe5a] text-white rounded-md px-4 py-2.5 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+            data-testid="modal-whatsapp-btn"
+          >
+            <Smartphone size={15} /> WhatsApp ile Gönder
+          </a>
+        </div>
+
+        <div className="mt-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-3 text-xs flex items-start gap-2">
+          <AlertCircle size={14} className="shrink-0 mt-0.5" />
+          <span>
+            Kopyalama bazı tarayıcılarda engellenebilir. Çalışmazsa metin kutusundaki linki <strong>uzun basıp / sağ tık ile manuel olarak</strong> kopyalayabilirsiniz. Anahtar API anahtarı: <code className="bg-white/70 px-1 rounded">{apiKey.slice(0, 10)}…</code>
+          </span>
+        </div>
       </div>
     </div>
   );
