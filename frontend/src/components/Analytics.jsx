@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
+import { API_BASE as API } from "../lib/api";
 
 /**
  * Analytics helper - works with GTM (GTM-TCJD6TXD) + GA4 (G-K6R7RGP5S9).
@@ -25,6 +27,53 @@ function updateConsent(granted) {
 
 export default function Analytics() {
   const location = useLocation();
+
+  // Inject GTM <noscript> iframe + custom_body_html (one-time, after SEO loads)
+  useEffect(() => {
+    let mounted = true;
+    axios.get(`${API}/seo`).then(r => {
+      if (!mounted) return;
+      const seo = r.data || {};
+
+      // GTM noscript fallback
+      if (seo.gtm_id && !document.getElementById("gtm-noscript-frame")) {
+        const ns = document.createElement("noscript");
+        ns.id = "gtm-noscript-frame";
+        ns.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${seo.gtm_id}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
+        document.body.insertBefore(ns, document.body.firstChild);
+      }
+
+      // Custom body HTML (admin-defined)
+      if (seo.custom_body_html && !document.getElementById("custom-body-html")) {
+        const wrap = document.createElement("div");
+        wrap.id = "custom-body-html";
+        wrap.style.display = "none";
+        wrap.innerHTML = seo.custom_body_html;
+        document.body.insertBefore(wrap, document.body.firstChild);
+      }
+
+      // Custom head HTML (admin-defined)
+      if (seo.custom_head_html && !document.getElementById("custom-head-html")) {
+        const wrap = document.createElement("div");
+        wrap.id = "custom-head-html";
+        wrap.innerHTML = seo.custom_head_html;
+        // Move all script/meta/link nodes to head
+        Array.from(wrap.childNodes).forEach(n => {
+          if (n.nodeType === 1) {
+            if (n.tagName === "SCRIPT") {
+              const s = document.createElement("script");
+              for (const a of n.attributes) s.setAttribute(a.name, a.value);
+              s.text = n.text || "";
+              document.head.appendChild(s);
+            } else {
+              document.head.appendChild(n.cloneNode(true));
+            }
+          }
+        });
+      }
+    }).catch(() => {/* ignore */});
+    return () => { mounted = false; };
+  }, []);
 
   // Handle consent changes from CookieConsent banner
   useEffect(() => {

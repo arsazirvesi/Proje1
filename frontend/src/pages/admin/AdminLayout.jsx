@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   LayoutDashboard, Users, UserCheck, Mic2, Award, Image, FileText,
-  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug, Gamepad2
+  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug, Gamepad2, Settings
 } from "lucide-react";
 
 const navItems = [
@@ -29,6 +29,7 @@ const navItems = [
   { label: "Program", href: "/admin/program", icon: ListOrdered },
   { label: "Fuar Alanı", href: "/admin/fuar", icon: Building2 },
   { label: "SEO & Arama", href: "/admin/seo", icon: Search },
+  { label: "🔌 Entegrasyonlar & Sosyal Medya", href: "/admin/entegrasyonlar", icon: Settings },
   { label: "Yönetici Hesapları", href: "/admin/kullanicilar", icon: ShieldCheck },
 ];
 

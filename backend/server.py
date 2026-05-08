@@ -325,6 +325,24 @@ class SeoSettings(BaseModel):
     canonical_url: Optional[str] = None
     robots: Optional[str] = "index, follow"
     favicon_url: Optional[str] = None
+    # Analytics & Tag Manager
+    gtm_id: Optional[str] = None  # e.g. GTM-XXXXXXX
+    ga_id: Optional[str] = None  # e.g. G-XXXXXXXXXX
+    meta_pixel_id: Optional[str] = None  # Facebook/Meta Pixel ID
+    custom_head_html: Optional[str] = None  # extra <head> snippets
+    custom_body_html: Optional[str] = None  # extra <body> top snippets (e.g. GTM noscript)
+    # Social media
+    social_instagram: Optional[str] = None
+    social_linkedin: Optional[str] = None
+    social_twitter: Optional[str] = None
+    social_facebook: Optional[str] = None
+    social_youtube: Optional[str] = None
+    social_tiktok: Optional[str] = None
+    social_whatsapp: Optional[str] = None  # full https://wa.me/...
+    # Contact
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_address: Optional[str] = None
     # Event-specific JSON-LD fields
     event_name: Optional[str] = None
     event_start_date: Optional[str] = None

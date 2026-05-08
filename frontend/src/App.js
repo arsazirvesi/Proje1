@@ -47,6 +47,7 @@ import InviteCodesManagement from "./pages/admin/InviteCodesManagement";
 import ApiKeysManagement from "./pages/admin/ApiKeysManagement";
 import VisitegoSync from "./pages/admin/VisitegoSync";
 import InvestmentGameList from "./pages/admin/InvestmentGameList";
+import IntegrationsPage from "./pages/admin/IntegrationsPage";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -105,6 +106,7 @@ function App() {
               <Route path="api-anahtarlari" element={<ApiKeysManagement />} />
               <Route path="visitego" element={<VisitegoSync />} />
               <Route path="yatirim-oyunu" element={<InvestmentGameList />} />
+              <Route path="entegrasyonlar" element={<IntegrationsPage />} />
               <Route path="ziyaretciler" element={<GuestList />} />
               <Route path="zirve-ziyaretcileri" element={
                 <GuestList forcedVisitType="summit" title="Zirve Ziyaretçileri"
