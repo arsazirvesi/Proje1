@@ -1,7 +1,7 @@
 """Visitego (3rd-party fair turnstile) integration service.
 
 We PUSH every verified guest to Visitego so their turnstile scanners recognize
-our printed badge QR codes (AYZ2026-XXXXXXXX) at the door.
+our printed badge QR codes (00AYZ2026-XXXXXXXX) at the door.
 
 API spec (form-data POST):
   POST https://visitego.com/api/v1/online/{TOKEN}/create
@@ -24,8 +24,9 @@ SETTINGS_KEY = "visitego_config"  # site_settings document key
 
 
 def make_qrcode(guest_id: str) -> str:
-    """Match the QR string printed on physical badge: AYZ2026-{LAST8UPPER}."""
-    return f"AYZ2026-{str(guest_id)[-8:].upper()}"
+    """Match the QR string printed on physical badge: 00AYZ2026-{LAST8UPPER}.
+    The leading '00' is a precaution against offline turnstile scanners (Visitego request)."""
+    return f"00AYZ2026-{str(guest_id)[-8:].upper()}"
 
 
 def _payload_from_guest(guest: dict) -> dict:

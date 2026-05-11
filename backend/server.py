@@ -1083,7 +1083,7 @@ async def generate_badge(guest_id: str):
 
     # QR code
     qr = qrcode.QRCode(version=1, box_size=6, border=2)
-    qr.add_data(f"AYZ2026-{guest_id}")
+    qr.add_data(f"00AYZ2026-{guest_id}")
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color=NAVY, back_color="white")
     buf = io.BytesIO()
@@ -1212,7 +1212,7 @@ body{{font-family:'Outfit',sans-serif;background:#eef0f4;display:flex;justify-co
     </div>
     <div class="qr-section">
       <div class="qr-wrap"><img src="data:image/png;base64,{qr_b64}" width="92" height="92" alt="QR Kod"></div>
-      <div class="badge-id">AYZ2026-{guest_id[-8:].upper()}</div>
+      <div class="badge-id">00AYZ2026-{guest_id[-8:].upper()}</div>
     </div>
   </div>
   <div class="sponsor-footer">
@@ -1375,7 +1375,7 @@ def render_badge_png(guest: dict, seq_number: int) -> bytes:
 
     # QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
-    qr.add_data(f"AYZ2026-{guest.get('_id') or ''}")
+    qr.add_data(f"00AYZ2026-{guest.get('_id') or ''}")
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color=NAVY, back_color="white").convert("RGB")
     qr_size = 220
@@ -1390,7 +1390,7 @@ def render_badge_png(guest: dict, seq_number: int) -> bytes:
 
     # Badge ID
     guest_id = str(guest.get("_id") or "")
-    badge_id = f"AYZ2026-{guest_id[-8:].upper()}"
+    badge_id = f"00AYZ2026-{guest_id[-8:].upper()}"
     center_text(880, badge_id, f_id, (140, 140, 140))
 
     # ==== SPONSOR FOOTER ====
@@ -1499,13 +1499,16 @@ class CheckInRequest(BaseModel):
 
 def _parse_checkin_code(raw: str) -> Optional[str]:
     """Extract guest_id from QR code text. Accepts:
-    - "AYZ2026-{guest_id}" (current QR format)
+    - "00AYZ2026-{guest_id}" (NEW format — leading 00 for offline-tolerance)
+    - "AYZ2026-{guest_id}" (legacy format)
     - Plain guest_id
     - URL containing /badge/{guest_id} (legacy)
     Returns guest_id or None."""
     if not raw:
         return None
     code = raw.strip()
+    if code.startswith("00AYZ2026-"):
+        return code[len("00AYZ2026-"):].strip()
     if code.startswith("AYZ2026-"):
         return code[len("AYZ2026-"):].strip()
     if "/badge/" in code:
@@ -1546,7 +1549,7 @@ async def admin_checkin(body: CheckInRequest, admin: dict = Depends(get_admin_us
         "city": guest.get("city", ""),
         "visit_type": visit_type,
         "visit_label": visit_label,
-        "badge_id": f"AYZ2026-{guest_id[-8:].upper()}",
+        "badge_id": f"00AYZ2026-{guest_id[-8:].upper()}",
     }
 
     # Not email-verified yet
@@ -1813,7 +1816,7 @@ async def external_checkin(
         "city": guest.get("city", ""),
         "visit_type": visit_type,
         "visit_label": visit_label,
-        "badge_id": f"AYZ2026-{guest_id[-8:].upper()}",
+        "badge_id": f"00AYZ2026-{guest_id[-8:].upper()}",
     }
 
     if not guest.get("is_verified"):
@@ -1876,7 +1879,7 @@ async def external_list_guests(
         gid = str(d["_id"])
         out.append({
             "guest_id": gid,
-            "badge_id": f"AYZ2026-{gid[-8:].upper()}",
+            "badge_id": f"00AYZ2026-{gid[-8:].upper()}",
             "name": d.get("name", ""),
             "company": d.get("company", ""),
             "title": d.get("title", ""),

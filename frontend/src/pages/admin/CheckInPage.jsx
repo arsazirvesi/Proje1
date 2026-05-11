@@ -369,7 +369,7 @@ export default function CheckInPage() {
               type="text"
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              placeholder="AYZ2026-... veya guest_id"
+              placeholder="00AYZ2026-... veya guest_id"
               className="flex-1 bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-navy"
               data-testid="manual-input"
             />

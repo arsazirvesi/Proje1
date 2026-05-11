@@ -323,7 +323,7 @@ export default function StaffScanPage() {
                 type="text"
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
-                placeholder="AYZ2026-..."
+                placeholder="00AYZ2026-..."
                 className="flex-1 bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-navy"
                 data-testid="manual-input"
               />
