@@ -53,11 +53,11 @@ export default function Navbar() {
         data-testid="navbar"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3">
-            {/* Left: Drawer toggle + Logo */}
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-3 py-3">
+            {/* Left: Drawer toggle (mobile only) + Logo */}
+            <div className="flex items-center gap-2 shrink-0 min-w-0">
               <button
-                className="p-2 -ml-2 text-summit-navy hover:bg-summit-navy/5 rounded-md transition-colors"
+                className="lg:hidden p-2 -ml-2 text-summit-navy hover:bg-summit-navy/5 rounded-md transition-colors shrink-0"
                 onClick={() => setDrawerOpen(true)}
                 aria-label="Menüyü aç"
                 data-testid="drawer-open-btn"
@@ -65,25 +65,25 @@ export default function Navbar() {
                 <Menu size={22} />
               </button>
 
-              <Link to="/" className="flex items-center" data-testid="nav-logo">
-                <div>
-                  <div className="font-heading font-bold text-base sm:text-sm leading-tight text-summit-navy">
+              <Link to="/" className="flex items-center shrink-0" data-testid="nav-logo">
+                <div className="leading-tight">
+                  <div className="font-heading font-bold text-summit-navy whitespace-nowrap text-[15px] sm:text-base lg:text-[15px] xl:text-base">
                     Arsa Yatırım Zirvesi
                   </div>
-                  <div className="text-summit-navy text-[0.68rem] tracking-[0.2em] uppercase font-semibold opacity-70">
+                  <div className="text-summit-navy text-[0.6rem] sm:text-[0.65rem] tracking-[0.16em] uppercase font-semibold opacity-70 whitespace-nowrap">
                     2026 · İstanbul
                   </div>
                 </div>
               </Link>
             </div>
 
-            {/* Desktop links (center) */}
-            <div className="hidden lg:flex items-center gap-7">
+            {/* Desktop links (center, lg+) */}
+            <div className="hidden lg:flex items-center gap-4 xl:gap-7 min-w-0">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`text-sm font-medium transition-colors duration-200 ${
+                  className={`text-sm font-medium whitespace-nowrap transition-colors duration-200 ${
                     location.pathname === link.href
                       ? "text-summit-navy font-semibold"
                       : "text-gray-600 hover:text-summit-navy"
@@ -96,27 +96,30 @@ export default function Navbar() {
             </div>
 
             {/* Right CTAs */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-2 shrink-0">
               <Link
                 to="/yatirim-oyunu"
-                className="group relative text-xs font-bold px-4 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all inline-flex items-center gap-1.5"
+                className="hidden md:inline-flex group relative text-xs font-bold px-3 lg:px-3.5 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all items-center gap-1.5 whitespace-nowrap"
                 data-testid="nav-game-btn"
               >
-                <span className="animate-pulse">📊</span> Yatırım Simülatörü
+                <span className="animate-pulse">📊</span>
+                <span className="hidden xl:inline">Yatırım Simülatörü</span>
+                <span className="xl:hidden">Simülatör</span>
               </Link>
               <Link
                 to="/ziyaretci-kaydi"
-                className="text-xs font-semibold px-4 py-2 rounded-md text-summit-navy border-2 border-summit-navy hover:bg-summit-navy hover:text-white transition-all"
+                className="hidden xl:inline-flex items-center text-xs font-semibold px-3.5 py-2 rounded-md text-summit-navy border-2 border-summit-navy hover:bg-summit-navy hover:text-white transition-all whitespace-nowrap"
                 data-testid="nav-visitor-btn"
               >
                 Ziyaretçi Kaydı
               </Link>
               <Link
                 to="/fuar-stant-kaydi"
-                className="btn-navy py-2 px-5 text-xs"
+                className="hidden md:inline-flex items-center btn-navy py-2 px-3.5 lg:px-4 text-xs whitespace-nowrap"
                 data-testid="nav-exhibitor-btn"
               >
-                Stant Başvurusu
+                <span className="hidden lg:inline">Stant Başvurusu</span>
+                <span className="lg:hidden">Stant</span>
               </Link>
             </div>
           </div>
