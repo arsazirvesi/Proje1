@@ -1,0 +1,43 @@
+{
+  "short_name": "Arsa Zirvesi",
+  "name": "Arsa Yatırım Zirvesi 2026",
+  "description": "Türkiye'nin en kapsamlı arsa yatırımı zirvesi · 21 Mayıs 2026 · Hilton İstanbul Bosphorus",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#22316a",
+  "background_color": "#22316a",
+  "lang": "tr-TR",
+  "scope": "/",
+  "orientation": "portrait-primary",
+  "categories": ["business", "finance", "education"]
+}
