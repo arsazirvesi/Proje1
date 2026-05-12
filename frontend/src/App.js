@@ -1,9 +1,10 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 import Analytics from "./components/Analytics";
+import WhatsAppHelpWidget from "./components/WhatsAppHelpWidget";
 import CookieConsent from "./components/CookieConsent";
 import SEOHead from "./components/SEOHead";
 
@@ -68,6 +69,7 @@ function App() {
           <BrowserRouter>
             <Analytics />
             <SEOHead />
+            <ConditionalHelpWidget />
             <Routes>
             {/* Public */}
             <Route path="/" element={<HomePage />} />
@@ -146,3 +148,11 @@ function App() {
 }
 
 export default App;
+
+// Show WhatsApp help widget only on public pages, not in admin / scanner
+function ConditionalHelpWidget() {
+  const location = useLocation();
+  if (location.pathname.startsWith("/admin")) return null;
+  if (location.pathname.startsWith("/tarama/")) return null;
+  return <WhatsAppHelpWidget />;
+}
