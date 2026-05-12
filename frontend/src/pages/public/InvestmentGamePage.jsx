@@ -6,6 +6,7 @@ import {
   Briefcase, Calendar as CalendarIcon, Target, Award, BadgeCheck, Coins
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
+import KvkkConsent from "../../components/KvkkConsent";
 
 const STARTING_BUDGET = 10_000_000;
 const DAIRE_TYPES = ["1+1", "2+1", "3+1", "5+1"];
@@ -31,6 +32,7 @@ const formatBudget = (v) => {
 export default function InvestmentGamePage() {
   const [step, setStep] = useState(1);
   const [identity, setIdentity] = useState({ name: "", phone: "", email: "", age: "", profession: "" });
+  const [kvkk, setKvkk] = useState(false);
   const [items, setItems] = useState([]);
   const [editItem, setEditItem] = useState(null);
   const [result, setResult] = useState(null);
@@ -50,6 +52,7 @@ export default function InvestmentGamePage() {
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError("Geçerli bir e-posta adresi girin");
     if (!age || Number(age) < 10 || Number(age) > 120) return setError("Yaş 10-120 arasında olmalı");
     if (!profession.trim() || profession.trim().length < 2) return setError("Mesleğinizi yazın");
+    if (!kvkk) return setError("Devam etmek için KVKK / Gizlilik onayını işaretleyin");
     setStep(2);
   };
 
@@ -169,7 +172,11 @@ export default function InvestmentGamePage() {
 
             {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm flex items-start gap-2" data-testid="form-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
 
-            <button type="submit" className="mt-6 w-full bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-4 text-base font-bold inline-flex items-center justify-center gap-2 transition-all" data-testid="game-next-btn">
+            <div className="mt-4">
+              <KvkkConsent checked={kvkk} onChange={setKvkk} testid="game-kvkk" />
+            </div>
+
+            <button type="submit" disabled={!kvkk} className="mt-5 w-full bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-4 text-base font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" data-testid="game-next-btn">
               Yatırıma Başla <ArrowRight size={18} />
             </button>
             <p className="text-xs text-gray-500 mt-3 text-center flex items-center justify-center gap-1.5">

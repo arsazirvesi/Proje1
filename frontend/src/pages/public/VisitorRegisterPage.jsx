@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import KvkkConsent from "../../components/KvkkConsent";
 import {
   CheckCircle, User, Mail, Phone, Building2, MapPin, Briefcase, FileText,
   ExternalLink, Ticket, Store, ArrowLeft, Users as UsersIcon, Check, Info, KeyRound, Loader2, X
@@ -48,6 +49,7 @@ const VISIT_META = {
 
 export default function VisitorRegisterPage() {
   const [visitType, setVisitType] = useState(null); // null | "summit" | "fair"
+  const [kvkk, setKvkk] = useState(false);
   const [capacity, setCapacity] = useState(null);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", title: "",
@@ -580,7 +582,8 @@ export default function VisitorRegisterPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading || (visitType === "summit" && codeStatus !== "valid")}
+              <KvkkConsent checked={kvkk} onChange={setKvkk} testid="visitor-kvkk" />
+              <button type="submit" disabled={loading || !kvkk || (visitType === "summit" && codeStatus !== "valid")}
                 className="w-full btn-navy py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
                 data-testid="submit-visitor-btn">
                 {loading

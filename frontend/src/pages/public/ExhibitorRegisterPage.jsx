@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import KvkkConsent from "../../components/KvkkConsent";
 import { CheckCircle, User, Mail, Phone, Building2, Globe, FileText, Hash, Briefcase, Layers } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
@@ -27,6 +28,7 @@ export default function ExhibitorRegisterPage() {
     products_services: "", website: "", social_media: "", notes: ""
   });
   const [loading, setLoading] = useState(false);
+  const [kvkk, setKvkk] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
@@ -238,7 +240,8 @@ export default function ExhibitorRegisterPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading}
+              <KvkkConsent checked={kvkk} onChange={setKvkk} testid="exhibitor-kvkk" />
+              <button type="submit" disabled={loading || !kvkk}
                 className="w-full btn-navy py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
                 data-testid="submit-exh-btn">
                 {loading ? "Başvuru Gönderiliyor..." : "Stant Başvurusunu Gönder"}

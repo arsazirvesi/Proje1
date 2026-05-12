@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import KvkkConsent from "../../components/KvkkConsent";
 import {
   CheckCircle, User, Mail, Phone, Building2, Globe, Megaphone, Award, MessageSquare,
   Sparkles, TrendingUp, Users as UsersIcon, Mic, Target, Eye, Handshake, Calendar,
@@ -184,6 +185,7 @@ export default function SpeakerApplicationPage() {
     topic: "", bio: "", sponsor_package: "", linkedin: "", website: "", additional_notes: ""
   });
   const [loading, setLoading] = useState(false);
+  const [kvkk, setKvkk] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const formRef = useRef(null);
@@ -784,7 +786,8 @@ export default function SpeakerApplicationPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={loading}
+              <KvkkConsent checked={kvkk} onChange={setKvkk} testid="speaker-kvkk" />
+              <button type="submit" disabled={loading || !kvkk}
                 className="w-full btn-navy py-4 text-base font-bold disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                 data-testid="submit-sp-btn">
                 {loading ? "Başvuru Gönderiliyor..." : (

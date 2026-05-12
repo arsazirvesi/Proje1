@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import KvkkConsent from "../../components/KvkkConsent";
 import { CheckCircle, User, Mail, Phone, Building2, MapPin, Briefcase } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", title: "", city: "" });
   const [loading, setLoading] = useState(false);
+  const [kvkk, setKvkk] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
@@ -162,9 +164,10 @@ export default function RegisterPage() {
                 </div>
               )}
 
+              <KvkkConsent checked={kvkk} onChange={setKvkk} tone="dark" testid="register-kvkk" />
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !kvkk}
                 className="w-full btn-gold py-3.5 text-base font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                 data-testid="submit-register-btn"
               >
