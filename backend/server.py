@@ -339,6 +339,7 @@ class SeoSettings(BaseModel):
     social_youtube: Optional[str] = None
     social_tiktok: Optional[str] = None
     social_whatsapp: Optional[str] = None  # full https://wa.me/...
+    invite_code_phone: Optional[str] = None  # phone for invite-code requests (visitor register)
     # Contact
     contact_phone: Optional[str] = None
     contact_email: Optional[str] = None

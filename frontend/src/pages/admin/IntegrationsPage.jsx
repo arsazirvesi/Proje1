@@ -40,6 +40,7 @@ export default function IntegrationsPage() {
         social_youtube: data.social_youtube || "",
         social_tiktok: data.social_tiktok || "",
         social_whatsapp: data.social_whatsapp || "",
+        invite_code_phone: data.invite_code_phone || "",
         contact_phone: data.contact_phone || "",
         contact_email: data.contact_email || "",
         contact_address: data.contact_address || "",
@@ -207,6 +208,7 @@ export default function IntegrationsPage() {
             İletişim bilgileri footer'da ve "İletişim" bölümlerinde görünür.
           </Notice>
           <SocialField icon={Phone} label="Telefon" value={form.contact_phone} onChange={v => set("contact_phone", v)} placeholder="+90 555 000 00 00" testid="c-phone" />
+          <SocialField icon={Phone} label="Davet Kodu Talep Telefonu" value={form.invite_code_phone} onChange={v => set("invite_code_phone", v)} placeholder="+90 533 728 01 02" testid="c-invite-phone" />
           <SocialField icon={Mail} label="E-posta" value={form.contact_email} onChange={v => set("contact_email", v)} placeholder="info@arsayatirimzirvesi.com" testid="c-email" />
           <Field label="Adres" testid="field-address">
             <textarea value={form.contact_address} onChange={e => set("contact_address", e.target.value)}
