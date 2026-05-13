@@ -61,6 +61,14 @@ export default function VisitorRegisterPage() {
     // /ziyaretci-kaydi keeps the chooser screen (visitType=null)
   }, [location.pathname]);
   const [capacity, setCapacity] = useState(null);
+  const [seoContact, setSeoContact] = useState({ phone: "+90 533 728 01 02" });
+
+  // Fetch contact phone from SEO settings (admin-editable)
+  useEffect(() => {
+    axios.get(`${API}/seo`).then(r => {
+      if (r.data?.contact_phone) setSeoContact({ phone: r.data.contact_phone });
+    }).catch(() => {});
+  }, []);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", title: "",
     city: "", expectations: "", interest_area: "", participant_type: "",
@@ -539,7 +547,7 @@ export default function VisitorRegisterPage() {
                 <label className={labelCls}>Davet Kodu *</label>
                 <p className="text-xs text-gray-500 mb-3 leading-relaxed">
                   Zirveye katılım için size verilen davet kodunu girin. Kod yoksa
-                  <a href="mailto:info@arsayatirimzirvesi.com" className="text-summit-navy font-semibold hover:underline ml-1">info@arsayatirimzirvesi.com</a> adresinden talep edebilirsiniz.
+                  <a href={`tel:${(seoContact.phone || "").replace(/\s/g,'')}`} className="text-summit-navy font-semibold hover:underline ml-1" data-testid="invite-code-phone">{seoContact.phone}</a> numaradan talep edebilirsiniz.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
