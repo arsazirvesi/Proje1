@@ -147,28 +147,35 @@ export default function InvestmentGamePage() {
         }} />
       </div>
 
-      <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-16">
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-10">
-          <div className="inline-flex items-center gap-2 bg-amber-400/15 backdrop-blur-sm border border-amber-400/40 rounded-full px-4 py-1.5 mb-5">
-            <Sparkles size={14} className="text-amber-300" />
-            <span className="text-xs tracking-wider uppercase font-semibold text-amber-100">Arsa Yatırım Zirvesi · Yatırım Simülatörü</span>
+      <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16">
+        {/* Header — compact on mobile after step 1 to give wallet bar room */}
+        <div className={`text-center ${step >= 3 ? "mb-3 sm:mb-6" : "mb-6 sm:mb-10"}`}>
+          <div className="inline-flex items-center gap-1.5 bg-amber-400/15 backdrop-blur-sm border border-amber-400/40 rounded-full px-3 py-1 mb-3 sm:mb-5">
+            <Sparkles size={12} className="text-amber-300" />
+            <span className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold text-amber-100">Arsa Yatırım · Simülatör</span>
           </div>
-          <h1 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-3 text-white">
-            Bütçeni Belirle,<br/>
-            <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 bg-clip-text text-transparent">Portföyünü Tasarla</span>
-          </h1>
-          <p className="text-white/70 text-sm sm:text-base max-w-xl mx-auto">
-            Kendi seviyenize uygun bütçeyle gerçekçi bir gayrimenkul portföyü oluşturun.
-            Uzmanlarımız etkinlikte sana özel analiz e-postası gönderecek.
-          </p>
-          <div className="flex items-center justify-center gap-4 mt-5 text-xs text-white/60">
-            <span className="inline-flex items-center gap-1.5"><BadgeCheck size={13} className="text-amber-300" /> Ücretsiz</span>
-            <span className="w-1 h-1 bg-white/30 rounded-full" />
-            <span className="inline-flex items-center gap-1.5"><Target size={13} className="text-amber-300" /> 3 dakika</span>
-            <span className="w-1 h-1 bg-white/30 rounded-full" />
-            <span className="inline-flex items-center gap-1.5"><Award size={13} className="text-amber-300" /> Uzman cevabı</span>
-          </div>
+          {step < 3 && (
+            <>
+              <h1 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-3 text-white">
+                Bütçeni Belirle,<br/>
+                <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 bg-clip-text text-transparent">Portföyünü Tasarla</span>
+              </h1>
+              <p className="text-white/70 text-sm sm:text-base max-w-xl mx-auto">
+                Kendi seviyenize uygun bütçeyle gerçekçi bir gayrimenkul portföyü oluşturun.
+                Uzmanlarımız etkinlikte sana özel analiz e-postası gönderecek.
+              </p>
+              <div className="flex items-center justify-center gap-4 mt-4 sm:mt-5 text-[11px] sm:text-xs text-white/60">
+                <span className="inline-flex items-center gap-1.5"><BadgeCheck size={12} className="text-amber-300" /> Ücretsiz</span>
+                <span className="w-1 h-1 bg-white/30 rounded-full" />
+                <span className="inline-flex items-center gap-1.5"><Target size={12} className="text-amber-300" /> 3 dakika</span>
+                <span className="w-1 h-1 bg-white/30 rounded-full" />
+                <span className="inline-flex items-center gap-1.5"><Award size={12} className="text-amber-300" /> Uzman cevabı</span>
+              </div>
+            </>
+          )}
+          {step === 3 && (
+            <h2 className="font-heading text-lg sm:text-2xl font-bold text-white">Portföyünü Oluştur</h2>
+          )}
 
           {/* Step indicator */}
           {step < 4 && (
@@ -214,29 +221,29 @@ export default function InvestmentGamePage() {
         {step === 3 && (
           <div className="space-y-4" data-testid="game-portfolio">
             {!editItem && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button
                   onClick={() => setEditItem({ kind: "daire", daire_type: "2+1", city: "", district: "", neighborhood: "", budget: "", description: "" })}
-                  className="group relative bg-white/5 hover:bg-white/10 border-2 border-white/15 hover:border-amber-400 rounded-2xl p-5 text-left transition-all overflow-hidden"
+                  className="group relative bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 hover:border-amber-400 rounded-xl p-3 sm:p-4 text-left transition-all overflow-hidden"
                   data-testid="add-daire-btn"
                 >
-                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all" />
-                  <Building size={32} className="text-amber-300 mb-3" />
-                  <div className="font-heading font-bold text-xl">+ Daire Ekle</div>
-                  <div className="text-xs text-white/60 mt-1">1+1 · 2+1 · 3+1 · 5+1</div>
+                  <div className="absolute -top-6 -right-6 w-16 h-16 bg-amber-400/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all" />
+                  <Building size={22} className="text-amber-300 mb-1.5" />
+                  <div className="font-heading font-bold text-base sm:text-lg leading-tight">+ Daire</div>
+                  <div className="text-[10px] sm:text-xs text-white/55 mt-0.5 leading-tight">1+1 · 2+1 · 3+1 · 5+1</div>
                 </button>
                 <button
                   onClick={() => setEditItem({
                     kind: "arsa", arsa_type: "arsa", city: "", district: "", neighborhood: "",
                     area_m2: "", vade_years: 3, ownership: "mustakil", budget: "", description: "",
                   })}
-                  className="group relative bg-white/5 hover:bg-white/10 border-2 border-white/15 hover:border-emerald-400 rounded-2xl p-5 text-left transition-all overflow-hidden"
+                  className="group relative bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 hover:border-emerald-400 rounded-xl p-3 sm:p-4 text-left transition-all overflow-hidden"
                   data-testid="add-arsa-btn"
                 >
-                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-emerald-400/10 rounded-full blur-2xl group-hover:bg-emerald-400/20 transition-all" />
-                  <Trees size={32} className="text-emerald-300 mb-3" />
-                  <div className="font-heading font-bold text-xl">+ Arsa / Tarla / İPAT</div>
-                  <div className="text-xs text-white/60 mt-1">Konum · m² · Vade · Müstakil/Hisseli</div>
+                  <div className="absolute -top-6 -right-6 w-16 h-16 bg-emerald-400/10 rounded-full blur-2xl group-hover:bg-emerald-400/20 transition-all" />
+                  <Trees size={22} className="text-emerald-300 mb-1.5" />
+                  <div className="font-heading font-bold text-base sm:text-lg leading-tight">+ Arsa / Tarla / İPAT</div>
+                  <div className="text-[10px] sm:text-xs text-white/55 mt-0.5 leading-tight">m² · Vade · Müstakil/Hisseli</div>
                 </button>
               </div>
             )}
@@ -335,117 +342,125 @@ function IdentityForm({ identity, setIdentity, kvkk, setKvkk, error, onSubmit })
 // ===================== BUDGET STEP (Step 2) =====================
 function BudgetStep({ budgetMode, setBudgetMode, freeBudget, setFreeBudget, error, onBack, onNext }) {
   return (
-    <div className="bg-white text-summit-navy rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="budget-step">
+    <div className="bg-white text-summit-navy rounded-2xl p-5 sm:p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="budget-step">
       <div className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-emerald-400 to-amber-400 rounded-t-full" />
-      <div className="flex items-start gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30">
-          <Wallet size={22} className="text-white" />
+      <div className="flex items-start gap-3 mb-5">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30">
+          <Wallet size={18} className="text-white" />
         </div>
         <div>
-          <h2 className="font-heading text-xl sm:text-2xl font-bold text-summit-navy">Bütçeni Belirle</h2>
-          <p className="text-gray-500 text-sm mt-0.5">Hangi seviyede deneyim yapmak istersin?</p>
+          <h2 className="font-heading text-lg sm:text-2xl font-bold text-summit-navy leading-tight">Bütçeni Belirle</h2>
+          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">Hangi seviyede deneyim yapmak istersin?</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3" data-testid="budget-presets">
-        {BUDGET_PRESETS.map(p => (
-          <button
-            key={p.mode}
-            type="button"
-            onClick={() => setBudgetMode(p.mode)}
-            className={`text-left p-4 rounded-xl border-2 transition-all ${budgetMode === p.mode ? "border-amber-400 bg-amber-50 shadow-lg shadow-amber-500/15" : "border-gray-200 hover:border-amber-300 hover:bg-amber-50/40"}`}
-            data-testid={`budget-${p.mode}`}
-          >
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{p.tag}</div>
-            <div className="font-heading text-xl font-black text-summit-navy mt-1">{p.label}</div>
-            <div className="text-xs text-gray-500 mt-1 tabular-nums">{fmtTL(p.value)} sanal sermaye</div>
-          </button>
-        ))}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3" data-testid="budget-presets">
+        {BUDGET_PRESETS.map(p => {
+          const active = budgetMode === p.mode;
+          return (
+            <button
+              key={p.mode}
+              type="button"
+              onClick={() => setBudgetMode(p.mode)}
+              className={`relative text-left p-3 sm:p-4 rounded-xl border transition-all overflow-hidden ${active ? "border-amber-400 bg-gradient-to-br from-amber-50 to-white shadow-[0_8px_20px_-8px_rgba(251,191,36,0.5)]" : "border-gray-200 hover:border-amber-300"}`}
+              data-testid={`budget-${p.mode}`}
+            >
+              {/* Ticket notch */}
+              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-summit-navy rounded-full" />
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">{p.tag}</div>
+              <div className="font-heading text-base sm:text-xl font-black text-summit-navy mt-0.5 leading-tight">{p.label}</div>
+              <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5 tabular-nums">{fmtTL(p.value)}</div>
+              {active && <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center"><Check size={11} className="text-white" /></div>}
+            </button>
+          );
+        })}
       </div>
 
       {/* Serbest bütçe */}
       <button
         type="button"
         onClick={() => setBudgetMode("free")}
-        className={`mt-3 w-full text-left p-4 rounded-xl border-2 transition-all ${budgetMode === "free" ? "border-summit-navy bg-summit-navy/5 shadow-lg" : "border-dashed border-gray-300 hover:border-summit-navy hover:bg-summit-paper"}`}
+        className={`mt-2.5 sm:mt-3 w-full text-left p-3 sm:p-4 rounded-xl border transition-all ${budgetMode === "free" ? "border-summit-navy bg-summit-navy/5 shadow-md" : "border-dashed border-gray-300 hover:border-summit-navy hover:bg-summit-paper/60"}`}
         data-testid="budget-free"
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Serbest</div>
-            <div className="font-heading text-lg font-bold text-summit-navy">Kendi bütçemi gireyim</div>
-            <div className="text-xs text-gray-500 mt-0.5">Min 50.000 TL · Max 10 Milyar TL</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">Serbest</div>
+            <div className="font-heading text-sm sm:text-base font-bold text-summit-navy leading-tight">Kendi bütçemi gireyim</div>
+            <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">Min 50.000 TL · Max 10 Milyar TL</div>
           </div>
-          <Sparkles size={20} className={budgetMode === "free" ? "text-amber-500" : "text-gray-300"} />
+          <Sparkles size={18} className={budgetMode === "free" ? "text-amber-500" : "text-gray-300"} />
         </div>
       </button>
 
       {budgetMode === "free" && (
-        <div className="mt-3 bg-summit-paper rounded-xl border border-summit-navy/10 p-4" data-testid="free-budget-input">
+        <div className="mt-3 bg-summit-paper rounded-xl border border-summit-navy/10 p-3 sm:p-4" data-testid="free-budget-input">
           <label className="text-[10px] uppercase tracking-wider mb-1.5 block font-bold text-gray-600">Bütçe Tutarı (TL) *</label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-summit-navy text-2xl font-bold pointer-events-none">₺</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-summit-navy text-xl font-bold pointer-events-none">₺</span>
             <input
               type="text"
               inputMode="numeric"
               value={formatBudget(freeBudget)}
               onChange={e => setFreeBudget(parseBudget(e.target.value))}
               placeholder="Örn: 7.500.000"
-              className="w-full bg-white border-2 border-amber-400 rounded-lg pl-10 pr-4 py-3.5 text-summit-navy text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy"
+              className="w-full bg-white border-2 border-amber-400 rounded-lg pl-9 pr-4 py-3 text-summit-navy text-lg sm:text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy"
               data-testid="free-budget-value"
             />
           </div>
         </div>
       )}
 
-      {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm flex items-start gap-2" data-testid="budget-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
+      {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-2.5 text-xs flex items-start gap-2" data-testid="budget-error"><AlertCircle size={13} className="shrink-0 mt-0.5" />{error}</div>}
 
       <div className="flex gap-2 mt-5">
-        <button type="button" onClick={onBack} className="bg-white border-2 border-gray-200 text-gray-600 hover:text-summit-navy hover:border-gray-300 rounded-xl py-3 px-4 text-sm font-bold inline-flex items-center gap-2" data-testid="budget-back">
-          <ArrowLeft size={15} /> Geri
+        <button type="button" onClick={onBack} className="bg-white border border-gray-200 text-gray-600 hover:text-summit-navy hover:border-gray-300 rounded-xl py-3 px-3 sm:px-4 text-sm font-bold inline-flex items-center gap-1.5" data-testid="budget-back">
+          <ArrowLeft size={14} /> <span className="hidden sm:inline">Geri</span>
         </button>
-        <button type="button" onClick={onNext} className="flex-1 bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-3 text-base font-bold inline-flex items-center justify-center gap-2" data-testid="budget-next">
-          Portföyü Oluşturmaya Başla <ArrowRight size={18} />
+        <button type="button" onClick={onNext} className="flex-1 bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-3 text-sm sm:text-base font-bold inline-flex items-center justify-center gap-2" data-testid="budget-next">
+          Devam Et <ArrowRight size={16} />
         </button>
       </div>
     </div>
   );
 }
 
-// ===================== WALLET BAR =====================
+// ===================== WALLET BAR — Mini Ticket Style =====================
 function WalletBar({ total, remaining, progress, over, starting }) {
   return (
-    <div className={`sticky top-2 z-30 mb-5 bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-lg border-2 rounded-2xl p-4 sm:p-5 shadow-2xl transition-all ${over ? "border-red-400 animate-[shake_0.3s_ease-in-out]" : "border-amber-400/50"}`} data-testid="wallet-bar">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center shadow-md shadow-amber-500/40">
-            <Wallet size={16} className="text-summit-navy" />
+    <div className={`sticky top-2 z-30 mb-4 relative transition-all`} data-testid="wallet-bar">
+      {/* Ticket side notches */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-summit-navy rounded-full border border-amber-400/40 -ml-1.5 z-10" />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-summit-navy rounded-full border border-amber-400/40 -mr-1.5 z-10" />
+
+      <div className={`bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-lg border rounded-xl px-4 py-3 shadow-lg ${over ? "border-red-400 animate-[shake_0.3s_ease-in-out]" : "border-amber-400/40"}`}>
+        <div className="flex items-center justify-between gap-3">
+          {/* Left: wallet icon + remaining */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-lg bg-amber-400 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/30">
+              <Wallet size={16} className="text-summit-navy" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[9px] uppercase tracking-wider text-white/55 font-bold leading-none">Kalan Bakiye</div>
+              <div className={`text-lg sm:text-2xl font-bold tabular-nums leading-tight ${over ? "text-red-300" : "text-amber-300"}`} data-testid="wallet-remaining">
+                {fmtTL(remaining)}
+              </div>
+            </div>
           </div>
-          <span className="text-xs sm:text-sm uppercase tracking-wider font-bold text-white">Cüzdanım</span>
-          <span className="text-[10px] uppercase tracking-wider text-white/50">/ {fmtTL(starting)}</span>
-        </div>
-        <div className="flex items-center gap-1 bg-white/10 rounded-full px-2.5 py-1">
-          <div className={`w-2 h-2 rounded-full ${over ? "bg-red-400" : "bg-emerald-400 animate-pulse"}`} />
-          <span className="text-[10px] uppercase tracking-wider text-white/80 font-semibold">{progress}% kullanıldı</span>
-        </div>
-      </div>
-      <div className="flex items-end justify-between mb-3">
-        <div>
-          <div className="text-[10px] uppercase tracking-wider text-white/60 font-semibold">Kalan Bakiye</div>
-          <div className={`text-2xl sm:text-3xl font-bold tabular-nums ${over ? "text-red-300" : "text-amber-300"} drop-shadow-lg`} data-testid="wallet-remaining">
-            {fmtTL(remaining)}
+          {/* Right: progress chip */}
+          <div className="text-right shrink-0">
+            <div className="text-[9px] uppercase tracking-wider text-white/55 font-bold leading-none">Yatırıldı</div>
+            <div className="text-xs sm:text-sm font-bold text-white tabular-nums leading-tight">{fmtTL(total)}</div>
+            <div className="text-[9px] text-white/40 mt-0.5 tabular-nums">/ {fmtTL(starting)}</div>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] uppercase tracking-wider text-white/60 font-semibold">Yatırıldı</div>
-          <div className="text-base sm:text-lg font-bold text-white tabular-nums">{fmtTL(total)}</div>
+        {/* Progress bar */}
+        <div className="mt-2.5 h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all duration-500 ${over ? "bg-red-400" : "bg-gradient-to-r from-amber-500 via-amber-300 to-amber-400"}`}
+            style={{ width: `${progress}%` }}
+          />
         </div>
-      </div>
-      <div className="h-2.5 bg-white/10 rounded-full overflow-hidden">
-        <div
-          className={`h-full transition-all duration-500 ${over ? "bg-red-400" : "bg-gradient-to-r from-amber-500 via-amber-300 to-amber-400"}`}
-          style={{ width: `${progress}%` }}
-        />
       </div>
     </div>
   );
@@ -595,15 +610,15 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
     : { border: "border-emerald-400", bg: "from-emerald-400 to-emerald-600", shadow: "shadow-emerald-500/30" };
 
   return (
-    <form onSubmit={submit} className="bg-white text-summit-navy rounded-2xl p-5 sm:p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] space-y-4 relative" data-testid="item-form">
+    <form onSubmit={submit} className="bg-white text-summit-navy rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] space-y-3 sm:space-y-4 relative" data-testid="item-form">
       <div className={`absolute top-0 left-6 right-6 h-1 bg-gradient-to-r ${accentClasses.bg} rounded-t-full`} />
       <div className="flex items-center gap-3">
-        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${accentClasses.bg} flex items-center justify-center shadow-lg ${accentClasses.shadow}`}>
-          <Icon size={20} className="text-white" />
+        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br ${accentClasses.bg} flex items-center justify-center shadow-lg ${accentClasses.shadow}`}>
+          <Icon size={18} className="text-white" />
         </div>
-        <div>
-          <h3 className="font-heading text-lg font-bold">{isDaire ? "Daire Ekle" : "Arazi Ekle"}</h3>
-          <p className="text-xs text-gray-500">Detayları doldur, bütçeni belirle.</p>
+        <div className="min-w-0">
+          <h3 className="font-heading text-base sm:text-lg font-bold leading-tight">{isDaire ? "Daire Ekle" : "Arazi Ekle"}</h3>
+          <p className="text-[11px] sm:text-xs text-gray-500 leading-tight">Detayları doldur, bütçeni belirle.</p>
         </div>
       </div>
 
@@ -638,13 +653,13 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
       {isDaire && (
         <div>
           <label className="text-[10px] uppercase tracking-wider mb-2 block font-bold text-gray-600">Daire Tipi *</label>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
             {DAIRE_TYPES.map(t => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setF({...f, daire_type: t})}
-                className={`py-2.5 text-sm font-bold rounded-lg border-2 transition-all ${f.daire_type === t ? "bg-summit-navy text-white border-summit-navy shadow-lg" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
+                className={`py-2 sm:py-2.5 text-sm font-bold rounded-lg border transition-all ${f.daire_type === t ? "bg-summit-navy text-white border-summit-navy shadow-md" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
                 data-testid={`f-daire-${t}`}
               >{t}</button>
             ))}
@@ -654,22 +669,25 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
 
       {isArsa && (
         <>
-          {/* Arsa cinsi — 3 buton */}
+          {/* Arsa cinsi — chip style */}
           <div>
             <label className="text-[10px] uppercase tracking-wider mb-2 font-bold text-gray-600 flex items-center gap-1.5"><Layers size={11} className="text-emerald-500" /> Arazi Tipi *</label>
-            <div className="grid grid-cols-3 gap-2">
-              {ARSA_TYPES.map(t => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setF({...f, arsa_type: t.value})}
-                  className={`py-3 px-2 text-center rounded-lg border-2 transition-all ${f.arsa_type === t.value ? "bg-summit-navy text-white border-summit-navy shadow-lg" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
-                  data-testid={`f-arsa-${t.value}`}
-                >
-                  <div className="text-sm font-bold">{t.label}</div>
-                  <div className={`text-[10px] mt-0.5 ${f.arsa_type === t.value ? "text-white/70" : "text-gray-400"}`}>{t.desc}</div>
-                </button>
-              ))}
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+              {ARSA_TYPES.map(t => {
+                const active = f.arsa_type === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setF({...f, arsa_type: t.value})}
+                    className={`relative py-2 sm:py-2.5 px-1 text-center rounded-lg border transition-all ${active ? "bg-summit-navy text-white border-summit-navy shadow-md" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
+                    data-testid={`f-arsa-${t.value}`}
+                  >
+                    <div className="text-sm font-bold leading-tight">{t.label}</div>
+                    <div className={`text-[9px] mt-0.5 leading-tight ${active ? "text-white/65" : "text-gray-400"}`}>{t.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -680,7 +698,7 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
           <div>
             <label className="text-[10px] uppercase tracking-wider mb-2 font-bold text-gray-600 flex items-center justify-between gap-1.5">
               <span className="flex items-center gap-1.5"><Clock size={11} className="text-emerald-500" /> Yatırım Vadesi</span>
-              <span className="text-summit-navy font-black text-base tabular-nums">{VADE_LABEL(Number(f.vade_years) || 3)}</span>
+              <span className="text-summit-navy font-black text-sm sm:text-base tabular-nums bg-amber-100 px-2 py-0.5 rounded-md">{VADE_LABEL(Number(f.vade_years) || 3)}</span>
             </label>
             <div className="px-1">
               <input
@@ -696,13 +714,13 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
                 }}
                 data-testid="f-vade-slider"
               />
-              <div className="flex justify-between text-[10px] text-gray-500 mt-2">
+              <div className="flex justify-between text-[9px] sm:text-[10px] text-gray-500 mt-1.5">
                 {VADE_POINTS.map(y => (
                   <button
                     key={y}
                     type="button"
                     onClick={() => setF({...f, vade_years: y})}
-                    className={`px-1.5 py-0.5 rounded transition-colors ${Math.abs((Number(f.vade_years) || 3) - y) < 0.01 ? "bg-summit-navy text-white font-bold" : "hover:bg-gray-100 text-gray-500"}`}
+                    className={`px-1 py-0.5 rounded transition-colors ${Math.abs((Number(f.vade_years) || 3) - y) < 0.01 ? "bg-summit-navy text-white font-bold" : "hover:bg-gray-100 text-gray-500"}`}
                     data-testid={`f-vade-${y}`}
                   >
                     {VADE_LABEL(y)}
@@ -712,22 +730,25 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
             </div>
           </div>
 
-          {/* Hisseli / Müstakil */}
+          {/* Hisseli / Müstakil — compact */}
           <div>
             <label className="text-[10px] uppercase tracking-wider mb-2 font-bold text-gray-600 flex items-center gap-1.5"><UsersIcon size={11} className="text-emerald-500" /> Mülkiyet Tipi *</label>
             <div className="grid grid-cols-2 gap-2">
-              {OWNERSHIP_TYPES.map(o => (
-                <button
-                  key={o.value}
-                  type="button"
-                  onClick={() => setF({...f, ownership: o.value})}
-                  className={`py-3 px-3 text-left rounded-lg border-2 transition-all ${f.ownership === o.value ? "bg-summit-navy text-white border-summit-navy shadow-lg" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
-                  data-testid={`f-ownership-${o.value}`}
-                >
-                  <div className="text-sm font-bold">{o.label}</div>
-                  <div className={`text-[10px] mt-0.5 ${f.ownership === o.value ? "text-white/70" : "text-gray-400"}`}>{o.desc}</div>
-                </button>
-              ))}
+              {OWNERSHIP_TYPES.map(o => {
+                const active = f.ownership === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setF({...f, ownership: o.value})}
+                    className={`py-2 sm:py-2.5 px-3 text-center rounded-lg border transition-all flex items-center justify-center gap-2 ${active ? "bg-summit-navy text-white border-summit-navy shadow-md" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
+                    data-testid={`f-ownership-${o.value}`}
+                  >
+                    <span className="text-sm font-bold">{o.label}</span>
+                    <span className={`text-[9px] hidden sm:inline ${active ? "text-white/65" : "text-gray-400"}`}>· {o.desc}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </>
@@ -787,44 +808,64 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
   );
 }
 
-// ===================== ITEM CARD =====================
+// ===================== ITEM CARD — Mini Ticket =====================
 function ItemCard({ item, onRemove, testid }) {
   const isDaire = item.kind === "daire";
   const Icon = isDaire ? Building : Trees;
-  const accentColor = isDaire ? "amber" : "emerald";
   const landTypeLabel = (item.arsa_type === "tarla") ? "Tarla" : (item.arsa_type === "ipat") ? "İPAT" : "Arsa";
+  const accentText = isDaire ? "text-amber-300" : "text-emerald-300";
+  const accentBg = isDaire ? "bg-amber-400/15 border-amber-400/30" : "bg-emerald-400/15 border-emerald-400/30";
+
   return (
-    <div className={`bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm border border-white/15 hover:border-${accentColor}-400/50 rounded-xl p-4 flex items-start gap-3 group transition-all`} data-testid={testid}>
-      <div className={`w-11 h-11 rounded-lg bg-${accentColor}-400/20 border border-${accentColor}-400/40 flex items-center justify-center shrink-0`}>
-        <Icon size={20} className={isDaire ? "text-amber-300" : "text-emerald-300"} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-white">
-            {isDaire ? `Daire ${item.daire_type}` : landTypeLabel}
-          </span>
-          <span className="text-xs bg-white/10 border border-white/10 rounded-full px-2 py-0.5 flex items-center gap-1 text-white/80">
-            <MapPin size={10} /> {item.city} / {item.district}{item.neighborhood ? ` · ${item.neighborhood}` : ""}
-          </span>
-        </div>
-        {!isDaire && (
-          <div className="flex flex-wrap gap-1 mt-1.5 text-[11px]">
-            {item.area_m2 && <span className="bg-white/5 border border-white/10 text-white/80 rounded-md px-1.5 py-0.5 inline-flex items-center gap-1"><Ruler size={10} /> {fmtN(item.area_m2)} m²</span>}
-            {item.vade_years && <span className="bg-white/5 border border-white/10 text-white/80 rounded-md px-1.5 py-0.5 inline-flex items-center gap-1"><Clock size={10} /> {VADE_LABEL(item.vade_years)}</span>}
-            {item.ownership && <span className="bg-white/5 border border-white/10 text-white/80 rounded-md px-1.5 py-0.5 inline-flex items-center gap-1"><UsersIcon size={10} /> {item.ownership === "hisseli" ? "Hisseli" : "Müstakil"}</span>}
+    <div className={`group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-white/25 rounded-xl transition-all`} data-testid={testid}>
+      {/* Side notches (ticket cut) */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-summit-navy rounded-full border border-white/15 -ml-1.25 z-10" style={{marginLeft:"-5px"}} />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-summit-navy rounded-full border border-white/15 -mr-1.25 z-10" style={{marginRight:"-5px"}} />
+
+      <div className="flex items-stretch">
+        {/* Left stub — icon + budget */}
+        <div className="px-3 py-3 border-r border-dashed border-white/15 flex flex-col items-center justify-center min-w-[70px]">
+          <div className={`w-8 h-8 rounded-lg ${accentBg} border flex items-center justify-center mb-1`}>
+            <Icon size={15} className={accentText} />
           </div>
-        )}
-        {item.description && <div className="text-xs text-white/60 mt-1 line-clamp-2">{item.description}</div>}
-        <div className={`${isDaire ? "text-amber-300" : "text-emerald-300"} font-bold text-lg tabular-nums mt-1 drop-shadow`}>{fmtTL(item.budget)}</div>
+          <div className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">{isDaire ? "Daire" : landTypeLabel}</div>
+        </div>
+
+        {/* Main body */}
+        <div className="flex-1 px-3 py-3 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-white text-[13px] truncate leading-tight">
+                {isDaire ? `Daire ${item.daire_type || ""}` : landTypeLabel}
+                <span className="text-white/40 mx-1">·</span>
+                <span className="text-white/85">{item.city} / {item.district}</span>
+              </div>
+              {item.neighborhood && (
+                <div className="text-[11px] text-white/55 mt-0.5 truncate">📍 {item.neighborhood}</div>
+              )}
+              {!isDaire && (item.area_m2 || item.vade_years || item.ownership) && (
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {item.area_m2 && <span className="bg-white/[0.06] border border-white/10 text-white/75 rounded px-1.5 py-0.5 text-[10px] inline-flex items-center gap-1"><Ruler size={9} /> {fmtN(item.area_m2)} m²</span>}
+                  {item.vade_years && <span className="bg-white/[0.06] border border-white/10 text-white/75 rounded px-1.5 py-0.5 text-[10px] inline-flex items-center gap-1"><Clock size={9} /> {VADE_LABEL(item.vade_years)}</span>}
+                  {item.ownership && <span className="bg-white/[0.06] border border-white/10 text-white/75 rounded px-1.5 py-0.5 text-[10px]">{item.ownership === "hisseli" ? "Hisseli" : "Müstakil"}</span>}
+                </div>
+              )}
+              {item.description && <div className="text-[11px] text-white/45 mt-1.5 line-clamp-1 italic">{item.description}</div>}
+            </div>
+            {onRemove && (
+              <button
+                onClick={onRemove}
+                className="opacity-50 group-hover:opacity-100 text-red-300 hover:text-red-200 p-1.5 rounded-md hover:bg-red-500/15 transition-all shrink-0"
+                title="Sil"
+                data-testid={`${testid}-remove`}
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
+          <div className={`${accentText} font-bold text-base sm:text-lg tabular-nums mt-1.5 drop-shadow`}>{fmtTL(item.budget)}</div>
+        </div>
       </div>
-      <button
-        onClick={onRemove}
-        className="opacity-60 hover:opacity-100 text-red-300 hover:text-red-200 p-2 rounded-lg hover:bg-red-500/20 transition-colors"
-        title="Sil"
-        data-testid={`${testid}-remove`}
-      >
-        <Trash2 size={16} />
-      </button>
     </div>
   );
 }
@@ -906,7 +947,7 @@ function ResultScreen({ result, onReset }) {
           <TrendingUp size={18} className="text-amber-300" /> Portföy Dökümü
         </h3>
         <div className="space-y-2">
-          {result.items.map((it, i) => <ItemCard key={i} item={it} onRemove={() => {}} testid={`r-item-${i}`} />)}
+          {result.items.map((it, i) => <ItemCard key={i} item={it} onRemove={null} testid={`r-item-${i}`} />)}
         </div>
       </div>
 
