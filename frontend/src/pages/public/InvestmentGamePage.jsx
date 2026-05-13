@@ -147,41 +147,17 @@ export default function InvestmentGamePage() {
         }} />
       </div>
 
-      <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16">
-        {/* Header — compact on mobile after step 1 to give wallet bar room */}
-        <div className={`text-center ${step >= 3 ? "mb-3 sm:mb-6" : "mb-6 sm:mb-10"}`}>
-          <div className="inline-flex items-center gap-1.5 bg-amber-400/15 backdrop-blur-sm border border-amber-400/40 rounded-full px-3 py-1 mb-3 sm:mb-5">
-            <Sparkles size={12} className="text-amber-300" />
-            <span className="text-[10px] sm:text-xs tracking-wider uppercase font-semibold text-amber-100">Arsa Yatırım · Simülatör</span>
+      <div className="relative max-w-3xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-12">
+        {/* Header — compact & FIXED across all steps */}
+        <div className="text-center mb-4 sm:mb-6">
+          <div className="inline-flex items-center gap-1.5 bg-amber-400/15 backdrop-blur-sm border border-amber-400/40 rounded-full px-3 py-1">
+            <Sparkles size={11} className="text-amber-300" />
+            <span className="text-[10px] sm:text-[11px] tracking-wider uppercase font-semibold text-amber-100">Yatırım Simülatörü</span>
           </div>
-          {step < 3 && (
-            <>
-              <h1 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-3 text-white">
-                Bütçeni Belirle,<br/>
-                <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 bg-clip-text text-transparent">Portföyünü Tasarla</span>
-              </h1>
-              <p className="text-white/70 text-sm sm:text-base max-w-xl mx-auto">
-                Kendi seviyenize uygun bütçeyle gerçekçi bir gayrimenkul portföyü oluşturun.
-                Uzmanlarımız etkinlikte sana özel analiz e-postası gönderecek.
-              </p>
-              <div className="flex items-center justify-center gap-4 mt-4 sm:mt-5 text-[11px] sm:text-xs text-white/60">
-                <span className="inline-flex items-center gap-1.5"><BadgeCheck size={12} className="text-amber-300" /> Ücretsiz</span>
-                <span className="w-1 h-1 bg-white/30 rounded-full" />
-                <span className="inline-flex items-center gap-1.5"><Target size={12} className="text-amber-300" /> 3 dakika</span>
-                <span className="w-1 h-1 bg-white/30 rounded-full" />
-                <span className="inline-flex items-center gap-1.5"><Award size={12} className="text-amber-300" /> Uzman cevabı</span>
-              </div>
-            </>
-          )}
-          {step === 3 && (
-            <h2 className="font-heading text-lg sm:text-2xl font-bold text-white">Portföyünü Oluştur</h2>
-          )}
-
-          {/* Step indicator */}
           {step < 4 && (
-            <div className="mt-6 flex items-center justify-center gap-2">
+            <div className="mt-3 flex items-center justify-center gap-1.5">
               {[1, 2, 3].map(s => (
-                <div key={s} className={`h-1.5 rounded-full transition-all ${s === step ? "w-10 bg-amber-300" : s < step ? "w-6 bg-amber-300/60" : "w-6 bg-white/15"}`} />
+                <div key={s} className={`h-1 rounded-full transition-all ${s === step ? "w-7 bg-amber-300" : s < step ? "w-4 bg-amber-300/60" : "w-4 bg-white/15"}`} />
               ))}
             </div>
           )}
@@ -221,29 +197,29 @@ export default function InvestmentGamePage() {
         {step === 3 && (
           <div className="space-y-4" data-testid="game-portfolio">
             {!editItem && (
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setEditItem({ kind: "daire", daire_type: "2+1", city: "", district: "", neighborhood: "", budget: "", description: "" })}
-                  className="group relative bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 hover:border-amber-400 rounded-xl p-3 sm:p-4 text-left transition-all overflow-hidden"
+                  className="group relative bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 hover:border-amber-400 rounded-xl p-2.5 sm:p-3.5 text-left transition-all overflow-hidden"
                   data-testid="add-daire-btn"
                 >
-                  <div className="absolute -top-6 -right-6 w-16 h-16 bg-amber-400/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all" />
-                  <Building size={22} className="text-amber-300 mb-1.5" />
-                  <div className="font-heading font-bold text-base sm:text-lg leading-tight">+ Daire</div>
-                  <div className="text-[10px] sm:text-xs text-white/55 mt-0.5 leading-tight">1+1 · 2+1 · 3+1 · 5+1</div>
+                  <div className="absolute -top-6 -right-6 w-14 h-14 bg-amber-400/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all" />
+                  <Building size={18} className="text-amber-300 mb-1" />
+                  <div className="font-heading font-bold text-sm sm:text-base leading-tight">+ Daire</div>
+                  <div className="text-[9px] sm:text-[11px] text-white/55 mt-0.5 leading-tight">1+1 · 2+1 · 3+1 · 5+1</div>
                 </button>
                 <button
                   onClick={() => setEditItem({
                     kind: "arsa", arsa_type: "arsa", city: "", district: "", neighborhood: "",
                     area_m2: "", vade_years: 3, ownership: "mustakil", budget: "", description: "",
                   })}
-                  className="group relative bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 hover:border-emerald-400 rounded-xl p-3 sm:p-4 text-left transition-all overflow-hidden"
+                  className="group relative bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 hover:border-emerald-400 rounded-xl p-2.5 sm:p-3.5 text-left transition-all overflow-hidden"
                   data-testid="add-arsa-btn"
                 >
-                  <div className="absolute -top-6 -right-6 w-16 h-16 bg-emerald-400/10 rounded-full blur-2xl group-hover:bg-emerald-400/20 transition-all" />
-                  <Trees size={22} className="text-emerald-300 mb-1.5" />
-                  <div className="font-heading font-bold text-base sm:text-lg leading-tight">+ Arsa / Tarla / İPAT</div>
-                  <div className="text-[10px] sm:text-xs text-white/55 mt-0.5 leading-tight">m² · Vade · Müstakil/Hisseli</div>
+                  <div className="absolute -top-6 -right-6 w-14 h-14 bg-emerald-400/10 rounded-full blur-2xl group-hover:bg-emerald-400/20 transition-all" />
+                  <Trees size={18} className="text-emerald-300 mb-1" />
+                  <div className="font-heading font-bold text-sm sm:text-base leading-tight">+ Arsa / Tarla / İPAT</div>
+                  <div className="text-[9px] sm:text-[11px] text-white/55 mt-0.5 leading-tight">m² · Vade · Müstakil/Hisseli</div>
                 </button>
               </div>
             )}
@@ -307,33 +283,51 @@ export default function InvestmentGamePage() {
 // ===================== IDENTITY FORM (Step 1) =====================
 function IdentityForm({ identity, setIdentity, kvkk, setKvkk, error, onSubmit }) {
   return (
-    <form onSubmit={onSubmit} className="bg-white text-summit-navy rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="game-identity-form">
+    <form onSubmit={onSubmit} className="bg-white text-summit-navy rounded-2xl p-4 sm:p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="game-identity-form">
       <div className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 rounded-t-full" />
-      <div className="flex items-start gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30">
-          <User size={22} className="text-white" />
-        </div>
-        <div>
-          <h2 className="font-heading text-xl sm:text-2xl font-bold text-summit-navy">Önce Seni Tanıyalım</h2>
-          <p className="text-gray-500 text-sm mt-0.5">Uzman geri bildirimi için iletişim bilgileri.</p>
+      {/* Marketing hero (moved here from page header for stable layout) */}
+      <div className="text-center mb-4 sm:mb-5 pt-1">
+        <h1 className="font-heading text-xl sm:text-3xl font-bold text-summit-navy leading-tight">
+          Bütçeni Belirle,{" "}
+          <span className="text-summit-gold">Portföyünü Tasarla</span>
+        </h1>
+        <p className="text-gray-500 text-xs sm:text-sm mt-1.5 max-w-md mx-auto">
+          Kendi bütçenle gerçekçi bir gayrimenkul portföyü oluştur. Uzmanlarımız sana e-posta ile özel analiz gönderecek.
+        </p>
+        <div className="flex items-center justify-center gap-3 mt-2.5 text-[10px] sm:text-[11px] text-gray-500">
+          <span className="inline-flex items-center gap-1"><BadgeCheck size={11} className="text-summit-gold" /> Ücretsiz</span>
+          <span className="w-0.5 h-0.5 bg-gray-300 rounded-full" />
+          <span className="inline-flex items-center gap-1"><Target size={11} className="text-summit-gold" /> 3 dk</span>
+          <span className="w-0.5 h-0.5 bg-gray-300 rounded-full" />
+          <span className="inline-flex items-center gap-1"><Award size={11} className="text-summit-gold" /> Uzman cevabı</span>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <div className="flex items-start gap-2.5 mb-4 pb-3 border-b border-gray-100">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/30">
+          <User size={16} className="text-white" />
+        </div>
+        <div>
+          <h2 className="font-heading text-sm sm:text-base font-bold text-summit-navy leading-tight">Önce Seni Tanıyalım</h2>
+          <p className="text-gray-500 text-[11px] sm:text-xs mt-0.5">İletişim bilgileri uzman cevabı için gerekli.</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <GameInput icon={User} label="Ad Soyad *" value={identity.name} onChange={v => setIdentity({...identity, name: v})} placeholder="Ali Veli" testid="in-name" />
         <GameInput icon={Phone} label="Telefon *" value={identity.phone} onChange={v => setIdentity({...identity, phone: v})} placeholder="0555 000 00 00" testid="in-phone" type="tel" />
         <div className="sm:col-span-2">
           <GameInput icon={Mail} label="E-posta *" value={identity.email} onChange={v => setIdentity({...identity, email: v})} placeholder="ornek@email.com" testid="in-email" type="email" />
-          <p className="text-[11px] text-gray-500 mt-1 pl-1">📧 Uzman değerlendirme raporunu bu adrese göndereceğiz.</p>
+          <p className="text-[10px] text-gray-500 mt-1 pl-1">Uzman değerlendirme raporu buraya gönderilir.</p>
         </div>
         <GameInput icon={CalendarIcon} label="Yaş *" value={identity.age} onChange={v => setIdentity({...identity, age: v})} placeholder="35" testid="in-age" type="number" />
         <GameInput icon={Briefcase} label="Meslek *" value={identity.profession} onChange={v => setIdentity({...identity, profession: v})} placeholder="Mühendis" testid="in-profession" />
       </div>
-      {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm flex items-start gap-2" data-testid="form-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
-      <div className="mt-4">
+      {error && <div className="mt-3 bg-red-50 border border-red-200 text-red-700 rounded-md p-2.5 text-xs flex items-start gap-1.5" data-testid="form-error"><AlertCircle size={13} className="shrink-0 mt-0.5" />{error}</div>}
+      <div className="mt-3">
         <KvkkConsent checked={kvkk} onChange={setKvkk} testid="game-kvkk" />
       </div>
-      <button type="submit" disabled={!kvkk} className="mt-5 w-full bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-4 text-base font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" data-testid="game-next-btn">
-        Devam Et — Bütçe Seç <ArrowRight size={18} />
+      <button type="submit" disabled={!kvkk} className="mt-4 w-full bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-3.5 text-sm sm:text-base font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" data-testid="game-next-btn">
+        Devam Et — Bütçe Seç <ArrowRight size={16} />
       </button>
     </form>
   );
@@ -342,19 +336,19 @@ function IdentityForm({ identity, setIdentity, kvkk, setKvkk, error, onSubmit })
 // ===================== BUDGET STEP (Step 2) =====================
 function BudgetStep({ budgetMode, setBudgetMode, freeBudget, setFreeBudget, error, onBack, onNext }) {
   return (
-    <div className="bg-white text-summit-navy rounded-2xl p-5 sm:p-7 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="budget-step">
+    <div className="bg-white text-summit-navy rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="budget-step">
       <div className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-emerald-400 to-amber-400 rounded-t-full" />
-      <div className="flex items-start gap-3 mb-5">
-        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30">
-          <Wallet size={18} className="text-white" />
+      <div className="flex items-start gap-2.5 mb-4 pb-3 border-b border-gray-100">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/30">
+          <Wallet size={15} className="text-white" />
         </div>
-        <div>
-          <h2 className="font-heading text-lg sm:text-2xl font-bold text-summit-navy leading-tight">Bütçeni Belirle</h2>
-          <p className="text-gray-500 text-xs sm:text-sm mt-0.5">Hangi seviyede deneyim yapmak istersin?</p>
+        <div className="min-w-0">
+          <h2 className="font-heading text-sm sm:text-base font-bold text-summit-navy leading-tight">Bütçeni Belirle</h2>
+          <p className="text-gray-500 text-[11px] sm:text-xs mt-0.5 leading-tight">Hangi seviyede deneyim yapmak istersin?</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3" data-testid="budget-presets">
+      <div className="grid grid-cols-2 gap-2" data-testid="budget-presets">
         {BUDGET_PRESETS.map(p => {
           const active = budgetMode === p.mode;
           return (
@@ -362,63 +356,61 @@ function BudgetStep({ budgetMode, setBudgetMode, freeBudget, setFreeBudget, erro
               key={p.mode}
               type="button"
               onClick={() => setBudgetMode(p.mode)}
-              className={`relative text-left p-3 sm:p-4 rounded-xl border transition-all overflow-hidden ${active ? "border-amber-400 bg-gradient-to-br from-amber-50 to-white shadow-[0_8px_20px_-8px_rgba(251,191,36,0.5)]" : "border-gray-200 hover:border-amber-300"}`}
+              className={`relative text-left p-2.5 sm:p-3.5 rounded-xl border transition-all overflow-hidden ${active ? "border-amber-400 bg-gradient-to-br from-amber-50 to-white shadow-[0_8px_20px_-8px_rgba(251,191,36,0.5)]" : "border-gray-200 hover:border-amber-300"}`}
               data-testid={`budget-${p.mode}`}
             >
-              {/* Ticket notch */}
               <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-summit-navy rounded-full" />
-              <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">{p.tag}</div>
-              <div className="font-heading text-base sm:text-xl font-black text-summit-navy mt-0.5 leading-tight">{p.label}</div>
-              <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5 tabular-nums">{fmtTL(p.value)}</div>
-              {active && <div className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center"><Check size={11} className="text-white" /></div>}
+              <div className="text-[8px] uppercase tracking-wider text-gray-500 font-bold leading-none">{p.tag}</div>
+              <div className="font-heading text-sm sm:text-lg font-black text-summit-navy mt-1 leading-tight">{p.label}</div>
+              <div className="text-[9px] sm:text-[11px] text-gray-400 mt-0.5 tabular-nums leading-tight">{fmtTL(p.value)}</div>
+              {active && <div className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center"><Check size={9} className="text-white" /></div>}
             </button>
           );
         })}
       </div>
 
-      {/* Serbest bütçe */}
       <button
         type="button"
         onClick={() => setBudgetMode("free")}
-        className={`mt-2.5 sm:mt-3 w-full text-left p-3 sm:p-4 rounded-xl border transition-all ${budgetMode === "free" ? "border-summit-navy bg-summit-navy/5 shadow-md" : "border-dashed border-gray-300 hover:border-summit-navy hover:bg-summit-paper/60"}`}
+        className={`mt-2 w-full text-left p-2.5 sm:p-3.5 rounded-xl border transition-all ${budgetMode === "free" ? "border-summit-navy bg-summit-navy/5 shadow-md" : "border-dashed border-gray-300 hover:border-summit-navy hover:bg-summit-paper/60"}`}
         data-testid="budget-free"
       >
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">Serbest</div>
-            <div className="font-heading text-sm sm:text-base font-bold text-summit-navy leading-tight">Kendi bütçemi gireyim</div>
-            <div className="text-[10px] sm:text-xs text-gray-400 mt-0.5">Min 50.000 TL · Max 10 Milyar TL</div>
+            <div className="text-[8px] uppercase tracking-wider text-gray-500 font-bold leading-none">Serbest</div>
+            <div className="font-heading text-xs sm:text-sm font-bold text-summit-navy leading-tight mt-1">Kendi bütçemi gireyim</div>
+            <div className="text-[9px] sm:text-[11px] text-gray-400 mt-0.5 leading-tight">Min 50.000 TL · Max 10 Milyar TL</div>
           </div>
-          <Sparkles size={18} className={budgetMode === "free" ? "text-amber-500" : "text-gray-300"} />
+          <Sparkles size={15} className={budgetMode === "free" ? "text-amber-500" : "text-gray-300"} />
         </div>
       </button>
 
       {budgetMode === "free" && (
-        <div className="mt-3 bg-summit-paper rounded-xl border border-summit-navy/10 p-3 sm:p-4" data-testid="free-budget-input">
-          <label className="text-[10px] uppercase tracking-wider mb-1.5 block font-bold text-gray-600">Bütçe Tutarı (TL) *</label>
+        <div className="mt-2.5 bg-summit-paper rounded-lg border border-summit-navy/10 p-2.5 sm:p-3.5" data-testid="free-budget-input">
+          <label className="text-[10px] uppercase tracking-wider mb-1 block font-bold text-gray-600">Bütçe Tutarı (TL) *</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-summit-navy text-xl font-bold pointer-events-none">₺</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-navy text-lg font-bold pointer-events-none">₺</span>
             <input
               type="text"
               inputMode="numeric"
               value={formatBudget(freeBudget)}
               onChange={e => setFreeBudget(parseBudget(e.target.value))}
               placeholder="Örn: 7.500.000"
-              className="w-full bg-white border-2 border-amber-400 rounded-lg pl-9 pr-4 py-3 text-summit-navy text-lg sm:text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy"
+              className="w-full bg-white border border-amber-400 rounded-md pl-8 pr-3 py-2.5 text-summit-navy text-base sm:text-lg font-black tabular-nums focus:outline-none focus:border-summit-navy"
               data-testid="free-budget-value"
             />
           </div>
         </div>
       )}
 
-      {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-2.5 text-xs flex items-start gap-2" data-testid="budget-error"><AlertCircle size={13} className="shrink-0 mt-0.5" />{error}</div>}
+      {error && <div className="mt-3 bg-red-50 border border-red-200 text-red-700 rounded-md p-2 text-xs flex items-start gap-1.5" data-testid="budget-error"><AlertCircle size={12} className="shrink-0 mt-0.5" />{error}</div>}
 
-      <div className="flex gap-2 mt-5">
-        <button type="button" onClick={onBack} className="bg-white border border-gray-200 text-gray-600 hover:text-summit-navy hover:border-gray-300 rounded-xl py-3 px-3 sm:px-4 text-sm font-bold inline-flex items-center gap-1.5" data-testid="budget-back">
-          <ArrowLeft size={14} /> <span className="hidden sm:inline">Geri</span>
+      <div className="flex gap-2 mt-4">
+        <button type="button" onClick={onBack} className="bg-white border border-gray-200 text-gray-600 hover:text-summit-navy rounded-lg py-2.5 px-3 text-xs sm:text-sm font-bold inline-flex items-center gap-1.5" data-testid="budget-back">
+          <ArrowLeft size={13} /> <span className="hidden sm:inline">Geri</span>
         </button>
-        <button type="button" onClick={onNext} className="flex-1 bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-3 text-sm sm:text-base font-bold inline-flex items-center justify-center gap-2" data-testid="budget-next">
-          Devam Et <ArrowRight size={16} />
+        <button type="button" onClick={onNext} className="flex-1 bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-lg py-2.5 text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-2" data-testid="budget-next">
+          Devam Et <ArrowRight size={14} />
         </button>
       </div>
     </div>
@@ -428,34 +420,34 @@ function BudgetStep({ budgetMode, setBudgetMode, freeBudget, setFreeBudget, erro
 // ===================== WALLET BAR — Mini Ticket Style =====================
 function WalletBar({ total, remaining, progress, over, starting }) {
   return (
-    <div className={`sticky top-2 z-30 mb-4 relative transition-all`} data-testid="wallet-bar">
+    <div className={`sticky top-1 z-30 mb-3 relative transition-all`} data-testid="wallet-bar">
       {/* Ticket side notches */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-summit-navy rounded-full border border-amber-400/40 -ml-1.5 z-10" />
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-summit-navy rounded-full border border-amber-400/40 -mr-1.5 z-10" />
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-summit-navy rounded-full border border-amber-400/40 z-10" style={{marginLeft:"-5px"}} />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-summit-navy rounded-full border border-amber-400/40 z-10" style={{marginRight:"-5px"}} />
 
-      <div className={`bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-lg border rounded-xl px-4 py-3 shadow-lg ${over ? "border-red-400 animate-[shake_0.3s_ease-in-out]" : "border-amber-400/40"}`}>
-        <div className="flex items-center justify-between gap-3">
+      <div className={`bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-lg border rounded-lg px-3 py-2 shadow-lg ${over ? "border-red-400 animate-[shake_0.3s_ease-in-out]" : "border-amber-400/40"}`}>
+        <div className="flex items-center justify-between gap-2">
           {/* Left: wallet icon + remaining */}
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-lg bg-amber-400 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/30">
-              <Wallet size={16} className="text-summit-navy" />
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-md bg-amber-400 flex items-center justify-center shrink-0">
+              <Wallet size={13} className="text-summit-navy" />
             </div>
             <div className="min-w-0">
-              <div className="text-[9px] uppercase tracking-wider text-white/55 font-bold leading-none">Kalan Bakiye</div>
-              <div className={`text-lg sm:text-2xl font-bold tabular-nums leading-tight ${over ? "text-red-300" : "text-amber-300"}`} data-testid="wallet-remaining">
+              <div className="text-[8px] uppercase tracking-wider text-white/55 font-bold leading-none">Kalan</div>
+              <div className={`text-base font-bold tabular-nums leading-tight ${over ? "text-red-300" : "text-amber-300"}`} data-testid="wallet-remaining">
                 {fmtTL(remaining)}
               </div>
             </div>
           </div>
-          {/* Right: progress chip */}
+          {/* Right: spent / starting */}
           <div className="text-right shrink-0">
-            <div className="text-[9px] uppercase tracking-wider text-white/55 font-bold leading-none">Yatırıldı</div>
-            <div className="text-xs sm:text-sm font-bold text-white tabular-nums leading-tight">{fmtTL(total)}</div>
-            <div className="text-[9px] text-white/40 mt-0.5 tabular-nums">/ {fmtTL(starting)}</div>
+            <div className="text-[8px] uppercase tracking-wider text-white/55 font-bold leading-none">Yatırıldı</div>
+            <div className="text-xs font-bold text-white tabular-nums leading-tight">{fmtTL(total)}</div>
+            <div className="text-[8px] text-white/40 tabular-nums leading-tight">/ {fmtTL(starting)}</div>
           </div>
         </div>
         {/* Progress bar */}
-        <div className="mt-2.5 h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div className="mt-1.5 h-1 bg-white/10 rounded-full overflow-hidden">
           <div
             className={`h-full transition-all duration-500 ${over ? "bg-red-400" : "bg-gradient-to-r from-amber-500 via-amber-300 to-amber-400"}`}
             style={{ width: `${progress}%` }}
@@ -470,15 +462,15 @@ function WalletBar({ total, remaining, progress, over, starting }) {
 function GameInput({ icon: Icon, label, value, onChange, placeholder, type = "text", testid }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-wider mb-1.5 font-bold text-gray-600 flex items-center gap-1.5">
-        {Icon && <Icon size={11} className="text-amber-500" />} {label}
+      <label className="text-[10px] uppercase tracking-wider mb-1 font-bold text-gray-600 flex items-center gap-1">
+        {Icon && <Icon size={10} className="text-amber-500" />} {label}
       </label>
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-white border-2 border-gray-200 rounded-lg px-3 py-3 text-summit-navy text-sm font-medium focus:outline-none focus:border-amber-400 focus:shadow-[0_0_0_4px_rgba(251,191,36,0.15)] transition-all"
+        className="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2.5 text-summit-navy text-sm font-medium focus:outline-none focus:border-amber-400 focus:shadow-[0_0_0_3px_rgba(251,191,36,0.15)] transition-all"
         data-testid={testid}
       />
     </div>
@@ -517,14 +509,14 @@ function Combobox({ icon: Icon, label, value, options, onChange, placeholder, em
 
   return (
     <div ref={rootRef} className="relative">
-      <label className="text-[10px] uppercase tracking-wider mb-1.5 font-bold text-gray-600 flex items-center gap-1.5">
-        {Icon && <Icon size={11} className="text-amber-500" />} {label}
+      <label className="text-[10px] uppercase tracking-wider mb-1 font-bold text-gray-600 flex items-center gap-1">
+        {Icon && <Icon size={10} className="text-amber-500" />} {label}
       </label>
       <button
         type="button"
         onClick={() => !disabled && setOpen(o => !o)}
         disabled={disabled}
-        className={`w-full bg-white border-2 rounded-lg px-3 py-3 text-sm font-medium text-left flex items-center justify-between gap-2 transition-all ${disabled ? "border-gray-100 text-gray-300 cursor-not-allowed" : open ? "border-amber-400 shadow-[0_0_0_4px_rgba(251,191,36,0.15)]" : "border-gray-200 text-summit-navy hover:border-gray-300"}`}
+        className={`w-full bg-white border rounded-lg px-2.5 py-2.5 text-sm font-medium text-left flex items-center justify-between gap-2 transition-all ${disabled ? "border-gray-100 text-gray-300 cursor-not-allowed" : open ? "border-amber-400 shadow-[0_0_0_3px_rgba(251,191,36,0.15)]" : "border-gray-200 text-summit-navy hover:border-gray-300"}`}
         data-testid={testid}
       >
         <span className={value ? "" : "text-gray-400 font-normal"}>{value || placeholder}</span>
@@ -610,15 +602,15 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
     : { border: "border-emerald-400", bg: "from-emerald-400 to-emerald-600", shadow: "shadow-emerald-500/30" };
 
   return (
-    <form onSubmit={submit} className="bg-white text-summit-navy rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] space-y-3 sm:space-y-4 relative" data-testid="item-form">
+    <form onSubmit={submit} className="bg-white text-summit-navy rounded-2xl p-3 sm:p-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] space-y-2.5 sm:space-y-3 relative" data-testid="item-form">
       <div className={`absolute top-0 left-6 right-6 h-1 bg-gradient-to-r ${accentClasses.bg} rounded-t-full`} />
-      <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br ${accentClasses.bg} flex items-center justify-center shadow-lg ${accentClasses.shadow}`}>
-          <Icon size={18} className="text-white" />
+      <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br ${accentClasses.bg} flex items-center justify-center shadow ${accentClasses.shadow}`}>
+          <Icon size={15} className="text-white" />
         </div>
         <div className="min-w-0">
-          <h3 className="font-heading text-base sm:text-lg font-bold leading-tight">{isDaire ? "Daire Ekle" : "Arazi Ekle"}</h3>
-          <p className="text-[11px] sm:text-xs text-gray-500 leading-tight">Detayları doldur, bütçeni belirle.</p>
+          <h3 className="font-heading text-sm sm:text-base font-bold leading-tight">{isDaire ? "Daire Ekle" : "Arazi Ekle"}</h3>
+          <p className="text-[10px] sm:text-[11px] text-gray-500 leading-tight">Detayları doldur, bütçeni belirle.</p>
         </div>
       </div>
 
@@ -770,9 +762,9 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
       </div>
 
       <div>
-        <label className="text-[10px] uppercase tracking-wider mb-1.5 block font-bold text-gray-600">Bu yatırıma ayıracağın bütçe (TL) *</label>
+        <label className="text-[10px] uppercase tracking-wider mb-1 block font-bold text-gray-600">Bu yatırıma ayıracağın bütçe (TL) *</label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-summit-navy text-2xl font-bold pointer-events-none">₺</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-summit-navy text-lg font-bold pointer-events-none">₺</span>
           <input
             ref={budgetRef}
             type="text"
@@ -780,28 +772,28 @@ function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
             value={formatBudget(f.budget)}
             onChange={e => setF({...f, budget: parseBudget(e.target.value)})}
             placeholder={`Max ${fmtN(remaining)}`}
-            className="w-full bg-white border-2 border-amber-400 rounded-lg pl-10 pr-4 py-3.5 text-summit-navy text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy"
+            className="w-full bg-white border border-amber-400 rounded-md pl-8 pr-3 py-2.5 text-summit-navy text-base sm:text-lg font-black tabular-nums focus:outline-none focus:border-summit-navy"
             data-testid="f-budget"
           />
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          <span className="text-[11px] text-gray-500 self-center mr-1">Hızlı seç:</span>
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          <span className="text-[10px] text-gray-500 self-center mr-0.5">Hızlı:</span>
           {[100000, 500000, 1000000, 2500000, 5000000].filter(v => v <= remaining).map(v => (
-            <button key={v} type="button" onClick={() => setF({...f, budget: v})} className={`text-[11px] ${f.budget === v ? "bg-summit-navy text-white border-summit-navy" : "bg-summit-paper hover:bg-amber-100 text-summit-navy border-gray-200"} border rounded-full px-3 py-1 font-bold transition-colors`}>
+            <button key={v} type="button" onClick={() => setF({...f, budget: v})} className={`text-[10px] ${f.budget === v ? "bg-summit-navy text-white border-summit-navy" : "bg-summit-paper hover:bg-amber-100 text-summit-navy border-gray-200"} border rounded-full px-2 py-0.5 font-bold transition-colors`}>
               {fmtTL(v)}
             </button>
           ))}
         </div>
       </div>
 
-      {err && <div className="bg-red-50 border border-red-200 text-red-700 rounded-md p-2.5 text-xs flex items-start gap-1.5" data-testid="item-form-error"><AlertCircle size={13} className="shrink-0 mt-0.5" />{err}</div>}
+      {err && <div className="bg-red-50 border border-red-200 text-red-700 rounded-md p-2 text-[11px] flex items-start gap-1.5" data-testid="item-form-error"><AlertCircle size={12} className="shrink-0 mt-0.5" />{err}</div>}
 
-      <div className="flex gap-2 pt-1">
-        <button type="button" onClick={onCancel} className="flex-1 bg-white border-2 border-gray-200 text-gray-600 hover:text-summit-navy hover:border-gray-300 rounded-lg py-3 text-sm font-bold transition-colors" data-testid="f-cancel">
+      <div className="flex gap-2 pt-0.5">
+        <button type="button" onClick={onCancel} className="flex-1 bg-white border border-gray-200 text-gray-600 hover:text-summit-navy rounded-lg py-2.5 text-xs sm:text-sm font-bold transition-colors" data-testid="f-cancel">
           İptal
         </button>
-        <button type="submit" className={`flex-[2] bg-gradient-to-r ${accentClasses.bg} hover:shadow-xl text-white rounded-lg py-3 text-sm font-bold inline-flex items-center justify-center gap-2 transition-all`} data-testid="f-save">
-          <Plus size={15} /> Portföye Ekle
+        <button type="submit" className={`flex-[2] bg-gradient-to-r ${accentClasses.bg} hover:shadow-xl text-white rounded-lg py-2.5 text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-1.5 transition-all`} data-testid="f-save">
+          <Plus size={13} /> Portföye Ekle
         </button>
       </div>
     </form>
