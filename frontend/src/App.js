@@ -85,6 +85,8 @@ function App() {
 
             {/* Registration Forms */}
             <Route path="/ziyaretci-kaydi" element={<VisitorRegisterPage />} />
+            <Route path="/zirve-kaydi" element={<VisitorRegisterPage />} />
+            <Route path="/fuar-kaydi" element={<VisitorRegisterPage />} />
             <Route path="/fuar-stant-kaydi" element={<ExhibitorRegisterPage />} />
             <Route path="/konusmaci-basvuru" element={<SpeakerApplicationPage />} />
             <Route path="/bulten" element={<RegisterPage />} />
@@ -96,7 +98,6 @@ function App() {
             <Route path="/yatirim-oyunu" element={<InvestmentGamePage />} />
 
             {/* Backward compat redirects */}
-            <Route path="/zirve-kaydi" element={<Navigate to="/ziyaretci-kaydi" replace />} />
             <Route path="/uyelik" element={<Navigate to="/ziyaretci-kaydi" replace />} />
 
             {/* Admin */}

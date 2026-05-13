@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -50,6 +51,15 @@ const VISIT_META = {
 export default function VisitorRegisterPage() {
   const [visitType, setVisitType] = useState(null); // null | "summit" | "fair"
   const [kvkk, setKvkk] = useState(false);
+  const location = useLocation();
+
+  // Auto-select visit type based on URL path so a direct link can deep-link to either tab
+  useEffect(() => {
+    const p = location.pathname;
+    if (p === "/zirve-kaydi") setVisitType("summit");
+    else if (p === "/fuar-kaydi") setVisitType("fair");
+    // /ziyaretci-kaydi keeps the chooser screen (visitType=null)
+  }, [location.pathname]);
   const [capacity, setCapacity] = useState(null);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", company: "", title: "",
@@ -398,7 +408,13 @@ export default function VisitorRegisterPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <button
             type="button"
-            onClick={() => setVisitType(null)}
+            onClick={() => {
+              if (location.pathname !== "/ziyaretci-kaydi") {
+                window.location.href = "/ziyaretci-kaydi";
+              } else {
+                setVisitType(null);
+              }
+            }}
             className="inline-flex items-center gap-1.5 text-gray-500 hover:text-summit-navy text-xs mb-6 transition-colors"
             data-testid="visit-picker-back"
           >
