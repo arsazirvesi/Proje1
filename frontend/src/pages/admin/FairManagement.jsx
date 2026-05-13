@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Save, RefreshCw, Plus, Trash2, X } from "lucide-react";
+import { Save, RefreshCw, Plus, Trash2, X, Upload, Image as ImageIcon } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 export default function FairManagement() {
@@ -15,6 +15,7 @@ export default function FairManagement() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [uploading, setUploading] = useState(null); // null | "floor_plan" | `gallery-${i}`
 
   const load = async () => {
     setLoading(true);
@@ -63,6 +64,61 @@ export default function FairManagement() {
   const addGalleryItem = () => set("gallery", [...form.gallery, ""]);
   const setGalleryItem = (i, v) => set("gallery", form.gallery.map((x, idx) => idx === i ? v : x));
   const removeGalleryItem = (i) => set("gallery", form.gallery.filter((_, idx) => idx !== i));
+
+  // Upload image (returns public URL or null on failure)
+  const uploadImage = async (file, slotKey) => {
+    if (!file) return null;
+    if (!file.type.startsWith("image/")) {
+      setErr("Lütfen bir görsel dosyası seçin (JPG, PNG, WEBP).");
+      return null;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setErr("Dosya 10 MB'dan büyük olamaz.");
+      return null;
+    }
+    setUploading(slotKey);
+    setErr(""); setMsg("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await axios.post(`${API}/admin/uploads/image`, fd, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setUploading(null);
+      return data.url;
+    } catch (e) {
+      setErr(e?.response?.data?.detail || "Yükleme başarısız");
+      setUploading(null);
+      return null;
+    }
+  };
+
+  const onFloorPlanImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // reset so same file can be re-selected
+    const url = await uploadImage(file, "floor_plan");
+    if (url) {
+      set("floor_plan_image_url", url);
+      setMsg("Kroki görseli yüklendi. Aşağıdan Kaydet'e basmayı unutmayın.");
+    }
+  };
+
+  const onGalleryUpload = async (e, idx) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    const slotKey = idx === null ? "gallery-new" : `gallery-${idx}`;
+    const url = await uploadImage(file, slotKey);
+    if (url) {
+      if (idx === null) {
+        // append
+        set("gallery", [...form.gallery, url]);
+      } else {
+        setGalleryItem(idx, url);
+      }
+      setMsg("Görsel yüklendi. Aşağıdan Kaydet'e basmayı unutmayın.");
+    }
+  };
 
   // Stand type helpers
   const addStandType = () => set("stand_types", [...form.stand_types, { name: "", size: "", count: 0, features: "" }]);
@@ -113,8 +169,69 @@ export default function FairManagement() {
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <h2 className="text-base font-semibold text-summit-navy mb-4 pb-3 border-b border-gray-100">Kroki (Yerleşim Planı)</h2>
           <div className="grid grid-cols-1 gap-4">
-            <Field label="Kroki PDF URL" value={form.floor_plan_url} onChange={v => set("floor_plan_url", v)} placeholder="https://.../stand-plan.pdf" help="PDF formatında kroki. Sitede iframe olarak gösterilir ve indirilebilir." />
-            <Field label="Kroki Görsel URL (opsiyonel)" value={form.floor_plan_image_url} onChange={v => set("floor_plan_image_url", v)} placeholder="https://.../kroki.png" help="Eğer PNG/JPG olarak da versiyonu varsa buraya. PDF'e alternatif, daha hızlı yüklenir." />
+            <Field label="Kroki PDF URL" value={form.floor_plan_url} onChange={v => set("floor_plan_url", v)} placeholder="https://.../stand-plan.pdf" help="PDF formatında kroki. Sitede indirilebilir buton olarak gösterilir." />
+
+            {/* Floor plan image — upload OR URL */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Kroki Görseli (PNG / JPG)</label>
+              <p className="text-xs text-gray-400 mb-2">
+                Bu görsel /fuar-alani sayfasında doğrudan gösterilir. Tarayıcılar PDF iframe'lerini engellediği için <strong>görsel yüklemek</strong> en güvenilir yöntemdir.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 items-start">
+                {/* Preview */}
+                <div className="w-full sm:w-40 h-28 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden shrink-0">
+                  {form.floor_plan_image_url ? (
+                    <img
+                      src={form.floor_plan_image_url.startsWith("http") ? form.floor_plan_image_url : `${API.replace(/\/api$/, "")}${form.floor_plan_image_url}`}
+                      alt="Kroki önizleme"
+                      className="w-full h-full object-contain"
+                      data-testid="floor-plan-preview"
+                    />
+                  ) : (
+                    <div className="text-center text-gray-400">
+                      <ImageIcon size={26} className="mx-auto mb-1" />
+                      <span className="text-[10px]">Henüz görsel yok</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 w-full space-y-2">
+                  <label className={`inline-flex items-center gap-2 px-4 py-2 text-sm border rounded-lg cursor-pointer transition-colors ${uploading === "floor_plan" ? "border-gray-200 text-gray-400 bg-gray-50" : "border-summit-navy text-summit-navy hover:bg-summit-navy hover:text-white"}`} data-testid="upload-floor-plan-label">
+                    <Upload size={14} />
+                    {uploading === "floor_plan" ? "Yükleniyor..." : "Görsel Yükle"}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={onFloorPlanImageUpload}
+                      disabled={uploading === "floor_plan"}
+                      className="hidden"
+                      data-testid="upload-floor-plan-input"
+                    />
+                  </label>
+
+                  <input
+                    type="url"
+                    value={form.floor_plan_image_url}
+                    onChange={e => set("floor_plan_image_url", e.target.value)}
+                    placeholder="veya doğrudan URL: https://.../kroki.png"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-summit-gold/40"
+                    data-testid="floor-plan-image-url"
+                  />
+
+                  {form.floor_plan_image_url && (
+                    <button
+                      type="button"
+                      onClick={() => set("floor_plan_image_url", "")}
+                      className="text-xs text-red-500 hover:underline inline-flex items-center gap-1"
+                      data-testid="remove-floor-plan-btn"
+                    >
+                      <X size={12} /> Görseli kaldır
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -183,9 +300,23 @@ export default function FairManagement() {
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
             <h2 className="text-base font-semibold text-summit-navy">Galeri Fotoğrafları</h2>
-            <button type="button" onClick={addGalleryItem} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-summit-navy text-white rounded-md hover:bg-summit-navy/90">
-              <Plus size={13} /> Foto Ekle
-            </button>
+            <div className="flex items-center gap-2">
+              <label className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md cursor-pointer transition-colors ${uploading?.startsWith("gallery-new") ? "bg-gray-200 text-gray-400" : "bg-summit-navy text-white hover:bg-summit-navy/90"}`} data-testid="upload-gallery-label">
+                <Upload size={13} />
+                {uploading === "gallery-new" ? "Yükleniyor..." : "Foto Yükle"}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={(e) => onGalleryUpload(e, null)}
+                  disabled={uploading === "gallery-new"}
+                  className="hidden"
+                  data-testid="upload-gallery-input"
+                />
+              </label>
+              <button type="button" onClick={addGalleryItem} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border border-summit-navy text-summit-navy rounded-md hover:bg-summit-navy/5">
+                <Plus size={13} /> URL Ekle
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             {form.gallery.map((g, i) => (
@@ -193,7 +324,7 @@ export default function FairManagement() {
                 {g && (
                   <div
                     className="w-20 h-20 bg-cover bg-center rounded border border-gray-200 shrink-0"
-                    style={{ backgroundImage: `url(${g})` }}
+                    style={{ backgroundImage: `url(${g.startsWith("http") ? g : `${API.replace(/\/api$/, "")}${g}`})` }}
                   />
                 )}
                 <input

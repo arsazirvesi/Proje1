@@ -184,14 +184,16 @@ export default function FairPage() {
               )}
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center mt-5">
-                <a
-                  href={fair.floor_plan_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-summit-navy text-white text-sm rounded-md hover:bg-summit-navy/90 transition-colors"
-                >
-                  <Download size={14} /> Krokiyi İndir (PDF)
-                </a>
+                {fair.floor_plan_url && (
+                  <a
+                    href={fair.floor_plan_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-summit-navy text-white text-sm rounded-md hover:bg-summit-navy/90 transition-colors"
+                  >
+                    <Download size={14} /> Krokiyi İndir (PDF)
+                  </a>
+                )}
                 <Link
                   to={fair.cta_url || "/fuar-stant-kaydi"}
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-summit-navy text-summit-navy text-sm rounded-md hover:bg-summit-navy hover:text-white transition-colors"
