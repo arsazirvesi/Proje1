@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import asyncio
 import bcrypt
 import jwt
 import qrcode
@@ -817,8 +818,48 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
 
     existing = await db.guests.find_one({"email": body.email.lower()})
     if existing:
-        # If existing but not yet verified, resend verification
+        # If existing but not yet verified, resend verification (summit only)
         if not existing.get("is_verified"):
+            existing_visit = existing.get("visit_type") or "summit"
+            if existing_visit == "fair":
+                # Fair no longer requires verification — auto-verify the existing record now
+                now_iso = datetime.now(timezone.utc).isoformat()
+                await db.guests.update_one(
+                    {"_id": existing["_id"]},
+                    {"$set": {"is_verified": True, "verified_at": now_iso, "updated_at": now_iso},
+                     "$unset": {"verification_token": "", "verification_sent_at": ""}},
+                )
+                guest_full = {**existing, "is_verified": True, "verified_at": now_iso}
+                seq = await db.guests.count_documents({
+                    "visit_type": "fair",
+                    "is_verified": True,
+                    "verified_at": {"$lte": now_iso},
+                })
+                public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+                attachments = None
+                try:
+                    badge_png = await asyncio.to_thread(render_badge_png, guest_full, seq)
+                    attachments = [{
+                        "content_bytes": badge_png,
+                        "filename": f"yaka-karti-{str(existing['_id'])[-8:]}.png",
+                        "mime_type": "image/png",
+                    }]
+                except Exception as e:
+                    logger.error(f"Badge PNG generation failed on fair re-register: {e}")
+                subject, html = render_register_confirmation_email(guest_full, seq, public_base)
+                background_tasks.add_task(send_email, existing["email"], subject, html, attachments)
+                try:
+                    background_tasks.add_task(visitego_service.push_visitor, db, guest_full)
+                except Exception as e:
+                    logger.error(f"Failed to schedule visitego push: {e}")
+                return {
+                    "id": str(existing["_id"]),
+                    "verified": True,
+                    "needs_verification": False,
+                    "badge_url": f"/api/badge/{existing['_id']}",
+                    "message": "Kaydınız tamamlandı. Yaka kartınız e-postanıza gönderildi.",
+                }
+            # Summit — resend verification email
             token = existing.get("verification_token") or secrets.token_urlsafe(32)
             await db.guests.update_one(
                 {"_id": existing["_id"]},
@@ -836,7 +877,7 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
                 "message": "Bu e-posta ile daha önce kayıt yapılmış ancak henüz doğrulanmamış. Doğrulama maili tekrar gönderildi.",
                 "needs_verification": True,
             }
-        raise HTTPException(400, "Bu e-posta ile zaten doğrulanmış bir kayıt var.")
+        raise HTTPException(400, "Bu e-posta ile zaten kayıt yapılmış.")
 
     # Enforce capacity for the summit (count only VERIFIED summit guests)
     if visit_type == "summit":
@@ -850,14 +891,72 @@ async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
                 "Zirve kontenjanımız doldu. Fuar ziyareti kayıtları hâlâ açık, oradan devam edebilirsiniz.",
             )
 
-    token = secrets.token_urlsafe(32)
     now_iso = datetime.now(timezone.utc).isoformat()
     payload = body.model_dump()
     payload.pop("invite_code", None)  # don't store on guest doc directly
+
+    # Fair: skip email verification — register & confirm in one shot.
+    if visit_type == "fair":
+        doc = {
+            **payload,
+            "email": body.email.lower(),
+            "visit_type": "fair",
+            "invite_code": (body.invite_code or "").strip().upper(),
+            "created_at": now_iso,
+            "updated_at": now_iso,
+            "badge_printed": False,
+            "status": "new",
+            "admin_notes": "",
+            "is_verified": True,
+            "verified_at": now_iso,
+            "verification_token": None,
+            "verification_sent_at": None,
+        }
+        result = await db.guests.insert_one(doc)
+        guest_id = str(result.inserted_id)
+        if invite_code_doc:
+            await db.invite_codes.update_one(
+                {"_id": invite_code_doc["_id"]},
+                {"$inc": {"used_count": 1}, "$set": {"last_used_at": now_iso}},
+            )
+        guest_full = {**doc, "_id": result.inserted_id}
+        seq = await db.guests.count_documents({
+            "visit_type": "fair",
+            "is_verified": True,
+            "verified_at": {"$lte": now_iso},
+        })
+        public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+        attachments = None
+        try:
+            badge_png = await asyncio.to_thread(render_badge_png, guest_full, seq)
+            attachments = [{
+                "content_bytes": badge_png,
+                "filename": f"yaka-karti-{guest_id[-8:]}.png",
+                "mime_type": "image/png",
+            }]
+        except Exception as e:
+            logger.error(f"Badge PNG generation failed on fair register: {e}")
+        subject, html = render_register_confirmation_email(guest_full, seq, public_base)
+        background_tasks.add_task(send_email, body.email.lower(), subject, html, attachments)
+        try:
+            background_tasks.add_task(visitego_service.push_visitor, db, guest_full)
+        except Exception as e:
+            logger.error(f"Failed to schedule visitego push: {e}")
+        return {
+            "id": guest_id,
+            "verified": True,
+            "needs_verification": False,
+            "badge_url": f"/api/badge/{guest_id}",
+            "sequence": seq,
+            "message": "Kaydınız tamamlandı. Yaka kartınız e-postanıza gönderildi.",
+        }
+
+    # Summit — keep email verification flow
+    token = secrets.token_urlsafe(32)
     doc = {
         **payload,
         "email": body.email.lower(),
-        "visit_type": visit_type,
+        "visit_type": "summit",
         "invite_code": (body.invite_code or "").strip().upper(),
         "created_at": now_iso,
         "updated_at": now_iso,
@@ -952,7 +1051,7 @@ async def verify_guest(token: str, background_tasks: BackgroundTasks):
     public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
     try:
         guest_full = {**guest, "is_verified": True, "verified_at": now_iso}
-        badge_png = render_badge_png(guest_full, seq)
+        badge_png = await asyncio.to_thread(render_badge_png, guest_full, seq)
         attachments = [{
             "content_bytes": badge_png,
             "filename": f"yaka-karti-{str(guest['_id'])[-8:]}.png",

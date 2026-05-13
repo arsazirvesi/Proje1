@@ -141,6 +141,42 @@ export default function VisitorRegisterPage() {
   // === STEP 3: Success ===
   if (result) {
     const meta = VISIT_META[visitType] || VISIT_META.summit;
+    // Fair visitors are auto-verified — show badge directly (no email verification needed)
+    if (result.verified && result.badge_url) {
+      const badgeUrl = `${API.replace(/\/api$/, "")}${result.badge_url}`;
+      return (
+        <div className="bg-white min-h-screen font-body">
+          <Navbar />
+          <div className="pt-32 pb-24 px-4">
+            <div className="max-w-lg mx-auto bg-white border border-gray-200 rounded-md p-10 text-center shadow-lg" data-testid="fair-success-card">
+              <div className="w-16 h-16 bg-summit-accent/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                <CheckCircle size={32} className="text-summit-navy" />
+              </div>
+              <h2 className="font-heading text-summit-navy text-2xl">Kaydınız Tamamlandı!</h2>
+              <p className="text-gray-600 text-sm mt-3 leading-relaxed">
+                {meta.successMessage} Yaka kartınız <strong>{form.email}</strong> adresine gönderildi.
+              </p>
+              <div className="bg-summit-paper rounded-md border-l-4 border-summit-navy p-4 mt-6 text-left">
+                <p className="text-summit-navy text-xs font-semibold uppercase tracking-wider mb-2">Yaka Kartınız</p>
+                <p className="text-gray-700 text-sm mb-3">
+                  Etkinlik günü kayıt masasında yaka kartınız hazır olacaktır. Aşağıdan önizleyebilir veya cep telefonunuza kaydedebilirsiniz.
+                </p>
+                <a href={badgeUrl} target="_blank" rel="noopener noreferrer"
+                  className="btn-gold px-5 py-2.5 text-sm inline-flex items-center gap-2" data-testid="view-fair-badge-btn">
+                  Yaka Kartını Gör <ExternalLink size={14} />
+                </a>
+              </div>
+              <p className="text-gray-400 text-xs mt-5 leading-relaxed">
+                Mailimiz birkaç dakika içinde gelmezse Spam klasörünü kontrol edin.
+              </p>
+              <a href="/" className="btn-outline-navy px-8 py-3 mt-6 inline-block" data-testid="back-home-btn">Ana Sayfaya Dön</a>
+            </div>
+          </div>
+          <Footer />
+        </div>
+      );
+    }
+    // Summit visitors — must verify email
     return (
       <div className="bg-white min-h-screen font-body">
         <Navbar />
