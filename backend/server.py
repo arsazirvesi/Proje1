@@ -651,6 +651,29 @@ async def get_seo_settings():
     return clean_doc(doc)
 
 
+# ==================== TR LOCATIONS (provinces & districts) ====================
+_TR_LOCATIONS_CACHE: Optional[dict] = None
+
+def _load_tr_locations() -> dict:
+    global _TR_LOCATIONS_CACHE
+    if _TR_LOCATIONS_CACHE is None:
+        import json as _json
+        path = Path(__file__).parent / "data" / "tr_locations.json"
+        try:
+            with path.open("r", encoding="utf-8") as f:
+                _TR_LOCATIONS_CACHE = _json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load TR locations dataset: {e}")
+            _TR_LOCATIONS_CACHE = {}
+    return _TR_LOCATIONS_CACHE
+
+
+@api_router.get("/locations")
+async def get_tr_locations():
+    """Returns the full TR province → districts map. 81 provinces, ~973 districts (~12 KB)."""
+    return _load_tr_locations()
+
+
 # ==================== REGISTRATION ====================
 
 @api_router.post("/register/member")

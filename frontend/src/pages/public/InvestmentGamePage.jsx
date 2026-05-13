@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import {
   Wallet, MapPin, Plus, Trash2, TrendingUp, Share2, ArrowRight, ArrowLeft,
   Sparkles, RefreshCw, AlertCircle, Building, Trees, Mail, User, Phone,
   Briefcase, Calendar as CalendarIcon, Target, Award, BadgeCheck, Coins,
-  Ruler, Home, Users as UsersIcon, Clock, Layers,
+  Ruler, Home, Users as UsersIcon, Clock, Layers, Search, Check, X as XIcon,
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import KvkkConsent from "../../components/KvkkConsent";
@@ -54,6 +54,12 @@ export default function InvestmentGamePage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [locations, setLocations] = useState({}); // {İl: [İlçe, ...]}
+
+  // Fetch TR locations once at mount
+  useEffect(() => {
+    axios.get(`${API}/locations`).then(r => setLocations(r.data || {})).catch(() => {});
+  }, []);
 
   const startingBudget = budgetMode === "free"
     ? freeBudget
@@ -239,6 +245,7 @@ export default function InvestmentGamePage() {
               <ItemForm
                 initial={editItem}
                 remaining={remaining}
+                locations={locations}
                 onCancel={() => setEditItem(null)}
                 onSave={handleAddItem}
               />
@@ -463,11 +470,103 @@ function GameInput({ icon: Icon, label, value, onChange, placeholder, type = "te
   );
 }
 
+// ===================== COMBOBOX (Searchable Dropdown) =====================
+function Combobox({ icon: Icon, label, value, options, onChange, placeholder, emptyText, disabled, testid }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  // TR-aware lowercase for searching
+  const trLower = (s) => String(s || "")
+    .replaceAll("İ", "i").replaceAll("I", "ı")
+    .toLowerCase();
+  const q = trLower(query);
+  const filtered = useMemo(() => {
+    if (!q) return options;
+    return (options || []).filter(o => trLower(o).includes(q));
+  }, [options, q]);
+
+  const pick = (v) => {
+    onChange(v);
+    setQuery("");
+    setOpen(false);
+  };
+
+  return (
+    <div ref={rootRef} className="relative">
+      <label className="text-[10px] uppercase tracking-wider mb-1.5 font-bold text-gray-600 flex items-center gap-1.5">
+        {Icon && <Icon size={11} className="text-amber-500" />} {label}
+      </label>
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen(o => !o)}
+        disabled={disabled}
+        className={`w-full bg-white border-2 rounded-lg px-3 py-3 text-sm font-medium text-left flex items-center justify-between gap-2 transition-all ${disabled ? "border-gray-100 text-gray-300 cursor-not-allowed" : open ? "border-amber-400 shadow-[0_0_0_4px_rgba(251,191,36,0.15)]" : "border-gray-200 text-summit-navy hover:border-gray-300"}`}
+        data-testid={testid}
+      >
+        <span className={value ? "" : "text-gray-400 font-normal"}>{value || placeholder}</span>
+        <span className={`text-gray-400 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▼</span>
+      </button>
+
+      {open && !disabled && (
+        <div className="absolute z-40 mt-1 w-full bg-white border-2 border-gray-200 rounded-lg shadow-xl overflow-hidden" data-testid={`${testid}-popover`}>
+          <div className="px-2 py-2 border-b border-gray-100 flex items-center gap-2">
+            <Search size={14} className="text-gray-400 shrink-0" />
+            <input
+              type="text"
+              autoFocus
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Ara..."
+              className="flex-1 bg-transparent outline-none text-sm text-summit-navy placeholder-gray-400"
+              data-testid={`${testid}-search`}
+            />
+            {query && (
+              <button type="button" onClick={() => setQuery("")} className="text-gray-400 hover:text-gray-600">
+                <XIcon size={13} />
+              </button>
+            )}
+          </div>
+          <div className="max-h-64 overflow-y-auto">
+            {filtered.length === 0 ? (
+              <div className="px-3 py-4 text-xs text-gray-400 text-center">{emptyText || "Sonuç yok"}</div>
+            ) : (
+              filtered.map((o, i) => (
+                <button
+                  key={o + i}
+                  type="button"
+                  onClick={() => pick(o)}
+                  className={`w-full px-3 py-2 text-left text-sm flex items-center justify-between gap-2 transition-colors ${value === o ? "bg-amber-50 text-summit-navy font-semibold" : "text-gray-700 hover:bg-gray-50"}`}
+                  data-testid={`${testid}-opt-${o}`}
+                >
+                  <span>{o}</span>
+                  {value === o && <Check size={13} className="text-amber-500" />}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===================== ITEM FORM =====================
-function ItemForm({ initial, remaining, onCancel, onSave }) {
+function ItemForm({ initial, remaining, locations, onCancel, onSave }) {
   const [f, setF] = useState(initial);
   const [err, setErr] = useState("");
   const budgetRef = useRef(null);
+
+  const provinces = useMemo(() => Object.keys(locations || {}), [locations]);
+  const districts = useMemo(() => (f.city && locations?.[f.city]) || [], [f.city, locations]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -508,12 +607,32 @@ function ItemForm({ initial, remaining, onCancel, onSave }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <GameInput icon={MapPin} label="İl *" value={f.city} onChange={v => setF({...f, city: v})} placeholder="İstanbul" testid="f-city" />
-        <GameInput icon={MapPin} label="İlçe *" value={f.district} onChange={v => setF({...f, district: v})} placeholder="Arnavutköy" testid="f-district" />
+      {/* IL / İLÇE — searchable comboboxes */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Combobox
+          icon={MapPin}
+          label="İl *"
+          value={f.city}
+          options={provinces}
+          onChange={v => setF({...f, city: v, district: ""})}
+          placeholder={provinces.length ? "İl seçin / yazın" : "Yükleniyor..."}
+          emptyText="Eşleşen il yok"
+          testid="f-city"
+        />
+        <Combobox
+          icon={MapPin}
+          label="İlçe *"
+          value={f.district}
+          options={districts}
+          onChange={v => setF({...f, district: v})}
+          placeholder={f.city ? (districts.length ? "İlçe seçin / yazın" : "Yükleniyor...") : "Önce il seçin"}
+          emptyText={f.city ? "Eşleşen ilçe yok" : "Önce il seçin"}
+          disabled={!f.city}
+          testid="f-district"
+        />
       </div>
 
-      {/* Mahalle — applies to both */}
+      {/* Mahalle — typeable input (50K mahalle veritabanı yok, serbest yazma) */}
       <GameInput icon={Home} label="Mahalle" value={f.neighborhood || ""} onChange={v => setF({...f, neighborhood: v})} placeholder="Örn: Hadımköy Mh." testid="f-neighborhood" />
 
       {isDaire && (
