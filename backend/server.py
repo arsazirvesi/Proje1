@@ -364,8 +364,12 @@ class InvestmentItem(BaseModel):
     budget: int
     # Daire-specific
     daire_type: Optional[str] = None  # "1+1" | "2+1" | "3+1" | "5+1"
-    # Arsa-specific
-    arsa_type: Optional[str] = None  # "tarla" | "arsa"
+    # Arsa / land-specific
+    arsa_type: Optional[str] = None  # "arsa" | "tarla" | "ipat"
+    neighborhood: Optional[str] = None
+    area_m2: Optional[int] = None  # square meters
+    vade_years: Optional[float] = None  # 0.5 .. 10
+    ownership: Optional[str] = None  # "hisseli" | "mustakil"
     description: Optional[str] = None
 
 
@@ -375,7 +379,14 @@ class InvestmentGameSubmit(BaseModel):
     email: EmailStr
     age: int = Field(..., ge=10, le=120)
     profession: str = Field(..., min_length=2, max_length=120)
+    total_budget: Optional[int] = None  # user-chosen total budget; required if budget_mode != "free"
+    budget_mode: Optional[str] = "free"  # "1m" | "3m" | "5m" | "10m" | "free"
     items: List[InvestmentItem] = Field(default_factory=list)
+
+
+class InvestmentGameReply(BaseModel):
+    subject: str = Field(..., min_length=2, max_length=200)
+    message: str = Field(..., min_length=2, max_length=8000)
 
 
 # --- Email Helper ---
@@ -2072,10 +2083,30 @@ async def admin_visitego_test(admin: dict = Depends(get_admin_user)):
 
 # ==================== INVESTMENT GAME (Public + Admin) ====================
 
-INVESTMENT_GAME_BUDGET = 10_000_000  # 10 milyon TL başlangıç bütçesi
+INVESTMENT_GAME_BUDGET = 10_000_000  # legacy default; users now pick their own budget
 MAX_ITEMS = 30  # anti-abuse
+ALLOWED_BUDGETS = {"1m": 1_000_000, "3m": 3_000_000, "5m": 5_000_000, "10m": 10_000_000}
+MAX_FREE_BUDGET = 10_000_000_000  # 10 milyar TL üst sınır (anti-abuse)
 
-def _validate_investment_items(items: List[InvestmentItem]) -> tuple[int, Optional[str]]:
+VALID_ARSA_TYPES = ("tarla", "arsa", "ipat")
+VALID_OWNERSHIP = ("hisseli", "mustakil")
+VALID_VADE_RANGE = (0.5, 10.0)
+
+
+def _resolve_total_budget(budget_mode: Optional[str], total_budget: Optional[int]) -> tuple[int, Optional[str]]:
+    mode = (budget_mode or "free").lower()
+    if mode in ALLOWED_BUDGETS:
+        return ALLOWED_BUDGETS[mode], None
+    if mode == "free":
+        if not total_budget or total_budget <= 0:
+            return 0, "Serbest bütçe seçildi ama tutar girilmedi"
+        if total_budget > MAX_FREE_BUDGET:
+            return 0, f"Bütçe çok yüksek (üst sınır {MAX_FREE_BUDGET:,} TL)"
+        return int(total_budget), None
+    return 0, "Geçersiz bütçe seçimi"
+
+
+def _validate_investment_items(items: List[InvestmentItem], total_budget: int) -> tuple[int, Optional[str]]:
     """Returns (total_spent, error_message_or_none)."""
     if not items:
         return 0, "En az bir yatırım eklemelisiniz"
@@ -2091,17 +2122,27 @@ def _validate_investment_items(items: List[InvestmentItem]) -> tuple[int, Option
             return 0, "İl ve ilçe boş olamaz"
         if it.kind == "daire" and it.daire_type not in ("1+1", "2+1", "3+1", "5+1"):
             return 0, "Daire tipi 1+1/2+1/3+1/5+1 olmalı"
-        if it.kind == "arsa" and it.arsa_type not in ("tarla", "arsa"):
-            return 0, "Arsa cinsi tarla veya arsa olmalı"
+        if it.kind == "arsa":
+            if it.arsa_type not in VALID_ARSA_TYPES:
+                return 0, "Arsa cinsi arsa, tarla veya ipat olmalı"
+            if it.area_m2 is not None and it.area_m2 < 0:
+                return 0, "m² negatif olamaz"
+            if it.vade_years is not None and not (VALID_VADE_RANGE[0] <= it.vade_years <= VALID_VADE_RANGE[1]):
+                return 0, f"Vade {VALID_VADE_RANGE[0]} ile {VALID_VADE_RANGE[1]} yıl arasında olmalı"
+            if it.ownership is not None and it.ownership not in VALID_OWNERSHIP:
+                return 0, "Mülkiyet tipi hisseli veya mustakil olmalı"
         total += it.budget
-    if total > INVESTMENT_GAME_BUDGET:
-        return total, f"Toplam bütçe {INVESTMENT_GAME_BUDGET:,} TL'yi aşıyor"
+    if total > total_budget:
+        return total, f"Toplam yatırım {total_budget:,} TL'lik bütçeyi aşıyor"
     return total, None
 
 
 @api_router.post("/investment-game/submit")
 async def investment_game_submit(body: InvestmentGameSubmit, request: Request):
-    total_spent, err = _validate_investment_items(body.items)
+    total_budget, budget_err = _resolve_total_budget(body.budget_mode, body.total_budget)
+    if budget_err:
+        raise HTTPException(400, budget_err)
+    total_spent, err = _validate_investment_items(body.items, total_budget)
     if err:
         raise HTTPException(400, err)
 
@@ -2122,10 +2163,11 @@ async def investment_game_submit(body: InvestmentGameSubmit, request: Request):
         "email": body.email.lower().strip(),
         "age": body.age,
         "profession": body.profession.strip(),
+        "budget_mode": (body.budget_mode or "free").lower(),
         "items": [it.model_dump() for it in body.items],
         "total_spent": total_spent,
-        "remaining": INVESTMENT_GAME_BUDGET - total_spent,
-        "starting_budget": INVESTMENT_GAME_BUDGET,
+        "remaining": total_budget - total_spent,
+        "starting_budget": total_budget,
         "ip": ip.split(",")[0].strip()[:45],
         "user_agent": (request.headers.get("user-agent") or "")[:300],
         "updated_at": now_iso,
@@ -2137,6 +2179,7 @@ async def investment_game_submit(body: InvestmentGameSubmit, request: Request):
         created_at = existing.get("created_at", now_iso)
     else:
         doc["created_at"] = now_iso
+        doc["replies"] = []
         r = await db.investment_game.insert_one(doc)
         gid = str(r.inserted_id)
         created_at = now_iso
@@ -2148,18 +2191,22 @@ async def investment_game_submit(body: InvestmentGameSubmit, request: Request):
     if daire_count >= 3: badges.append({"id": "daire_avcisi", "label": "🏘️ Daire Avcısı", "description": f"{daire_count} daire aldın"})
     if arsa_count >= 3: badges.append({"id": "arsa_krali", "label": "🌾 Arsa Kralı", "description": f"{arsa_count} arsa aldın"})
     if daire_count > 0 and arsa_count > 0: badges.append({"id": "portfoy_ustasi", "label": "🎰 Portföy Ustası", "description": "Hem daire hem arsa"})
-    if total_spent == INVESTMENT_GAME_BUDGET: badges.append({"id": "all_in", "label": "💯 Tüm Parayı Yatırdın", "description": "Bütçenin tamamını değerlendirdin"})
-    if total_spent >= INVESTMENT_GAME_BUDGET * 0.9: badges.append({"id": "big_spender", "label": "💸 Büyük Yatırımcı", "description": "%90+ harcadın"})
+    if total_spent == total_budget: badges.append({"id": "all_in", "label": "💯 Tüm Parayı Yatırdın", "description": "Bütçenin tamamını değerlendirdin"})
+    elif total_spent >= total_budget * 0.9: badges.append({"id": "big_spender", "label": "💸 Büyük Yatırımcı", "description": "%90+ harcadın"})
 
     cities = list({it.city.strip() for it in body.items if it.city.strip()})
     if len(cities) >= 3: badges.append({"id": "multi_city", "label": "🗺️ Çoklu Şehir", "description": f"{len(cities)} şehirde yatırım"})
+
+    # Long-horizon badge (any item with 5+ year vade)
+    if any((it.vade_years or 0) >= 5 for it in body.items):
+        badges.append({"id": "uzun_vade", "label": "📈 Uzun Vade Yatırımcısı", "description": "5+ yıl vadeli yatırım"})
 
     return {
         "id": gid,
         "name": doc["name"],
         "total_spent": total_spent,
         "remaining": doc["remaining"],
-        "starting_budget": INVESTMENT_GAME_BUDGET,
+        "starting_budget": total_budget,
         "items": doc["items"],
         "badges": badges,
         "daire_count": daire_count,
@@ -2268,8 +2315,8 @@ async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
     w = _csv.writer(buf)
     w.writerow([
         "Kayıt Zamanı", "Ad Soyad", "Telefon", "E-posta", "Yaş", "Meslek",
-        "Toplam Yatırım (TL)", "Kalan (TL)", "Yatırım Sayısı",
-        "Portföy Özeti",
+        "Başlangıç Bütçesi (TL)", "Toplam Yatırım (TL)", "Kalan (TL)",
+        "Yatırım Sayısı", "Portföy Özeti", "Cevap Sayısı",
     ])
     for d in docs:
         items = d.get("items", [])
@@ -2278,7 +2325,15 @@ async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
             if it.get("kind") == "daire":
                 summary_parts.append(f"Daire {it.get('daire_type','')} {it.get('city','')}/{it.get('district','')} ₺{it.get('budget',0):,}")
             else:
-                summary_parts.append(f"{(it.get('arsa_type') or 'arsa').title()} {it.get('city','')}/{it.get('district','')} ₺{it.get('budget',0):,}")
+                land_type = (it.get('arsa_type') or 'arsa')
+                land_label = {"ipat": "İPAT", "tarla": "Tarla", "arsa": "Arsa"}.get(land_type, land_type.title())
+                extras = []
+                if it.get("neighborhood"): extras.append(f"Mah:{it['neighborhood']}")
+                if it.get("area_m2"): extras.append(f"{it['area_m2']} m²")
+                if it.get("vade_years"): extras.append(f"{it['vade_years']} yıl")
+                if it.get("ownership"): extras.append(it["ownership"].title())
+                tag = f" [{', '.join(extras)}]" if extras else ""
+                summary_parts.append(f"{land_label} {it.get('city','')}/{it.get('district','')}{tag} ₺{it.get('budget',0):,}")
         w.writerow([
             d.get("created_at", ""),
             d.get("name", ""),
@@ -2286,10 +2341,12 @@ async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
             d.get("email", ""),
             d.get("age", ""),
             d.get("profession", ""),
+            d.get("starting_budget", 0),
             d.get("total_spent", 0),
             d.get("remaining", 0),
             len(items),
             " | ".join(summary_parts),
+            len(d.get("replies", []) or []),
         ])
     buf.seek(0)
     return StreamingResponse(
@@ -2297,6 +2354,63 @@ async def admin_investment_game_export(admin: dict = Depends(get_admin_user)):
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="yatirim-oyunu.csv"'},
     )
+
+
+@api_router.post("/admin/investment-game/{entry_id}/reply")
+async def admin_investment_game_reply(
+    entry_id: str,
+    body: InvestmentGameReply,
+    background_tasks: BackgroundTasks,
+    admin: dict = Depends(get_admin_user),
+):
+    """Send a personalised email reply to a simulator participant and record it."""
+    if not ObjectId.is_valid(entry_id):
+        raise HTTPException(400, "Geçersiz ID")
+    entry = await db.investment_game.find_one({"_id": ObjectId(entry_id)})
+    if not entry:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    to_email = (entry.get("email") or "").strip()
+    if not to_email:
+        raise HTTPException(400, "Bu kayıtta e-posta yok, cevap gönderilemez")
+
+    name = entry.get("name") or ""
+    # Convert plain-text/admin message to HTML (preserve linebreaks, escape)
+    msg_html = html_escape.escape(body.message).replace("\n", "<br/>")
+    accent = "#0F1833"
+    gold = "#D4AF37"
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    html = f"""<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif">
+<div style="max-width:600px;margin:0 auto;background:#ffffff;border-top:4px solid {gold}">
+  <div style="padding:32px 32px 8px">
+    <p style="color:{accent};font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin:0 0 6px">Arsa Yatırım Zirvesi · Uzman Değerlendirmesi</p>
+    <h1 style="color:{accent};font-size:22px;margin:0 0 16px">Merhaba {html_escape.escape(name)},</h1>
+  </div>
+  <div style="padding:0 32px 24px;color:#374151;font-size:15px;line-height:1.7">
+    {msg_html}
+  </div>
+  <div style="padding:0 32px 28px">
+    <a href="{public_base}/yatirim-oyunu" style="display:inline-block;background:{accent};color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px">Simülatörü Tekrar Aç</a>
+  </div>
+  <div style="padding:16px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;color:#6b7280;font-size:11px;text-align:center">
+    Arsa Yatırım Zirvesi 2026 · 21 Mayıs · Hilton İstanbul Bosphorus
+  </div>
+</div>
+</body></html>"""
+
+    background_tasks.add_task(send_email, to_email, body.subject, html, None)
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    reply_doc = {
+        "subject": body.subject.strip()[:200],
+        "message": body.message.strip()[:8000],
+        "sent_at": now_iso,
+        "sent_by": admin.get("email", ""),
+    }
+    await db.investment_game.update_one(
+        {"_id": ObjectId(entry_id)},
+        {"$push": {"replies": reply_doc}, "$set": {"updated_at": now_iso}},
+    )
+    return {"sent": True, "to": to_email, "reply": reply_doc}
 
 
 # ==================== ADMIN USERS (Admin Account Management) ====================

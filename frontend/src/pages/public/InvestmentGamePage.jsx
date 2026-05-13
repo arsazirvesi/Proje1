@@ -1,24 +1,38 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
-  Wallet, MapPin, Plus, Trash2, TrendingUp, Share2, ArrowRight,
+  Wallet, MapPin, Plus, Trash2, TrendingUp, Share2, ArrowRight, ArrowLeft,
   Sparkles, RefreshCw, AlertCircle, Building, Trees, Mail, User, Phone,
-  Briefcase, Calendar as CalendarIcon, Target, Award, BadgeCheck, Coins
+  Briefcase, Calendar as CalendarIcon, Target, Award, BadgeCheck, Coins,
+  Ruler, Home, Users as UsersIcon, Clock, Layers,
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import KvkkConsent from "../../components/KvkkConsent";
 
-const STARTING_BUDGET = 10_000_000;
+const BUDGET_PRESETS = [
+  { mode: "1m", value: 1_000_000, label: "1 Milyon TL", tag: "Yeni başlayan" },
+  { mode: "3m", value: 3_000_000, label: "3 Milyon TL", tag: "Konforlu giriş" },
+  { mode: "5m", value: 5_000_000, label: "5 Milyon TL", tag: "Orta ölçek" },
+  { mode: "10m", value: 10_000_000, label: "10 Milyon TL", tag: "Geniş portföy" },
+];
+
 const DAIRE_TYPES = ["1+1", "2+1", "3+1", "5+1"];
 const ARSA_TYPES = [
-  { value: "tarla", label: "Tarla" },
-  { value: "arsa", label: "Arsa" },
+  { value: "arsa", label: "Arsa", desc: "İmarlı arsa" },
+  { value: "tarla", label: "Tarla", desc: "Tarım arazisi" },
+  { value: "ipat", label: "İPAT", desc: "İmar Planına Alınmış Tarla" },
 ];
+const OWNERSHIP_TYPES = [
+  { value: "mustakil", label: "Müstakil", desc: "Tek tapulu" },
+  { value: "hisseli", label: "Hisseli", desc: "Paylı tapulu" },
+];
+
+// Vade slider snap points (in years): 0.5 = 6 ay
+const VADE_POINTS = [0.5, 1, 2, 3, 5, 7, 10];
+const VADE_LABEL = (y) => (y < 1 ? `${Math.round(y * 12)} ay` : `${y} yıl`);
 
 const fmtTL = (n) => `₺${Number(n || 0).toLocaleString("tr-TR")}`;
 const fmtN = (n) => Number(n || 0).toLocaleString("tr-TR");
-
-// Budget input: accepts only digits, displays with thousands separators
 const parseBudget = (v) => {
   if (typeof v === "number") return v;
   const digits = String(v || "").replace(/\D/g, "");
@@ -30,18 +44,23 @@ const formatBudget = (v) => {
 };
 
 export default function InvestmentGamePage() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // 1=identity, 2=budget, 3=portfolio, 4=result
   const [identity, setIdentity] = useState({ name: "", phone: "", email: "", age: "", profession: "" });
   const [kvkk, setKvkk] = useState(false);
+  const [budgetMode, setBudgetMode] = useState(null); // null | "1m"|"3m"|"5m"|"10m"|"free"
+  const [freeBudget, setFreeBudget] = useState(0);
   const [items, setItems] = useState([]);
   const [editItem, setEditItem] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const startingBudget = budgetMode === "free"
+    ? freeBudget
+    : (BUDGET_PRESETS.find(p => p.mode === budgetMode)?.value || 0);
   const totalSpent = items.reduce((s, it) => s + Number(it.budget || 0), 0);
-  const remaining = STARTING_BUDGET - totalSpent;
-  const progressPct = Math.min(100, Math.round((totalSpent / STARTING_BUDGET) * 100));
+  const remaining = startingBudget - totalSpent;
+  const progressPct = startingBudget > 0 ? Math.min(100, Math.round((totalSpent / startingBudget) * 100)) : 0;
 
   const goPortfolio = (e) => {
     e?.preventDefault();
@@ -56,9 +75,18 @@ export default function InvestmentGamePage() {
     setStep(2);
   };
 
+  const confirmBudget = () => {
+    setError("");
+    if (!budgetMode) return setError("Lütfen bir bütçe seçin");
+    if (budgetMode === "free" && (!freeBudget || freeBudget < 50000)) {
+      return setError("Serbest bütçe için en az 50.000 TL girin");
+    }
+    setStep(3);
+  };
+
   const handleAddItem = (item) => {
     const newTotal = items.reduce((s, it) => s + Number(it.budget || 0), 0) + Number(item.budget);
-    if (newTotal > STARTING_BUDGET) {
+    if (newTotal > startingBudget) {
       setError(`Bütçeyi aşıyorsun! Kalan: ${fmtTL(remaining)}`);
       setTimeout(() => setError(""), 3500);
       return false;
@@ -71,10 +99,7 @@ export default function InvestmentGamePage() {
   const handleRemove = (idx) => setItems(items.filter((_, i) => i !== idx));
 
   const handleSubmit = async () => {
-    if (items.length === 0) {
-      setError("En az bir yatırım eklemelisin");
-      return;
-    }
+    if (items.length === 0) { setError("En az bir yatırım eklemelisin"); return; }
     setSubmitting(true); setError("");
     try {
       const { data } = await axios.post(`${API}/investment-game/submit`, {
@@ -83,10 +108,12 @@ export default function InvestmentGamePage() {
         email: identity.email.trim(),
         age: Number(identity.age),
         profession: identity.profession.trim(),
+        budget_mode: budgetMode,
+        total_budget: budgetMode === "free" ? freeBudget : undefined,
         items,
       });
       setResult(data);
-      setStep(3);
+      setStep(4);
       try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch {/* ignore */}
     } catch (err) {
       setError(err.response?.data?.detail || "Gönderilemedi, tekrar deneyin");
@@ -98,16 +125,16 @@ export default function InvestmentGamePage() {
   const resetAll = () => {
     setStep(1); setItems([]); setResult(null); setError("");
     setIdentity({ name: "", phone: "", email: "", age: "", profession: "" });
+    setBudgetMode(null); setFreeBudget(0);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-summit-navy via-[#1A264F] to-[#0F1833] text-white font-body" data-testid="game-page">
-      {/* Decorative orbs + pattern */}
+      {/* Decorative orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-24 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-3xl" />
         <div className="absolute top-1/3 left-1/2 w-72 h-72 bg-emerald-400/5 rounded-full blur-3xl" />
-        {/* Grid pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
@@ -115,83 +142,75 @@ export default function InvestmentGamePage() {
       </div>
 
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-16">
-        {/* Header brand */}
+        {/* Header */}
         <div className="text-center mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 bg-amber-400/15 backdrop-blur-sm border border-amber-400/40 rounded-full px-4 py-1.5 mb-5">
             <Sparkles size={14} className="text-amber-300" />
             <span className="text-xs tracking-wider uppercase font-semibold text-amber-100">Arsa Yatırım Zirvesi · Yatırım Simülatörü</span>
           </div>
           <h1 className="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-3 text-white">
-            Yatırımını Yapmadan Önce<br/>
-            <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 bg-clip-text text-transparent">Uzmanlar Değerlendirsin</span>
+            Bütçeni Belirle,<br/>
+            <span className="bg-gradient-to-r from-amber-200 via-amber-300 to-amber-400 bg-clip-text text-transparent">Portföyünü Tasarla</span>
           </h1>
           <p className="text-white/70 text-sm sm:text-base max-w-xl mx-auto">
-            10.000.000 TL sanal bütçeyle aklındaki gayrimenkul yatırımını oluştur.
-            Uzmanlarımız portföyünü inceleyip etkinlikte sana özel yorumlar paylaşacak.
+            Kendi seviyenize uygun bütçeyle gerçekçi bir gayrimenkul portföyü oluşturun.
+            Uzmanlarımız etkinlikte sana özel analiz e-postası gönderecek.
           </p>
           <div className="flex items-center justify-center gap-4 mt-5 text-xs text-white/60">
             <span className="inline-flex items-center gap-1.5"><BadgeCheck size={13} className="text-amber-300" /> Ücretsiz</span>
             <span className="w-1 h-1 bg-white/30 rounded-full" />
-            <span className="inline-flex items-center gap-1.5"><Target size={13} className="text-amber-300" /> 2 dakika</span>
+            <span className="inline-flex items-center gap-1.5"><Target size={13} className="text-amber-300" /> 3 dakika</span>
             <span className="w-1 h-1 bg-white/30 rounded-full" />
-            <span className="inline-flex items-center gap-1.5"><Award size={13} className="text-amber-300" /> Uzman değerlendirmesi</span>
+            <span className="inline-flex items-center gap-1.5"><Award size={13} className="text-amber-300" /> Uzman cevabı</span>
           </div>
+
+          {/* Step indicator */}
+          {step < 4 && (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              {[1, 2, 3].map(s => (
+                <div key={s} className={`h-1.5 rounded-full transition-all ${s === step ? "w-10 bg-amber-300" : s < step ? "w-6 bg-amber-300/60" : "w-6 bg-white/15"}`} />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Sticky wallet bar (step 2 & 3) */}
-        {step >= 2 && (
-          <WalletBar total={totalSpent} remaining={remaining} progress={progressPct} over={totalSpent > STARTING_BUDGET} />
+        {/* Sticky wallet bar (step 3 & 4) */}
+        {step >= 3 && startingBudget > 0 && (
+          <WalletBar total={totalSpent} remaining={remaining} progress={progressPct} over={totalSpent > startingBudget} starting={startingBudget} />
         )}
 
         {/* STEP 1 — Identity */}
         {step === 1 && (
-          <form onSubmit={goPortfolio} className="bg-white text-summit-navy rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="game-identity-form">
-            {/* Decorative gold accent */}
-            <div className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 rounded-t-full" />
-
-            <div className="flex items-start gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30">
-                <User size={22} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-heading text-xl sm:text-2xl font-bold text-summit-navy">Önce Seni Tanıyalım</h2>
-                <p className="text-gray-500 text-sm mt-0.5">Portföyünü gerçekten oluşturuyormuş gibi doldur.</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <GameInput icon={User} label="Ad Soyad *" value={identity.name} onChange={v => setIdentity({...identity, name: v})} placeholder="Ali Veli" testid="in-name" />
-              <GameInput icon={Phone} label="Telefon *" value={identity.phone} onChange={v => setIdentity({...identity, phone: v})} placeholder="0555 000 00 00" testid="in-phone" type="tel" />
-              <div className="sm:col-span-2">
-                <GameInput icon={Mail} label="E-posta *" value={identity.email} onChange={v => setIdentity({...identity, email: v})} placeholder="ornek@email.com" testid="in-email" type="email" />
-                <p className="text-[11px] text-gray-500 mt-1 pl-1">📧 Uzman değerlendirme raporunu bu adrese göndereceğiz.</p>
-              </div>
-              <GameInput icon={CalendarIcon} label="Yaş *" value={identity.age} onChange={v => setIdentity({...identity, age: v})} placeholder="35" testid="in-age" type="number" />
-              <GameInput icon={Briefcase} label="Meslek *" value={identity.profession} onChange={v => setIdentity({...identity, profession: v})} placeholder="Mühendis" testid="in-profession" />
-            </div>
-
-            {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm flex items-start gap-2" data-testid="form-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
-
-            <div className="mt-4">
-              <KvkkConsent checked={kvkk} onChange={setKvkk} testid="game-kvkk" />
-            </div>
-
-            <button type="submit" disabled={!kvkk} className="mt-5 w-full bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-4 text-base font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" data-testid="game-next-btn">
-              Yatırıma Başla <ArrowRight size={18} />
-            </button>
-            <p className="text-xs text-gray-500 mt-3 text-center flex items-center justify-center gap-1.5">
-              <BadgeCheck size={13} className="text-emerald-500" /> Bilgileriniz KVKK kapsamında, yalnızca etkinlik organizasyonunda kullanılır.
-            </p>
-          </form>
+          <IdentityForm
+            identity={identity}
+            setIdentity={setIdentity}
+            kvkk={kvkk}
+            setKvkk={setKvkk}
+            error={error}
+            onSubmit={goPortfolio}
+          />
         )}
 
-        {/* STEP 2 — Portfolio */}
+        {/* STEP 2 — Budget Selection */}
         {step === 2 && (
+          <BudgetStep
+            budgetMode={budgetMode}
+            setBudgetMode={setBudgetMode}
+            freeBudget={freeBudget}
+            setFreeBudget={setFreeBudget}
+            error={error}
+            onBack={() => setStep(1)}
+            onNext={confirmBudget}
+          />
+        )}
+
+        {/* STEP 3 — Portfolio */}
+        {step === 3 && (
           <div className="space-y-4" data-testid="game-portfolio">
             {!editItem && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
-                  onClick={() => setEditItem({ kind: "daire", daire_type: "2+1", city: "", district: "", budget: "", description: "" })}
+                  onClick={() => setEditItem({ kind: "daire", daire_type: "2+1", city: "", district: "", neighborhood: "", budget: "", description: "" })}
                   className="group relative bg-white/5 hover:bg-white/10 border-2 border-white/15 hover:border-amber-400 rounded-2xl p-5 text-left transition-all overflow-hidden"
                   data-testid="add-daire-btn"
                 >
@@ -201,14 +220,17 @@ export default function InvestmentGamePage() {
                   <div className="text-xs text-white/60 mt-1">1+1 · 2+1 · 3+1 · 5+1</div>
                 </button>
                 <button
-                  onClick={() => setEditItem({ kind: "arsa", arsa_type: "arsa", city: "", district: "", budget: "", description: "" })}
+                  onClick={() => setEditItem({
+                    kind: "arsa", arsa_type: "arsa", city: "", district: "", neighborhood: "",
+                    area_m2: "", vade_years: 3, ownership: "mustakil", budget: "", description: "",
+                  })}
                   className="group relative bg-white/5 hover:bg-white/10 border-2 border-white/15 hover:border-emerald-400 rounded-2xl p-5 text-left transition-all overflow-hidden"
                   data-testid="add-arsa-btn"
                 >
                   <div className="absolute -top-8 -right-8 w-24 h-24 bg-emerald-400/10 rounded-full blur-2xl group-hover:bg-emerald-400/20 transition-all" />
                   <Trees size={32} className="text-emerald-300 mb-3" />
-                  <div className="font-heading font-bold text-xl">+ Arsa / Tarla Ekle</div>
-                  <div className="text-xs text-white/60 mt-1">İmarlı arsa / tarım arazisi</div>
+                  <div className="font-heading font-bold text-xl">+ Arsa / Tarla / İPAT</div>
+                  <div className="text-xs text-white/60 mt-1">Konum · m² · Vade · Müstakil/Hisseli</div>
                 </button>
               </div>
             )}
@@ -235,21 +257,32 @@ export default function InvestmentGamePage() {
 
             {error && <div className="bg-red-500/20 border border-red-400/40 text-red-100 rounded-xl p-3 text-sm flex items-start gap-2 animate-pulse" data-testid="portfolio-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
 
-            {items.length > 0 && !editItem && (
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-summit-navy rounded-xl py-4 text-base sm:text-lg font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-xl shadow-amber-500/30"
-                data-testid="finish-btn"
-              >
-                {submitting ? "Gönderiliyor…" : <><Target size={20} /> Yatırımımı Tamamla <ArrowRight size={20} /></>}
-              </button>
+            {!editItem && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setStep(2)}
+                  className="bg-white/5 hover:bg-white/10 border border-white/15 text-white rounded-xl py-3 px-4 text-sm font-bold inline-flex items-center justify-center gap-2"
+                  data-testid="back-budget-btn"
+                >
+                  <ArrowLeft size={15} /> Bütçeyi Değiştir
+                </button>
+                {items.length > 0 && (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-summit-navy rounded-xl py-3 text-base sm:text-lg font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-xl shadow-amber-500/30"
+                    data-testid="finish-btn"
+                  >
+                    {submitting ? "Gönderiliyor…" : <><Target size={20} /> Yatırımımı Tamamla <ArrowRight size={20} /></>}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
 
-        {/* STEP 3 — Result */}
-        {step === 3 && result && (
+        {/* STEP 4 — Result */}
+        {step === 4 && result && (
           <ResultScreen result={result} onReset={resetAll} />
         )}
       </div>
@@ -257,7 +290,123 @@ export default function InvestmentGamePage() {
   );
 }
 
-function WalletBar({ total, remaining, progress, over }) {
+// ===================== IDENTITY FORM (Step 1) =====================
+function IdentityForm({ identity, setIdentity, kvkk, setKvkk, error, onSubmit }) {
+  return (
+    <form onSubmit={onSubmit} className="bg-white text-summit-navy rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="game-identity-form">
+      <div className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 rounded-t-full" />
+      <div className="flex items-start gap-3 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30">
+          <User size={22} className="text-white" />
+        </div>
+        <div>
+          <h2 className="font-heading text-xl sm:text-2xl font-bold text-summit-navy">Önce Seni Tanıyalım</h2>
+          <p className="text-gray-500 text-sm mt-0.5">Uzman geri bildirimi için iletişim bilgileri.</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <GameInput icon={User} label="Ad Soyad *" value={identity.name} onChange={v => setIdentity({...identity, name: v})} placeholder="Ali Veli" testid="in-name" />
+        <GameInput icon={Phone} label="Telefon *" value={identity.phone} onChange={v => setIdentity({...identity, phone: v})} placeholder="0555 000 00 00" testid="in-phone" type="tel" />
+        <div className="sm:col-span-2">
+          <GameInput icon={Mail} label="E-posta *" value={identity.email} onChange={v => setIdentity({...identity, email: v})} placeholder="ornek@email.com" testid="in-email" type="email" />
+          <p className="text-[11px] text-gray-500 mt-1 pl-1">📧 Uzman değerlendirme raporunu bu adrese göndereceğiz.</p>
+        </div>
+        <GameInput icon={CalendarIcon} label="Yaş *" value={identity.age} onChange={v => setIdentity({...identity, age: v})} placeholder="35" testid="in-age" type="number" />
+        <GameInput icon={Briefcase} label="Meslek *" value={identity.profession} onChange={v => setIdentity({...identity, profession: v})} placeholder="Mühendis" testid="in-profession" />
+      </div>
+      {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm flex items-start gap-2" data-testid="form-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
+      <div className="mt-4">
+        <KvkkConsent checked={kvkk} onChange={setKvkk} testid="game-kvkk" />
+      </div>
+      <button type="submit" disabled={!kvkk} className="mt-5 w-full bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-4 text-base font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed" data-testid="game-next-btn">
+        Devam Et — Bütçe Seç <ArrowRight size={18} />
+      </button>
+    </form>
+  );
+}
+
+// ===================== BUDGET STEP (Step 2) =====================
+function BudgetStep({ budgetMode, setBudgetMode, freeBudget, setFreeBudget, error, onBack, onNext }) {
+  return (
+    <div className="bg-white text-summit-navy rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] relative" data-testid="budget-step">
+      <div className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-emerald-400 to-amber-400 rounded-t-full" />
+      <div className="flex items-start gap-3 mb-6">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30">
+          <Wallet size={22} className="text-white" />
+        </div>
+        <div>
+          <h2 className="font-heading text-xl sm:text-2xl font-bold text-summit-navy">Bütçeni Belirle</h2>
+          <p className="text-gray-500 text-sm mt-0.5">Hangi seviyede deneyim yapmak istersin?</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3" data-testid="budget-presets">
+        {BUDGET_PRESETS.map(p => (
+          <button
+            key={p.mode}
+            type="button"
+            onClick={() => setBudgetMode(p.mode)}
+            className={`text-left p-4 rounded-xl border-2 transition-all ${budgetMode === p.mode ? "border-amber-400 bg-amber-50 shadow-lg shadow-amber-500/15" : "border-gray-200 hover:border-amber-300 hover:bg-amber-50/40"}`}
+            data-testid={`budget-${p.mode}`}
+          >
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{p.tag}</div>
+            <div className="font-heading text-xl font-black text-summit-navy mt-1">{p.label}</div>
+            <div className="text-xs text-gray-500 mt-1 tabular-nums">{fmtTL(p.value)} sanal sermaye</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Serbest bütçe */}
+      <button
+        type="button"
+        onClick={() => setBudgetMode("free")}
+        className={`mt-3 w-full text-left p-4 rounded-xl border-2 transition-all ${budgetMode === "free" ? "border-summit-navy bg-summit-navy/5 shadow-lg" : "border-dashed border-gray-300 hover:border-summit-navy hover:bg-summit-paper"}`}
+        data-testid="budget-free"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Serbest</div>
+            <div className="font-heading text-lg font-bold text-summit-navy">Kendi bütçemi gireyim</div>
+            <div className="text-xs text-gray-500 mt-0.5">Min 50.000 TL · Max 10 Milyar TL</div>
+          </div>
+          <Sparkles size={20} className={budgetMode === "free" ? "text-amber-500" : "text-gray-300"} />
+        </div>
+      </button>
+
+      {budgetMode === "free" && (
+        <div className="mt-3 bg-summit-paper rounded-xl border border-summit-navy/10 p-4" data-testid="free-budget-input">
+          <label className="text-[10px] uppercase tracking-wider mb-1.5 block font-bold text-gray-600">Bütçe Tutarı (TL) *</label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-summit-navy text-2xl font-bold pointer-events-none">₺</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={formatBudget(freeBudget)}
+              onChange={e => setFreeBudget(parseBudget(e.target.value))}
+              placeholder="Örn: 7.500.000"
+              className="w-full bg-white border-2 border-amber-400 rounded-lg pl-10 pr-4 py-3.5 text-summit-navy text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy"
+              data-testid="free-budget-value"
+            />
+          </div>
+        </div>
+      )}
+
+      {error && <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-md p-3 text-sm flex items-start gap-2" data-testid="budget-error"><AlertCircle size={15} className="shrink-0 mt-0.5" />{error}</div>}
+
+      <div className="flex gap-2 mt-5">
+        <button type="button" onClick={onBack} className="bg-white border-2 border-gray-200 text-gray-600 hover:text-summit-navy hover:border-gray-300 rounded-xl py-3 px-4 text-sm font-bold inline-flex items-center gap-2" data-testid="budget-back">
+          <ArrowLeft size={15} /> Geri
+        </button>
+        <button type="button" onClick={onNext} className="flex-1 bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-xl text-white rounded-xl py-3 text-base font-bold inline-flex items-center justify-center gap-2" data-testid="budget-next">
+          Portföyü Oluşturmaya Başla <ArrowRight size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===================== WALLET BAR =====================
+function WalletBar({ total, remaining, progress, over, starting }) {
   return (
     <div className={`sticky top-2 z-30 mb-5 bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-lg border-2 rounded-2xl p-4 sm:p-5 shadow-2xl transition-all ${over ? "border-red-400 animate-[shake_0.3s_ease-in-out]" : "border-amber-400/50"}`} data-testid="wallet-bar">
       <div className="flex items-center justify-between mb-3">
@@ -266,6 +415,7 @@ function WalletBar({ total, remaining, progress, over }) {
             <Wallet size={16} className="text-summit-navy" />
           </div>
           <span className="text-xs sm:text-sm uppercase tracking-wider font-bold text-white">Cüzdanım</span>
+          <span className="text-[10px] uppercase tracking-wider text-white/50">/ {fmtTL(starting)}</span>
         </div>
         <div className="flex items-center gap-1 bg-white/10 rounded-full px-2.5 py-1">
           <div className={`w-2 h-2 rounded-full ${over ? "bg-red-400" : "bg-emerald-400 animate-pulse"}`} />
@@ -294,10 +444,11 @@ function WalletBar({ total, remaining, progress, over }) {
   );
 }
 
+// ===================== GENERIC INPUT =====================
 function GameInput({ icon: Icon, label, value, onChange, placeholder, type = "text", testid }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-wider mb-1.5 block font-bold text-gray-600 flex items-center gap-1.5">
+      <label className="text-[10px] uppercase tracking-wider mb-1.5 font-bold text-gray-600 flex items-center gap-1.5">
         {Icon && <Icon size={11} className="text-amber-500" />} {label}
       </label>
       <input
@@ -312,6 +463,7 @@ function GameInput({ icon: Icon, label, value, onChange, placeholder, type = "te
   );
 }
 
+// ===================== ITEM FORM =====================
 function ItemForm({ initial, remaining, onCancel, onSave }) {
   const [f, setF] = useState(initial);
   const [err, setErr] = useState("");
@@ -324,27 +476,34 @@ function ItemForm({ initial, remaining, onCancel, onSave }) {
     const budget = parseBudget(f.budget);
     if (!budget || budget <= 0) return setErr("Geçerli bir bütçe girin");
     if (budget > remaining) return setErr(`Bütçen yetmiyor. Kalan: ${fmtTL(remaining)}`);
-    onSave({ ...f, budget });
+    const payload = { ...f, budget };
+    if (f.kind === "arsa") {
+      if (f.area_m2 !== "" && f.area_m2 !== null && f.area_m2 !== undefined) {
+        payload.area_m2 = Number(f.area_m2) || null;
+      } else {
+        payload.area_m2 = null;
+      }
+      payload.vade_years = Number(f.vade_years) || 3;
+    }
+    onSave(payload);
   };
 
   const isDaire = f.kind === "daire";
   const isArsa = f.kind === "arsa";
   const Icon = isDaire ? Building : Trees;
-  const accent = isDaire ? "amber" : "emerald";
   const accentClasses = isDaire
-    ? { border: "border-amber-400", bg: "from-amber-400 to-amber-600", shadow: "shadow-amber-500/30", ring: "focus:shadow-[0_0_0_4px_rgba(251,191,36,0.15)]", pill: "bg-amber-400 text-summit-navy" }
-    : { border: "border-emerald-400", bg: "from-emerald-400 to-emerald-600", shadow: "shadow-emerald-500/30", ring: "focus:shadow-[0_0_0_4px_rgba(52,211,153,0.15)]", pill: "bg-emerald-400 text-summit-navy" };
+    ? { border: "border-amber-400", bg: "from-amber-400 to-amber-600", shadow: "shadow-amber-500/30" }
+    : { border: "border-emerald-400", bg: "from-emerald-400 to-emerald-600", shadow: "shadow-emerald-500/30" };
 
   return (
     <form onSubmit={submit} className="bg-white text-summit-navy rounded-2xl p-5 sm:p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] space-y-4 relative" data-testid="item-form">
       <div className={`absolute top-0 left-6 right-6 h-1 bg-gradient-to-r ${accentClasses.bg} rounded-t-full`} />
-
       <div className="flex items-center gap-3">
         <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${accentClasses.bg} flex items-center justify-center shadow-lg ${accentClasses.shadow}`}>
           <Icon size={20} className="text-white" />
         </div>
         <div>
-          <h3 className="font-heading text-lg font-bold">{isDaire ? "Daire Ekle" : "Arsa / Tarla Ekle"}</h3>
+          <h3 className="font-heading text-lg font-bold">{isDaire ? "Daire Ekle" : "Arazi Ekle"}</h3>
           <p className="text-xs text-gray-500">Detayları doldur, bütçeni belirle.</p>
         </div>
       </div>
@@ -353,6 +512,9 @@ function ItemForm({ initial, remaining, onCancel, onSave }) {
         <GameInput icon={MapPin} label="İl *" value={f.city} onChange={v => setF({...f, city: v})} placeholder="İstanbul" testid="f-city" />
         <GameInput icon={MapPin} label="İlçe *" value={f.district} onChange={v => setF({...f, district: v})} placeholder="Arnavutköy" testid="f-district" />
       </div>
+
+      {/* Mahalle — applies to both */}
+      <GameInput icon={Home} label="Mahalle" value={f.neighborhood || ""} onChange={v => setF({...f, neighborhood: v})} placeholder="Örn: Hadımköy Mh." testid="f-neighborhood" />
 
       {isDaire && (
         <div>
@@ -372,33 +534,97 @@ function ItemForm({ initial, remaining, onCancel, onSave }) {
       )}
 
       {isArsa && (
-        <div>
-          <label className="text-[10px] uppercase tracking-wider mb-2 block font-bold text-gray-600">Cinsi *</label>
-          <div className="grid grid-cols-2 gap-2">
-            {ARSA_TYPES.map(t => (
-              <button
-                key={t.value}
-                type="button"
-                onClick={() => setF({...f, arsa_type: t.value})}
-                className={`py-2.5 text-sm font-bold rounded-lg border-2 transition-all ${f.arsa_type === t.value ? "bg-summit-navy text-white border-summit-navy shadow-lg" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
-                data-testid={`f-arsa-${t.value}`}
-              >{t.label}</button>
-            ))}
+        <>
+          {/* Arsa cinsi — 3 buton */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider mb-2 font-bold text-gray-600 flex items-center gap-1.5"><Layers size={11} className="text-emerald-500" /> Arazi Tipi *</label>
+            <div className="grid grid-cols-3 gap-2">
+              {ARSA_TYPES.map(t => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setF({...f, arsa_type: t.value})}
+                  className={`py-3 px-2 text-center rounded-lg border-2 transition-all ${f.arsa_type === t.value ? "bg-summit-navy text-white border-summit-navy shadow-lg" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
+                  data-testid={`f-arsa-${t.value}`}
+                >
+                  <div className="text-sm font-bold">{t.label}</div>
+                  <div className={`text-[10px] mt-0.5 ${f.arsa_type === t.value ? "text-white/70" : "text-gray-400"}`}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+
+          {/* m² */}
+          <GameInput icon={Ruler} label="Alan (m²)" value={f.area_m2 || ""} onChange={v => setF({...f, area_m2: v.replace(/\D/g, "")})} placeholder="Örn: 2500" testid="f-area-m2" type="text" />
+
+          {/* Vade Slider */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider mb-2 font-bold text-gray-600 flex items-center justify-between gap-1.5">
+              <span className="flex items-center gap-1.5"><Clock size={11} className="text-emerald-500" /> Yatırım Vadesi</span>
+              <span className="text-summit-navy font-black text-base tabular-nums">{VADE_LABEL(Number(f.vade_years) || 3)}</span>
+            </label>
+            <div className="px-1">
+              <input
+                type="range"
+                min={0.5}
+                max={10}
+                step={0.5}
+                value={Number(f.vade_years) || 3}
+                onChange={e => setF({...f, vade_years: parseFloat(e.target.value)})}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-summit-navy"
+                style={{
+                  background: `linear-gradient(to right, #0F1833 0%, #0F1833 ${((Number(f.vade_years) || 3) - 0.5) / 9.5 * 100}%, #E5E7EB ${((Number(f.vade_years) || 3) - 0.5) / 9.5 * 100}%, #E5E7EB 100%)`,
+                }}
+                data-testid="f-vade-slider"
+              />
+              <div className="flex justify-between text-[10px] text-gray-500 mt-2">
+                {VADE_POINTS.map(y => (
+                  <button
+                    key={y}
+                    type="button"
+                    onClick={() => setF({...f, vade_years: y})}
+                    className={`px-1.5 py-0.5 rounded transition-colors ${Math.abs((Number(f.vade_years) || 3) - y) < 0.01 ? "bg-summit-navy text-white font-bold" : "hover:bg-gray-100 text-gray-500"}`}
+                    data-testid={`f-vade-${y}`}
+                  >
+                    {VADE_LABEL(y)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Hisseli / Müstakil */}
+          <div>
+            <label className="text-[10px] uppercase tracking-wider mb-2 font-bold text-gray-600 flex items-center gap-1.5"><UsersIcon size={11} className="text-emerald-500" /> Mülkiyet Tipi *</label>
+            <div className="grid grid-cols-2 gap-2">
+              {OWNERSHIP_TYPES.map(o => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => setF({...f, ownership: o.value})}
+                  className={`py-3 px-3 text-left rounded-lg border-2 transition-all ${f.ownership === o.value ? "bg-summit-navy text-white border-summit-navy shadow-lg" : "bg-white border-gray-200 text-gray-600 hover:border-summit-navy hover:bg-summit-paper"}`}
+                  data-testid={`f-ownership-${o.value}`}
+                >
+                  <div className="text-sm font-bold">{o.label}</div>
+                  <div className={`text-[10px] mt-0.5 ${f.ownership === o.value ? "text-white/70" : "text-gray-400"}`}>{o.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       <div>
         <label className="text-[10px] uppercase tracking-wider mb-1.5 block font-bold text-gray-600">
-          {isDaire ? "Açıklama (opsiyonel)" : "İmar Açıklaması (opsiyonel)"}
+          {isDaire ? "Açıklama (opsiyonel)" : "İmar / Notlar (opsiyonel)"}
         </label>
         <textarea
           value={f.description || ""}
           onChange={e => setF({...f, description: e.target.value})}
-          placeholder={isDaire ? "Örn: Site içi, havuzlu, deniz manzaralı" : "Örn: 500m² villa imarlı, 3 kat konut imarlı, ticari imarlı"}
+          placeholder={isDaire ? "Örn: Site içi, havuzlu, deniz manzaralı" : "Örn: Yol cepheli, elektrik mevcut, köşe parsel"}
           rows={2}
           maxLength={300}
-          className={`w-full bg-white border-2 border-gray-200 rounded-lg px-3 py-2.5 text-summit-navy text-sm focus:outline-none focus:${accentClasses.border.replace("border-","border-")} ${accentClasses.ring} transition-all resize-none`}
+          className="w-full bg-white border-2 border-gray-200 rounded-lg px-3 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-amber-400 focus:shadow-[0_0_0_4px_rgba(251,191,36,0.15)] transition-all resize-none"
           data-testid="f-description"
         />
       </div>
@@ -414,13 +640,13 @@ function ItemForm({ initial, remaining, onCancel, onSave }) {
             value={formatBudget(f.budget)}
             onChange={e => setF({...f, budget: parseBudget(e.target.value)})}
             placeholder={`Max ${fmtN(remaining)}`}
-            className={`w-full bg-white border-2 border-amber-400 rounded-lg pl-10 pr-4 py-3.5 text-summit-navy text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy ${accentClasses.ring} transition-all`}
+            className="w-full bg-white border-2 border-amber-400 rounded-lg pl-10 pr-4 py-3.5 text-summit-navy text-xl font-black tabular-nums focus:outline-none focus:border-summit-navy"
             data-testid="f-budget"
           />
         </div>
         <div className="flex flex-wrap gap-1.5 mt-2">
           <span className="text-[11px] text-gray-500 self-center mr-1">Hızlı seç:</span>
-          {[500000, 1000000, 2500000, 5000000, 10000000].filter(v => v <= remaining).map(v => (
+          {[100000, 500000, 1000000, 2500000, 5000000].filter(v => v <= remaining).map(v => (
             <button key={v} type="button" onClick={() => setF({...f, budget: v})} className={`text-[11px] ${f.budget === v ? "bg-summit-navy text-white border-summit-navy" : "bg-summit-paper hover:bg-amber-100 text-summit-navy border-gray-200"} border rounded-full px-3 py-1 font-bold transition-colors`}>
               {fmtTL(v)}
             </button>
@@ -442,10 +668,12 @@ function ItemForm({ initial, remaining, onCancel, onSave }) {
   );
 }
 
+// ===================== ITEM CARD =====================
 function ItemCard({ item, onRemove, testid }) {
   const isDaire = item.kind === "daire";
   const Icon = isDaire ? Building : Trees;
   const accentColor = isDaire ? "amber" : "emerald";
+  const landTypeLabel = (item.arsa_type === "tarla") ? "Tarla" : (item.arsa_type === "ipat") ? "İPAT" : "Arsa";
   return (
     <div className={`bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-sm border border-white/15 hover:border-${accentColor}-400/50 rounded-xl p-4 flex items-start gap-3 group transition-all`} data-testid={testid}>
       <div className={`w-11 h-11 rounded-lg bg-${accentColor}-400/20 border border-${accentColor}-400/40 flex items-center justify-center shrink-0`}>
@@ -454,12 +682,19 @@ function ItemCard({ item, onRemove, testid }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-bold text-white">
-            {isDaire ? `Daire ${item.daire_type}` : (item.arsa_type === "tarla" ? "Tarla" : "Arsa")}
+            {isDaire ? `Daire ${item.daire_type}` : landTypeLabel}
           </span>
           <span className="text-xs bg-white/10 border border-white/10 rounded-full px-2 py-0.5 flex items-center gap-1 text-white/80">
-            <MapPin size={10} /> {item.city} / {item.district}
+            <MapPin size={10} /> {item.city} / {item.district}{item.neighborhood ? ` · ${item.neighborhood}` : ""}
           </span>
         </div>
+        {!isDaire && (
+          <div className="flex flex-wrap gap-1 mt-1.5 text-[11px]">
+            {item.area_m2 && <span className="bg-white/5 border border-white/10 text-white/80 rounded-md px-1.5 py-0.5 inline-flex items-center gap-1"><Ruler size={10} /> {fmtN(item.area_m2)} m²</span>}
+            {item.vade_years && <span className="bg-white/5 border border-white/10 text-white/80 rounded-md px-1.5 py-0.5 inline-flex items-center gap-1"><Clock size={10} /> {VADE_LABEL(item.vade_years)}</span>}
+            {item.ownership && <span className="bg-white/5 border border-white/10 text-white/80 rounded-md px-1.5 py-0.5 inline-flex items-center gap-1"><UsersIcon size={10} /> {item.ownership === "hisseli" ? "Hisseli" : "Müstakil"}</span>}
+          </div>
+        )}
         {item.description && <div className="text-xs text-white/60 mt-1 line-clamp-2">{item.description}</div>}
         <div className={`${isDaire ? "text-amber-300" : "text-emerald-300"} font-bold text-lg tabular-nums mt-1 drop-shadow`}>{fmtTL(item.budget)}</div>
       </div>
@@ -475,6 +710,7 @@ function ItemCard({ item, onRemove, testid }) {
   );
 }
 
+// ===================== RESULT =====================
 function ResultScreen({ result, onReset }) {
   useEffect(() => {
     const style = document.createElement("style");
@@ -486,31 +722,29 @@ function ResultScreen({ result, onReset }) {
 
   const shareText = encodeURIComponent(
     `Arsa Yatırım Zirvesi Yatırım Simülatörü'nde ${fmtTL(result.starting_budget)} bütçeyle ` +
-    `${result.items.length} yatırım yaptım (${result.daire_count} daire · ${result.arsa_count} arsa). ` +
+    `${result.items.length} yatırım yaptım (${result.daire_count} daire · ${result.arsa_count} arazi). ` +
     `Sen de dene: https://arsayatirimzirvesi.com/yatirim-oyunu`
   );
 
   return (
     <div className="space-y-4" data-testid="result-screen">
-      {/* Hero card */}
       <div className="relative bg-gradient-to-br from-amber-400/20 via-white/10 to-amber-600/10 backdrop-blur-md border-2 border-amber-400/40 rounded-3xl p-6 sm:p-8 text-center shadow-2xl overflow-hidden">
-        {/* Sparkle decorations */}
         <div className="absolute top-4 left-6 text-amber-300 opacity-60 text-2xl" style={{animation:"popin 0.6s ease"}}>✨</div>
         <div className="absolute top-8 right-8 text-amber-200 opacity-50 text-xl" style={{animation:"popin 0.8s ease"}}>⭐</div>
-        <div className="absolute bottom-6 left-10 text-amber-300 opacity-40 text-lg" style={{animation:"popin 1s ease"}}>✨</div>
 
         <div className="text-6xl sm:text-7xl mb-3" style={{animation:"popin 0.5s ease"}}>🎉</div>
         <h2 className="font-heading text-2xl sm:text-3xl font-bold mb-2 text-white">
           {result.name}, muhteşem portföy!
         </h2>
         <p className="text-white/80 text-sm sm:text-base mb-6">
-          Toplam <strong className="text-amber-300">{fmtTL(result.total_spent)}</strong> yatırımla
-          {" "}<strong className="text-white">{result.items.length} gayrimenkul</strong> seçtin.
+          <strong className="text-amber-300">{fmtTL(result.starting_budget)}</strong> bütçeden{" "}
+          <strong className="text-amber-300">{fmtTL(result.total_spent)}</strong> ile{" "}
+          <strong className="text-white">{result.items.length} yatırım</strong> yaptın.
         </p>
 
         <div className="grid grid-cols-3 gap-3 mb-6">
           <MiniStat icon={Building} label="Daire" value={result.daire_count} color="amber" />
-          <MiniStat icon={Trees} label="Arsa" value={result.arsa_count} color="emerald" />
+          <MiniStat icon={Trees} label="Arazi" value={result.arsa_count} color="emerald" />
           <MiniStat icon={Wallet} label="Kalan" value={fmtTL(result.remaining)} color="amber" small />
         </div>
 
@@ -528,59 +762,35 @@ function ResultScreen({ result, onReset }) {
           <div className="flex items-start gap-2">
             <Mail size={16} className="text-amber-300 shrink-0 mt-0.5" />
             <div className="text-xs sm:text-sm text-white/90 leading-relaxed">
-              <strong className="text-white">Uzman Değerlendirmesi</strong><br/>
-              Portföyün, Arsa Yatırım Zirvesi uzmanları tarafından incelenecek.
-              Etkinlikte sana özel yorumlar + gerçek pazar analizi sunacağız.
+              <strong className="text-white">Uzman Cevabı E-postanıza Gelecek</strong><br/>
+              Portföyünü Arsa Yatırım Zirvesi uzmanları inceleyip e-posta ile sana özel yorum gönderecek.
             </div>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2 justify-center">
-          <a
-            href={`https://wa.me/?text=${shareText}`}
-            target="_blank" rel="noopener noreferrer"
+          <a href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noopener noreferrer"
             className="bg-[#25D366] hover:bg-[#1ebe5a] text-white rounded-xl px-5 py-3 text-sm font-bold inline-flex items-center justify-center gap-2 transition-colors shadow-lg"
-            data-testid="result-share-wa"
-          >
+            data-testid="result-share-wa">
             <Share2 size={15} /> WhatsApp'ta Paylaş
           </a>
-          <button
-            onClick={onReset}
+          <button onClick={onReset}
             className="bg-white/10 hover:bg-white/20 border border-white/30 text-white rounded-xl px-5 py-3 text-sm font-bold inline-flex items-center justify-center gap-2 transition-colors"
-            data-testid="result-reset"
-          >
+            data-testid="result-reset">
             <RefreshCw size={15} /> Tekrar Dene
           </button>
         </div>
       </div>
 
-      {/* Portfolio breakdown */}
       <div className="bg-white/5 backdrop-blur-sm border border-white/15 rounded-2xl p-5">
         <h3 className="font-heading font-bold mb-3 flex items-center gap-2 text-white">
           <TrendingUp size={18} className="text-amber-300" /> Portföy Dökümü
         </h3>
         <div className="space-y-2">
-          {result.items.map((it, i) => {
-            const Icon = it.kind === "daire" ? Building : Trees;
-            const isDaire = it.kind === "daire";
-            return (
-              <div key={i} className={`bg-white/5 border border-white/10 rounded-lg p-3 flex items-start gap-3 text-sm hover:border-${isDaire ? "amber" : "emerald"}-400/30 transition-colors`}>
-                <Icon size={18} className={isDaire ? "text-amber-300 shrink-0 mt-0.5" : "text-emerald-300 shrink-0 mt-0.5"} />
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-white">
-                    {isDaire ? `Daire ${it.daire_type}` : (it.arsa_type === "tarla" ? "Tarla" : "Arsa")}
-                    {" · "}{it.city} / {it.district}
-                  </div>
-                  {it.description && <div className="text-xs text-white/60 mt-0.5">{it.description}</div>}
-                </div>
-                <div className={`${isDaire ? "text-amber-300" : "text-emerald-300"} font-bold tabular-nums shrink-0`}>{fmtTL(it.budget)}</div>
-              </div>
-            );
-          })}
+          {result.items.map((it, i) => <ItemCard key={i} item={it} onRemove={() => {}} testid={`r-item-${i}`} />)}
         </div>
       </div>
 
-      {/* CTA to register */}
       <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy rounded-2xl p-5 sm:p-6 text-center shadow-xl">
         <div className="font-heading font-bold text-lg sm:text-xl mb-1">Gerçekten yatırım yapmak ister misin?</div>
         <p className="text-sm opacity-85 mb-4">Arsa Yatırım Zirvesi 2026'da uzmanlarla birebir görüş.</p>
