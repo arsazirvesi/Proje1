@@ -552,9 +552,8 @@ export default function VisitorRegisterPage() {
               {visitType === "summit" && (
               <div className="pt-4 border-t border-gray-100">
                 <label className={labelCls}>Davet Kodu *</label>
-                <p className="text-xs text-gray-500 mb-2.5 leading-relaxed">
-                  Aşağıdan davetlisi olduğunuz kişiyi seçin. Davet kodunuz yoksa
-                  <a href={`tel:${(seoContact.invitePhone || "").replace(/\s/g,'')}`} className="text-summit-navy font-semibold hover:underline ml-1" data-testid="invite-code-phone">{seoContact.invitePhone}</a> numaradan talep edebilirsiniz.
+                <p className="text-xs text-gray-500 mb-2.5 leading-relaxed" data-testid="invite-code-phone">
+                  Aşağıdaki konuşmacılardan kimin davetlisi iseniz seçiniz.
                 </p>
 
                 <InviteCodePicker
