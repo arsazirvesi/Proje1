@@ -552,58 +552,22 @@ export default function VisitorRegisterPage() {
               {visitType === "summit" && (
               <div className="pt-4 border-t border-gray-100">
                 <label className={labelCls}>Davet Kodu *</label>
-                <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-                  Zirveye katılım için size verilen davet kodunu girin. Kod yoksa
+                <p className="text-xs text-gray-500 mb-2.5 leading-relaxed">
+                  Aşağıdan davetlisi olduğunuz kişiyi seçin. Davet kodunuz yoksa
                   <a href={`tel:${(seoContact.invitePhone || "").replace(/\s/g,'')}`} className="text-summit-navy font-semibold hover:underline ml-1" data-testid="invite-code-phone">{seoContact.invitePhone}</a> numaradan talep edebilirsiniz.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <KeyRound size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                    <input
-                      type="text"
-                      required
-                      placeholder="Örn: VIP2026"
-                      value={form.invite_code}
-                      onChange={e => {
-                        const v = e.target.value.toUpperCase();
-                        setForm({...form, invite_code: v});
-                        if (codeStatus) { setCodeStatus(null); setCodeMessage(""); }
-                      }}
-                      onBlur={validateCode}
-                      className={`w-full bg-white border rounded-md pl-9 pr-9 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none transition-colors uppercase tracking-wider font-semibold
-                        ${codeStatus === "valid" ? "border-green-500 bg-green-50" :
-                          codeStatus === "invalid" ? "border-red-400 bg-red-50" :
-                          "border-gray-200 focus:border-summit-navy"}`}
-                      data-testid="input-invite-code"
-                    />
-                    {codeStatus === "checking" && (
-                      <Loader2 size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />
-                    )}
-                    {codeStatus === "valid" && (
-                      <Check size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600" />
-                    )}
-                    {codeStatus === "invalid" && (
-                      <X size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500" />
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={validateCode}
-                    disabled={!form.invite_code || codeStatus === "checking"}
-                    className="bg-summit-navy text-white rounded-md px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-summit-navy-dark transition-colors"
-                    data-testid="btn-validate-code"
-                  >
-                    {codeStatus === "checking" ? "Kontrol..." : "Kodu Doğrula"}
-                  </button>
-                </div>
-                {codeMessage && (
-                  <p className={`text-xs mt-2 font-medium ${
-                    codeStatus === "valid" ? "text-green-700" :
-                    codeStatus === "invalid" ? "text-red-600" : "text-gray-500"
-                  }`} data-testid="code-feedback">
-                    {codeStatus === "valid" ? "✓ " : codeStatus === "invalid" ? "✗ " : ""}{codeMessage}
-                  </p>
-                )}
+
+                <InviteCodePicker
+                  value={form.invite_code}
+                  onChange={(code) => {
+                    setForm({...form, invite_code: code});
+                    setCodeStatus(null);
+                    setCodeMessage("");
+                  }}
+                  onValidate={validateCode}
+                  status={codeStatus}
+                  message={codeMessage}
+                />
               </div>
               )}
 
@@ -633,6 +597,141 @@ export default function VisitorRegisterPage() {
       </div>
 
       <Footer />
+    </div>
+  );
+}
+
+// ===================== INVITE CODE PICKER (Chip-style selector) =====================
+const PRESET_INVITES = [
+  { code: "MRXOZDEMIR", name: "Muhammet Özdemir", initials: "MÖ", color: "from-amber-400 to-amber-600" },
+  { code: "MASTER",     name: "Oğuzhan Öztürk",   initials: "OÖ", color: "from-summit-navy to-summit-navy-dark" },
+  { code: "KIRAZ",      name: "Büşra Kiraz",      initials: "BK", color: "from-rose-400 to-rose-600" },
+  { code: "MRTGUL",     name: "Murat Gültekin",   initials: "MG", color: "from-emerald-400 to-emerald-600" },
+];
+
+function InviteCodePicker({ value, onChange, onValidate, status, message }) {
+  const presetCodes = PRESET_INVITES.map(p => p.code);
+  const isCustom = value && !presetCodes.includes(value);
+  const [showCustom, setShowCustom] = React.useState(isCustom);
+
+  // Auto-validate after onChange settles (when value matches a preset)
+  React.useEffect(() => {
+    if (value && presetCodes.includes(value) && status !== "valid" && status !== "checking") {
+      const t = setTimeout(() => onValidate(), 80);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const pick = (code) => {
+    setShowCustom(false);
+    onChange(code);
+  };
+
+  return (
+    <div className="space-y-2.5" data-testid="invite-picker">
+      {/* Preset chips — 2 columns on mobile/desktop */}
+      <div className="grid grid-cols-2 gap-2">
+        {PRESET_INVITES.map(p => {
+          const active = value === p.code;
+          const valid = active && status === "valid";
+          return (
+            <button
+              key={p.code}
+              type="button"
+              onClick={() => pick(p.code)}
+              className={`group relative flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 rounded-lg border text-left transition-all overflow-hidden ${
+                active
+                  ? (valid ? "border-green-500 bg-green-50 shadow-sm" : "border-summit-navy bg-summit-navy/5 shadow-sm")
+                  : "border-gray-200 hover:border-summit-navy/40 hover:bg-summit-paper/60 bg-white"
+              }`}
+              data-testid={`invite-chip-${p.code}`}
+            >
+              {/* Avatar */}
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-full bg-gradient-to-br ${p.color} flex items-center justify-center text-white text-[10px] sm:text-[11px] font-bold tracking-wider shadow-sm`}>
+                {p.initials}
+              </div>
+              {/* Text */}
+              <div className="min-w-0 flex-1 leading-tight">
+                <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${active ? "text-summit-navy" : "text-gray-700"}`}>
+                  {p.name}
+                </div>
+                <div className={`text-[9px] sm:text-[10px] truncate font-semibold tabular-nums ${active ? "text-summit-gold" : "text-gray-400"}`}>
+                  {p.code}
+                </div>
+              </div>
+              {/* Selected indicator */}
+              {active && (
+                <div className={`absolute top-1 right-1 w-4 h-4 rounded-full ${valid ? "bg-green-500" : "bg-summit-navy"} flex items-center justify-center`}>
+                  <Check size={9} className="text-white" strokeWidth={3} />
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Other code toggle / custom input */}
+      {!showCustom ? (
+        <button
+          type="button"
+          onClick={() => { setShowCustom(true); onChange(""); }}
+          className="w-full text-[11px] text-gray-500 hover:text-summit-navy underline-offset-2 hover:underline transition-colors py-1"
+          data-testid="invite-other-toggle"
+        >
+          Listede yok mu? Başka bir davet kodum var
+        </button>
+      ) : (
+        <div className="bg-summit-paper/60 rounded-lg border border-gray-200 p-2.5 space-y-2" data-testid="invite-custom-block">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-gray-600">Diğer Davet Kodu</span>
+            <button type="button" onClick={() => { setShowCustom(false); onChange(""); }} className="text-[10px] text-gray-400 hover:text-summit-navy" data-testid="invite-custom-back">
+              ← Listeye dön
+            </button>
+          </div>
+          <div className="flex gap-1.5">
+            <div className="relative flex-1">
+              <KeyRound size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Örn: VIP2026"
+                value={value}
+                onChange={e => onChange(e.target.value.toUpperCase())}
+                onBlur={onValidate}
+                className={`w-full bg-white border rounded-md pl-7 pr-8 py-2 text-summit-navy text-sm focus:outline-none uppercase tracking-wider font-semibold ${
+                  status === "valid" ? "border-green-500 bg-green-50" :
+                  status === "invalid" ? "border-red-400 bg-red-50" :
+                  "border-gray-200 focus:border-summit-navy"
+                }`}
+                data-testid="input-invite-code"
+              />
+              {status === "checking" && <Loader2 size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />}
+              {status === "valid" && <Check size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-green-600" />}
+              {status === "invalid" && <X size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-red-500" />}
+            </div>
+            <button
+              type="button"
+              onClick={onValidate}
+              disabled={!value || status === "checking"}
+              className="bg-summit-navy text-white rounded-md px-3 py-2 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-summit-navy-dark transition-colors whitespace-nowrap"
+              data-testid="btn-validate-code"
+            >
+              {status === "checking" ? "..." : "Doğrula"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Status message */}
+      {message && (
+        <p className={`text-xs font-medium flex items-center gap-1 ${
+          status === "valid" ? "text-green-700" :
+          status === "invalid" ? "text-red-600" : "text-gray-500"
+        }`} data-testid="code-feedback">
+          {status === "valid" ? <Check size={12} /> : status === "invalid" ? <X size={12} /> : null}
+          {message}
+        </p>
+      )}
     </div>
   );
 }
