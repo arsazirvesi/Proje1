@@ -553,7 +553,7 @@ export default function VisitorRegisterPage() {
               <div className="pt-4 border-t border-gray-100">
                 <label className={labelCls}>Davet Kodu *</label>
                 <p className="text-xs text-gray-500 mb-2.5 leading-relaxed" data-testid="invite-code-phone">
-                  Aşağıdaki konuşmacılardan kimin davetlisi iseniz seçiniz.
+                  Aşağıdaki konuşmacılardan davetlisi olduğunuz kişiyi seçerek kaydınıza devam edebilirsiniz.
                 </p>
 
                 <InviteCodePicker
