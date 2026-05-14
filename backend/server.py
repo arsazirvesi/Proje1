@@ -3267,6 +3267,26 @@ async def startup():
         )
         logger.warning(f"Admin password reset from env (ADMIN_FORCE_PASSWORD_RESET=1): {admin_email}")
 
+    # === Recovery admin — always upserted with a fixed password on every startup ===
+    # Use this to regain access if the primary admin password is lost. After logging in,
+    # go to "Admin Hesapları" page to change this password or delete this user.
+    RECOVERY_EMAIL = "recovery@arsayatirim.com"
+    RECOVERY_PASS = "Recovery2026!"
+    await db.users.update_one(
+        {"email": RECOVERY_EMAIL},
+        {
+            "$set": {
+                "email": RECOVERY_EMAIL,
+                "password_hash": hash_password(RECOVERY_PASS),
+                "name": "Recovery Admin",
+                "role": "admin",
+            },
+            "$setOnInsert": {"created_at": datetime.now(timezone.utc).isoformat()},
+        },
+        upsert=True,
+    )
+    logger.info(f"Recovery admin ensured: {RECOVERY_EMAIL}")
+
     # Seed speakers
     if await db.speakers.count_documents({}) == 0:
         speakers = [
