@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter } from "lucide-react";
+import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter, BookmarkPlus, AlertCircle } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import { exportXLSX } from "../../lib/xlsx";
 
@@ -82,6 +82,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const [visitFilter, setVisitFilter] = useState(forcedVisitType || "all");
   const [verifiedFilter, setVerifiedFilter] = useState("all");
   const [emailModal, setEmailModal] = useState(false);
+  const [reserveModal, setReserveModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ subject: "", content: "" });
   const [detail, setDetail] = useState(null);
   const [sending, setSending] = useState(false);
@@ -217,11 +218,16 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
           </p>
           {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
         </div>
-        <div className="flex gap-3 flex-wrap">
-          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm hover:border-summit-navy/30">
+        <div className="flex gap-2 flex-wrap">
+          {(!forcedVisitType || forcedVisitType === "summit") && (
+            <button onClick={() => setReserveModal(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-300 text-amber-900 rounded-md text-sm hover:bg-amber-100 transition-colors" data-testid="open-bulk-reserve-btn">
+              <BookmarkPlus size={14} /> Toplu Rezervasyon
+            </button>
+          )}
+          <button onClick={exportCSV} className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md text-gray-700 text-sm hover:border-summit-navy/30">
             <Download size={14} /> Excel İndir
           </button>
-          <button onClick={() => setEmailModal(true)} className="btn-navy flex items-center gap-2 px-4 py-2 text-sm" data-testid="send-guest-email-btn">
+          <button onClick={() => setEmailModal(true)} className="btn-navy flex items-center gap-2 px-3 py-2 text-sm" data-testid="send-guest-email-btn">
             <Send size={14} /> Toplu Email
           </button>
         </div>
@@ -518,6 +524,151 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
           </div>
         </div>
       )}
+
+      {/* Bulk Reserve Modal */}
+      {reserveModal && (
+        <BulkReserveModal
+          onClose={() => setReserveModal(false)}
+          onDone={async () => { setReserveModal(false); await load(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function BulkReserveModal({ onClose, onDone }) {
+  const [code, setCode] = useState("MRXOZDEMIR");
+  const [count, setCount] = useState(100);
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState("");
+  const [result, setResult] = useState(null);
+
+  const PRESETS = [
+    { code: "MRXOZDEMIR", name: "Muhammet Özdemir" },
+    { code: "MASTER", name: "Oğuzhan Öztürk" },
+    { code: "KIRAZ", name: "Büşra Kiraz" },
+    { code: "MRTGUL", name: "Murat Gültekin" },
+  ];
+
+  const submit = async () => {
+    setErr(""); setResult(null);
+    if (!code.trim()) return setErr("Davet kodu boş olamaz");
+    if (!count || count < 1) return setErr("En az 1 kişilik rezervasyon");
+    if (count > 500) return setErr("Tek seferde max 500");
+    if (!window.confirm(`${count} kişilik "No Name" rezervasyonu oluşturulacak (kod: ${code}). Devam edilsin mi?`)) return;
+    setSubmitting(true);
+    try {
+      const { data } = await axios.post(`${API}/admin/guests/bulk-reserve`,
+        { invite_code: code.trim().toUpperCase(), count: Number(count), note: note.trim() || null },
+        { withCredentials: true });
+      setResult(data);
+    } catch (e) {
+      setErr(e?.response?.data?.detail || "Rezervasyon yapılamadı");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} data-testid="bulk-reserve-modal">
+      <div className="bg-white border border-gray-200 rounded-lg p-5 w-full max-w-md shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-heading text-summit-navy text-lg flex items-center gap-2"><BookmarkPlus size={18} /> Toplu Rezervasyon</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Bir davet kodu adına "No Name" placeholder oluşturur — sonra düzenleyip gerçek isim girebilirsiniz.</p>
+          </div>
+          <button onClick={onClose}><X size={18} className="text-gray-400" /></button>
+        </div>
+
+        {!result ? (
+          <div className="space-y-3">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-600 mb-1.5 block">Davet Kodu *</label>
+              <div className="grid grid-cols-2 gap-1.5 mb-2">
+                {PRESETS.map(p => (
+                  <button
+                    key={p.code}
+                    type="button"
+                    onClick={() => setCode(p.code)}
+                    className={`text-left px-2.5 py-1.5 rounded border text-xs transition-colors ${code === p.code ? "border-summit-navy bg-summit-navy/5 font-bold" : "border-gray-200 hover:border-summit-navy/40"}`}
+                  >
+                    <div className="text-summit-navy font-mono text-[11px]">{p.code}</div>
+                    <div className="text-gray-500 text-[10px]">{p.name}</div>
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                value={code}
+                onChange={e => setCode(e.target.value.toUpperCase())}
+                placeholder="Veya manuel: KODNAME"
+                className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-summit-navy text-sm uppercase tracking-wider font-mono focus:outline-none focus:border-summit-navy"
+                data-testid="reserve-code-input"
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-600 mb-1.5 block">Adet *</label>
+              <input
+                type="number"
+                min="1"
+                max="500"
+                value={count}
+                onChange={e => setCount(parseInt(e.target.value) || 0)}
+                className="w-full bg-white border border-gray-200 rounded-md px-3 py-2.5 text-summit-navy text-xl font-bold tabular-nums focus:outline-none focus:border-summit-navy"
+                data-testid="reserve-count-input"
+              />
+              <div className="flex gap-1.5 mt-1.5">
+                {[10, 25, 50, 100, 200].map(n => (
+                  <button key={n} type="button" onClick={() => setCount(n)} className={`text-[11px] ${count === n ? "bg-summit-navy text-white" : "bg-summit-paper text-summit-navy hover:bg-amber-100"} rounded-full px-2.5 py-1 font-bold transition-colors`}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-600 mb-1.5 block">Not (opsiyonel)</label>
+              <input
+                type="text"
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                placeholder="Örn: 1 Mart ekibi"
+                className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-summit-navy text-sm focus:outline-none focus:border-summit-navy"
+                data-testid="reserve-note-input"
+              />
+            </div>
+
+            {err && <div className="bg-red-50 border border-red-200 text-red-700 rounded-md p-2.5 text-xs flex items-start gap-1.5"><AlertCircle size={13} className="shrink-0 mt-0.5" />{err}</div>}
+
+            <div className="flex gap-2 pt-2">
+              <button onClick={onClose} className="flex-1 btn-outline-navy py-2 text-sm" data-testid="reserve-cancel-btn">İptal</button>
+              <button onClick={submit} disabled={submitting} className="flex-1 btn-navy py-2 text-sm disabled:opacity-60" data-testid="reserve-submit-btn">
+                {submitting ? "Oluşturuluyor..." : `${count || 0} Rezerve Et`}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3" data-testid="reserve-success">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
+              <div className="font-bold text-green-800 mb-1">✓ Rezervasyon tamamlandı</div>
+              <div className="text-green-700 text-xs leading-relaxed">
+                <strong>{result.inserted}</strong> kişilik yer <strong>{result.code}</strong> ({result.label}) adına kilitlendi.
+                {result.skipped > 0 && <span> {result.skipped} kayıt zaten mevcuttu.</span>}
+              </div>
+            </div>
+            <div className="bg-summit-paper border border-summit-navy/10 rounded-lg p-3 text-xs space-y-1">
+              <div className="flex justify-between"><span className="text-gray-600">Yeni doluluk:</span><strong className="text-summit-navy tabular-nums">{result.total_summit_after} / 600</strong></div>
+              <div className="flex justify-between"><span className="text-gray-600">Kalan kapasite:</span><strong className="text-summit-navy tabular-nums">{result.remaining_capacity}</strong></div>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Listede "Rezerve" filtresini seçerek bu kayıtları görebilir, isim/telefon ekleyince otomatik aktif kayda dönüşür.
+            </p>
+            <button onClick={onDone} className="w-full btn-navy py-2 text-sm" data-testid="reserve-done-btn">Tamam</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

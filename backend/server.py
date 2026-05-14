@@ -11,6 +11,7 @@ import base64
 import secrets
 import logging
 import html as html_escape
+import re
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Any, Annotated
 from pathlib import Path
@@ -209,6 +210,12 @@ class GuestEdit(BaseModel):
     admin_notes: Optional[str] = None
     status: Optional[str] = None
     is_reserved: Optional[bool] = None
+
+
+class BulkReserveRequest(BaseModel):
+    invite_code: str = Field(..., min_length=2, max_length=64)
+    count: int = Field(..., ge=1, le=500)
+    note: Optional[str] = None
 
 class AdminUserCreate(BaseModel):
     email: EmailStr
@@ -2574,6 +2581,101 @@ async def admin_get_guests(
     # Oldest first so #1 is first registered visitor
     docs = await db.guests.find(query).sort("created_at", 1).to_list(5000)
     return [clean_doc(d) for d in docs]
+
+@api_router.post("/admin/guests/bulk-reserve")
+async def admin_bulk_reserve(body: BulkReserveRequest, admin: dict = Depends(get_admin_user)):
+    """Reserve N summit slots under a given invite_code as 'No Name' placeholders.
+    Admin fills in actual names later via the edit drawer. Idempotent per email pattern.
+    """
+    code = body.invite_code.strip().upper()
+
+    # Validate invite code exists & is summit-compatible
+    code_doc = await db.invite_codes.find_one({"code": code, "is_active": True})
+    if not code_doc:
+        raise HTTPException(400, f"Davet kodu bulunamadı veya pasif: {code}")
+    if code_doc.get("valid_for") == "fair":
+        raise HTTPException(400, "Bu davet kodu sadece fuar için, summit rezervasyonu yapılamaz")
+
+    # Capacity check (verified summit guests + new reservations must <= SUMMIT_CAPACITY)
+    summit_count = await db.guests.count_documents({
+        "visit_type": {"$in": ["summit", None]},
+        "is_verified": True,
+    })
+    if summit_count + body.count > SUMMIT_CAPACITY:
+        remaining = SUMMIT_CAPACITY - summit_count
+        raise HTTPException(
+            400,
+            f"Kapasite aşımı: kalan {remaining} kişilik yer var, {body.count} rezerve edilemez."
+        )
+
+    now = datetime.now(timezone.utc).isoformat()
+    email_slug = re.sub(r"[^a-z0-9]+", "", code.lower())[:24] or "reserved"
+    label = code_doc.get("label") or code
+
+    # Determine next sequence by scanning existing reservations for this code
+    existing_count = await db.guests.count_documents({
+        "invite_code": code, "is_reserved": True,
+    })
+    start_seq = existing_count + 1
+
+    docs = []
+    for i in range(body.count):
+        seq = start_seq + i
+        seq_str = f"{seq:03d}"
+        email = f"reserved-{email_slug}-{seq_str}@reserved-{email_slug}.local"
+        # Make sure email is unique (in case of historical reservations w/ different scheme)
+        collision = await db.guests.find_one({"email": email}, {"_id": 1})
+        if collision:
+            continue
+        docs.append({
+            "name": f"No Name #{seq_str}",
+            "email": email,
+            "phone": f"00000{seq_str.zfill(6)}",
+            "visit_type": "summit",
+            "invite_code": code,
+            "city": "",
+            "company": "",
+            "title": "",
+            "participant_type": "bireysel",
+            "interest": "",
+            "expectations": "",
+            "is_verified": True,
+            "verified_at": now,
+            "verification_token": None,
+            "verification_sent_at": None,
+            "badge_printed": False,
+            "status": "reserved",
+            "admin_notes": body.note or f"Rezerve ({label}) — isim sonradan girilecek",
+            "is_reserved": True,
+            "created_at": now,
+            "updated_at": now,
+        })
+
+    if not docs:
+        return {"inserted": 0, "skipped": body.count, "message": "Zaten tüm sıralar mevcuttu"}
+
+    result = await db.guests.insert_many(docs)
+    inserted = len(result.inserted_ids)
+
+    await db.invite_codes.update_one(
+        {"_id": code_doc["_id"]},
+        {"$inc": {"used_count": inserted}, "$set": {"last_used_at": now}},
+    )
+
+    new_summit_count = await db.guests.count_documents({
+        "visit_type": {"$in": ["summit", None]},
+        "is_verified": True,
+    })
+
+    return {
+        "inserted": inserted,
+        "skipped": body.count - inserted,
+        "code": code,
+        "label": label,
+        "total_summit_after": new_summit_count,
+        "remaining_capacity": SUMMIT_CAPACITY - new_summit_count,
+    }
+
 
 @api_router.patch("/admin/guests/{guest_id}")
 async def admin_update_guest(guest_id: str, body: StatusUpdate, admin: dict = Depends(get_admin_user)):
