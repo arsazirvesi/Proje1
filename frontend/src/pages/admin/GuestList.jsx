@@ -7,6 +7,7 @@ import { exportXLSX } from "../../lib/xlsx";
 const STATUS_OPTIONS = [
   { value: "all", label: "Tümü", cls: "" },
   { value: "new", label: "Yeni", cls: "status-new" },
+  { value: "reserved", label: "Rezerve", cls: "status-reserved" },
   { value: "contacted", label: "İletişim Kuruldu", cls: "status-contacted" },
   { value: "approved", label: "Onaylandı", cls: "status-approved" },
   { value: "rejected", label: "Reddedildi", cls: "status-rejected" },
@@ -412,36 +413,35 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
         <div className="fixed inset-0 z-50 flex" data-testid="guest-detail-drawer">
           <div className="absolute inset-0 bg-summit-navy/40" onClick={() => setDetail(null)} />
           <div className="relative ml-auto h-full w-full max-w-xl bg-white shadow-xl overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="font-heading text-summit-navy text-xl">Ziyaretçi Detayı</h3>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+              <div>
+                <h3 className="font-heading text-summit-navy text-xl">Ziyaretçi Detayı</h3>
+                {detail.is_reserved && <span className="inline-block mt-1 text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 rounded px-2 py-0.5 uppercase tracking-wider">Rezerve · Bilgileri Doldurun</span>}
+              </div>
               <button onClick={() => setDetail(null)}><X size={20} className="text-gray-500" /></button>
             </div>
-            <div className="p-6 space-y-5">
-              {[
-                ["Ad Soyad", detail.name],
-                ["E-posta", detail.email],
-                ["Telefon", detail.phone],
-                ["Şirket", detail.company],
-                ["Unvan", detail.title],
-                ["Şehir", detail.city],
-                ["Katılımcı Türü", detail.participant_type],
-                ["İlgi Alanı", detail.interest_area],
-                ["Davet Kodu", detail.invite_code],
-                ["Etkinlik Girişi", detail.checked_in ? `✓ Geldi (${detail.checked_in_at ? new Date(detail.checked_in_at).toLocaleString("tr-TR") : ""})` : "Bekliyor"],
-                ["Beklentiler", detail.expectations],
-                ["Kayıt Tarihi", detail.created_at?.slice(0,16).replace("T", " ")],
-              ].filter(([, v]) => v).map(([k, v]) => (
-                <div key={k}>
-                  <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">{k}</div>
-                  <div className={`text-summit-navy text-sm ${k === "Davet Kodu" ? "font-mono font-bold inline-block bg-summit-paper px-2 py-0.5 rounded" : ""} ${k === "Etkinlik Girişi" && detail.checked_in ? "text-green-700 font-semibold" : ""}`}>{v}</div>
-                </div>
-              ))}
+            <div className="p-6 space-y-4">
+              <EditableField label="Ad Soyad" value={detail.name} onChange={v => setDetail({...detail, name: v})} testid="detail-name" />
+              <EditableField label="Telefon" value={detail.phone} onChange={v => setDetail({...detail, phone: v})} testid="detail-phone" />
+              <EditableField label="E-posta" value={detail.email} onChange={v => setDetail({...detail, email: v})} testid="detail-email" />
+              <div className="grid grid-cols-2 gap-3">
+                <EditableField label="Şirket" value={detail.company} onChange={v => setDetail({...detail, company: v})} testid="detail-company" />
+                <EditableField label="Unvan" value={detail.title} onChange={v => setDetail({...detail, title: v})} testid="detail-title" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <EditableField label="Şehir" value={detail.city} onChange={v => setDetail({...detail, city: v})} testid="detail-city" />
+                <ReadOnlyField label="Davet Kodu" value={detail.invite_code} mono />
+              </div>
+              {detail.checked_in && (
+                <ReadOnlyField label="Etkinlik Girişi" value={`✓ Geldi (${detail.checked_in_at ? new Date(detail.checked_in_at).toLocaleString("tr-TR") : ""})`} highlight />
+              )}
+              <ReadOnlyField label="Kayıt Tarihi" value={detail.created_at?.slice(0,16).replace("T", " ")} />
 
               <div className="pt-4 border-t border-gray-200">
                 <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">Durum</label>
                 <select value={detail.status || "new"}
-                  onChange={(e) => handleUpdateStatus(detail.id, e.target.value, detail.admin_notes || "")}
-                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none"
+                  onChange={(e) => setDetail({...detail, status: e.target.value})}
+                  className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-summit-navy text-sm focus:outline-none"
                   data-testid="detail-status-select">
                   {STATUS_OPTIONS.filter(o => o.value !== "all").map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -451,14 +451,32 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
 
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">Admin Notları</label>
-                <textarea rows={4} value={detail.admin_notes || ""}
+                <textarea rows={3} value={detail.admin_notes || ""}
                   onChange={(e) => setDetail({...detail, admin_notes: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded-md px-4 py-2.5 text-summit-navy text-sm focus:outline-none resize-none"
+                  className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-summit-navy text-sm focus:outline-none resize-none"
                   placeholder="Notlarınızı buraya yazın..."
                   data-testid="detail-notes-input" />
-                <button onClick={() => handleUpdateStatus(detail.id, detail.status || "new", detail.admin_notes || "")}
-                  className="btn-navy px-5 py-2 mt-3 text-sm">
-                  Notları Kaydet
+              </div>
+
+              <div className="pt-3 border-t border-gray-200 flex gap-2 sticky bottom-0 bg-white pb-0">
+                <button onClick={() => setDetail(null)} className="flex-1 btn-outline-navy py-2.5 text-sm">İptal</button>
+                <button onClick={async () => {
+                  try {
+                    const payload = {
+                      name: detail.name, phone: detail.phone, email: detail.email,
+                      company: detail.company, title: detail.title, city: detail.city,
+                      status: detail.status, admin_notes: detail.admin_notes,
+                    };
+                    const { data } = await axios.put(`${API}/admin/guests/${detail.id}`,
+                      payload, { withCredentials: true });
+                    setDetail(data);
+                    await load();
+                    alert("Kaydedildi");
+                  } catch (e) {
+                    alert(e?.response?.data?.detail || "Kaydedilemedi");
+                  }
+                }} className="flex-1 btn-navy py-2.5 text-sm" data-testid="detail-save-btn">
+                  Değişiklikleri Kaydet
                 </button>
               </div>
             </div>
@@ -500,6 +518,33 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function EditableField({ label, value, onChange, testid }) {
+  return (
+    <div>
+      <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1 block">{label}</label>
+      <input
+        type="text"
+        value={value || ""}
+        onChange={e => onChange(e.target.value)}
+        className="w-full bg-white border border-gray-200 rounded-md px-3 py-2 text-summit-navy text-sm focus:outline-none focus:border-summit-navy transition-colors"
+        data-testid={testid}
+      />
+    </div>
+  );
+}
+
+function ReadOnlyField({ label, value, mono, highlight }) {
+  if (!value) return null;
+  return (
+    <div>
+      <label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1 block">{label}</label>
+      <div className={`text-summit-navy text-sm ${mono ? "font-mono font-bold inline-block bg-summit-paper px-2 py-0.5 rounded" : ""} ${highlight ? "text-green-700 font-semibold" : ""}`}>
+        {value}
+      </div>
     </div>
   );
 }

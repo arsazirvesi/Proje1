@@ -192,8 +192,23 @@ class SpeakerApplicationCreate(BaseModel):
     additional_notes: Optional[str] = None
 
 class StatusUpdate(BaseModel):
-    status: str  # new | contacted | approved | rejected
+    status: str  # new | contacted | approved | rejected | reserved
     admin_notes: Optional[str] = None
+
+
+class GuestEdit(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None  # NOTE: keep lowercase; collision check applied
+    company: Optional[str] = None
+    title: Optional[str] = None
+    city: Optional[str] = None
+    participant_type: Optional[str] = None
+    interest: Optional[str] = None
+    expectations: Optional[str] = None
+    admin_notes: Optional[str] = None
+    status: Optional[str] = None
+    is_reserved: Optional[bool] = None
 
 class AdminUserCreate(BaseModel):
     email: EmailStr
@@ -2569,6 +2584,52 @@ async def admin_update_guest(guest_id: str, body: StatusUpdate, admin: dict = De
     if result.matched_count == 0:
         raise HTTPException(404, "Ziyaretçi bulunamadı")
     return {"message": "Güncellendi"}
+
+
+@api_router.put("/admin/guests/{guest_id}")
+async def admin_edit_guest(guest_id: str, body: GuestEdit, admin: dict = Depends(get_admin_user)):
+    """Full edit of a guest record. Used for filling in reserved (placeholder) slots."""
+    if not ObjectId.is_valid(guest_id):
+        raise HTTPException(400, "Geçersiz ID")
+    existing = await db.guests.find_one({"_id": ObjectId(guest_id)})
+    if not existing:
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+
+    update: dict = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    fields = body.model_dump(exclude_unset=True)
+
+    # If email is being changed, check collision (except for self)
+    new_email = fields.get("email")
+    if new_email is not None:
+        new_email = new_email.strip().lower()
+        if new_email and new_email != existing.get("email"):
+            collision = await db.guests.find_one({"email": new_email, "_id": {"$ne": ObjectId(guest_id)}})
+            if collision:
+                raise HTTPException(400, "Bu e-posta başka bir kayıtta zaten kullanılıyor")
+        fields["email"] = new_email
+
+    # Whitelist
+    for key in (
+        "name", "phone", "email", "company", "title", "city",
+        "participant_type", "interest", "expectations", "admin_notes",
+        "status", "is_reserved",
+    ):
+        if key in fields:
+            v = fields[key]
+            if isinstance(v, str):
+                v = v.strip()
+            update[key] = v
+
+    # If filling in a reserved record, auto-flip is_reserved off when name+phone set
+    if existing.get("is_reserved") and update.get("name") and update.get("phone"):
+        if update["name"] != existing.get("name") or update["phone"] != existing.get("phone"):
+            update.setdefault("is_reserved", False)
+            update.setdefault("status", "new")
+
+    await db.guests.update_one({"_id": ObjectId(guest_id)}, {"$set": update})
+    refreshed = await db.guests.find_one({"_id": ObjectId(guest_id)})
+    return clean_doc(refreshed)
+
 
 @api_router.delete("/admin/guests/{guest_id}")
 async def admin_delete_guest(guest_id: str, admin: dict = Depends(get_admin_user)):
