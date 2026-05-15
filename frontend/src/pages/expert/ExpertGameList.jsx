@@ -512,26 +512,65 @@ function DetailItem({ item }) {
           </div>
         </div>
         <div className="flex-1 px-3.5 py-3 min-w-0">
-          <div className="flex items-start justify-between gap-3">
+          {/* Top row: Title + Price */}
+          <div className="flex items-start justify-between gap-3 mb-2.5">
             <div className="min-w-0 flex-1">
               <div className="font-heading font-bold text-summit-navy text-base sm:text-lg truncate">{label}</div>
               <div className="text-xs sm:text-sm text-gray-600 mt-1 truncate flex items-center gap-1.5">
-                <MapPin size={11} className="shrink-0" /> {item.city} / {item.district}{item.neighborhood ? ` · ${item.neighborhood}` : ""}
+                <MapPin size={11} className="shrink-0 text-amber-600" />
+                <span><span className="text-gray-400">Konum:</span> <span className="font-semibold text-summit-navy">{item.city} / {item.district}</span>{item.neighborhood ? <span className="text-gray-500"> · {item.neighborhood}</span> : null}</span>
               </div>
-              {!isDaire && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {item.area_m2 && <Chip icon={Ruler} text={`${fmtN(item.area_m2)} m²`} />}
-                  {item.vade_years && <Chip icon={Clock} text={VADE_LABEL(item.vade_years)} />}
-                  {item.ownership && <Chip icon={Layers} text={item.ownership === "hisseli" ? "Hisseli" : "Müstakil"} />}
-                </div>
-              )}
-              {item.description && (
-                <div className="text-xs sm:text-sm text-gray-500 mt-2 italic leading-relaxed">"{item.description}"</div>
-              )}
             </div>
             <div className={`font-bold text-base sm:text-xl tabular-nums shrink-0 ${isDaire ? "text-amber-600" : "text-emerald-600"}`}>{fmtTL(item.budget)}</div>
           </div>
+
+          {/* Labeled info grid — for arsa/tarla */}
+          {!isDaire && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mt-2">
+              {item.area_m2 != null && item.area_m2 !== "" && (
+                <InfoChip icon={Ruler} label="Girilen m²" value={`${fmtN(item.area_m2)} m²`} />
+              )}
+              {item.vade_years != null && (
+                <InfoChip icon={Clock} label="Belirlenen Vade" value={VADE_LABEL(item.vade_years)} />
+              )}
+              {item.ownership && (
+                <InfoChip icon={Layers} label="Mülkiyet" value={item.ownership === "hisseli" ? "Hisseli" : "Müstakil"} />
+              )}
+              {item.arsa_type && (
+                <InfoChip icon={Trees} label="Arazi Tipi" value={ARSA_LABEL[item.arsa_type] || item.arsa_type} />
+              )}
+            </div>
+          )}
+
+          {/* Daire specific */}
+          {isDaire && item.daire_type && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mt-2">
+              <InfoChip icon={Home} label="Daire Tipi" value={item.daire_type} />
+            </div>
+          )}
+
+          {/* Description */}
+          {item.description && (
+            <div className="mt-3 pt-2.5 border-t border-dashed border-gray-200">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Katılımcı Notu</div>
+              <div className="text-xs sm:text-sm text-gray-700 italic leading-relaxed">"{item.description}"</div>
+            </div>
+          )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoChip({ icon: Icon, label, value }) {
+  return (
+    <div className="bg-summit-paper border border-gray-200 rounded-lg px-2.5 py-1.5 flex items-center gap-2 min-w-0">
+      <div className="w-6 h-6 rounded-md bg-white border border-gray-200 flex items-center justify-center shrink-0">
+        <Icon size={11} className="text-summit-navy" />
+      </div>
+      <div className="min-w-0 leading-tight">
+        <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold truncate">{label}</div>
+        <div className="text-xs font-bold text-summit-navy truncate tabular-nums">{value}</div>
       </div>
     </div>
   );
