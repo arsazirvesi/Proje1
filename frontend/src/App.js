@@ -7,6 +7,7 @@ import Analytics from "./components/Analytics";
 import WhatsAppHelpWidget from "./components/WhatsAppHelpWidget";
 import CookieConsent from "./components/CookieConsent";
 import SEOHead from "./components/SEOHead";
+import InstallPrompt from "./components/InstallPrompt";
 
 import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
@@ -150,6 +151,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <CookieConsent />
+          <InstallPrompt />
         </BrowserRouter>
       </div>
     </AuthProvider>
