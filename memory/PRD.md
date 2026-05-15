@@ -9,6 +9,7 @@ Corporate website and CRM/Admin panel for "Arsa Yatırım Zirvesi" (Land Investm
 - Bundled TR il-ilçe dataset (`/app/backend/data/tr_locations.json`, 81 il, 973 ilçe, ~12KB)
 
 ## Completed
+- 2026-02-15: **Expert Portal — kurumsal beyaz tema dönüşümü tamamlandı.** EntryCard, MiniItem, EntryDetail drawer, DetailItem, Chip ve StatTile bileşenleri dark/glass tema yerine beyaz arkaplan + navy başlık + amber/emerald soft pastel aksanlara çevrildi. Login + üst header zaten beyazdı.
 - 2026-02-13: **Investment Simulator — Il/İlçe searchable comboboxes.**
   - Backend: new `GET /api/locations` returns full TR province → districts map.
   - Frontend: new `Combobox` component with TR-aware search (handles İ/I/Ş/Ç/Ğ/Ü/Ö). İl seçilince ilçe dropdown auto-filtreleniyor.

@@ -79,8 +79,8 @@ export default function ExpertGameList() {
 
   if (authLoading || (loading && entries.length === 0)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-summit-navy to-[#0F1833] flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-summit-paper flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-summit-navy border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -221,45 +221,45 @@ function EntryCard({ entry, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="group relative bg-gradient-to-br from-white/[0.09] to-white/[0.03] hover:from-white/[0.13] hover:to-white/[0.06] backdrop-blur-sm border border-white/10 hover:border-amber-400/40 rounded-2xl p-4 text-left transition-all overflow-hidden"
+      className="group relative bg-white hover:bg-summit-paper border border-gray-200 hover:border-summit-navy/40 rounded-2xl p-4 text-left transition-all overflow-hidden shadow-sm hover:shadow-md"
       data-testid={`expert-card-${entry.id}`}
     >
-      <div className="absolute -top-12 -right-12 w-28 h-28 bg-amber-400/8 rounded-full blur-2xl group-hover:bg-amber-400/15 transition-all" />
+      <div className="absolute -top-12 -right-12 w-28 h-28 bg-amber-200/30 rounded-full blur-2xl group-hover:bg-amber-300/40 transition-all" />
 
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2 relative">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-summit-navy text-[11px] font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-[11px] font-bold shrink-0">
               {(entry.name || "?")[0].toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="font-bold text-white text-sm truncate">{entry.name || "—"}</div>
-              <div className="text-[10px] text-white/55 flex items-center gap-1.5 truncate">
+              <div className="font-bold text-summit-navy text-sm truncate">{entry.name || "—"}</div>
+              <div className="text-[10px] text-gray-500 flex items-center gap-1.5 truncate">
                 <Briefcase size={9} /> {entry.profession || "—"} · {entry.age} yaş
               </div>
             </div>
           </div>
         </div>
         {commentCount > 0 && (
-          <div className="bg-amber-400/15 border border-amber-400/30 rounded-full px-2 py-0.5 flex items-center gap-1 text-amber-200 text-[10px] font-bold shrink-0">
+          <div className="bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1 text-amber-700 text-[10px] font-bold shrink-0">
             <MessageSquare size={10} /> {commentCount}
           </div>
         )}
       </div>
 
       {/* Budget */}
-      <div className="flex items-end justify-between gap-2 mb-3 pb-3 border-b border-white/10">
+      <div className="flex items-end justify-between gap-2 mb-3 pb-3 border-b border-gray-100">
         <div>
-          <div className="text-[9px] uppercase tracking-wider text-white/50 font-bold">Yatırım</div>
-          <div className="text-lg font-bold text-amber-300 tabular-nums leading-tight">{fmtTL(entry.total_spent)}</div>
-          <div className="text-[10px] text-white/40 tabular-nums">/ {fmtTL(entry.starting_budget)} bütçe</div>
+          <div className="text-[9px] uppercase tracking-wider text-gray-400 font-bold">Yatırım</div>
+          <div className="text-lg font-bold text-amber-600 tabular-nums leading-tight">{fmtTL(entry.total_spent)}</div>
+          <div className="text-[10px] text-gray-400 tabular-nums">/ {fmtTL(entry.starting_budget)} bütçe</div>
         </div>
         <div className="text-right">
-          <div className="text-[9px] uppercase tracking-wider text-white/50 font-bold">{dateLabel}</div>
+          <div className="text-[9px] uppercase tracking-wider text-gray-400 font-bold">{dateLabel}</div>
           <div className="flex gap-1.5 mt-1">
-            {daireCount > 0 && <span className="bg-amber-400/15 border border-amber-400/25 text-amber-200 rounded px-1.5 py-0.5 text-[9px] inline-flex items-center gap-0.5"><Building size={9} /> {daireCount}</span>}
-            {arsaCount > 0 && <span className="bg-emerald-400/15 border border-emerald-400/25 text-emerald-200 rounded px-1.5 py-0.5 text-[9px] inline-flex items-center gap-0.5"><Trees size={9} /> {arsaCount}</span>}
+            {daireCount > 0 && <span className="bg-amber-50 border border-amber-200 text-amber-700 rounded px-1.5 py-0.5 text-[9px] inline-flex items-center gap-0.5"><Building size={9} /> {daireCount}</span>}
+            {arsaCount > 0 && <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 rounded px-1.5 py-0.5 text-[9px] inline-flex items-center gap-0.5"><Trees size={9} /> {arsaCount}</span>}
           </div>
         </div>
       </div>
@@ -270,12 +270,12 @@ function EntryCard({ entry, onClick }) {
           <MiniItem key={i} item={it} />
         ))}
         {(entry.items || []).length > 2 && (
-          <div className="text-[10px] text-white/40 text-center pt-1">+ {entry.items.length - 2} yatırım daha</div>
+          <div className="text-[10px] text-gray-400 text-center pt-1">+ {entry.items.length - 2} yatırım daha</div>
         )}
       </div>
 
       {/* Footer hint */}
-      <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-white/45">
+      <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-400">
         <span>Detay & yorumlar için tıkla</span>
         <ChevronDown size={11} className="-rotate-90" />
       </div>
@@ -288,15 +288,15 @@ function MiniItem({ item }) {
   const Icon = isDaire ? Building : Trees;
   const label = isDaire ? `Daire ${item.daire_type || ""}` : (ARSA_LABEL[item.arsa_type] || "Arazi");
   return (
-    <div className="flex items-center gap-2 bg-white/[0.04] border border-white/5 rounded-lg px-2 py-1.5">
-      <Icon size={12} className={isDaire ? "text-amber-300" : "text-emerald-300"} />
+    <div className="flex items-center gap-2 bg-summit-paper border border-gray-200 rounded-lg px-2 py-1.5">
+      <Icon size={12} className={isDaire ? "text-amber-600" : "text-emerald-600"} />
       <div className="flex-1 min-w-0">
-        <div className="text-[11px] text-white truncate">
+        <div className="text-[11px] text-summit-navy truncate">
           <span className="font-semibold">{label}</span>
-          <span className="text-white/50"> · {item.city}/{item.district}</span>
+          <span className="text-gray-500"> · {item.city}/{item.district}</span>
         </div>
       </div>
-      <div className={`text-[11px] font-bold tabular-nums ${isDaire ? "text-amber-300" : "text-emerald-300"}`}>{fmtTL(item.budget)}</div>
+      <div className={`text-[11px] font-bold tabular-nums ${isDaire ? "text-amber-600" : "text-emerald-600"}`}>{fmtTL(item.budget)}</div>
     </div>
   );
 }
@@ -342,42 +342,43 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
 
   return (
     <div className="fixed inset-0 z-50 flex" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} data-testid="expert-detail">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative ml-auto h-full w-full max-w-2xl bg-summit-navy border-l border-white/10 overflow-y-auto shadow-2xl">
+      <div className="absolute inset-0 bg-summit-navy/40 backdrop-blur-sm" />
+      <div className="relative ml-auto h-full w-full max-w-2xl bg-white border-l border-gray-200 overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-summit-navy/95 backdrop-blur-md border-b border-white/10 px-5 sm:px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200 px-5 sm:px-6 py-4 flex items-center justify-between z-10">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-summit-navy via-amber-400 to-summit-navy" />
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-summit-navy text-sm font-bold shrink-0">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-sm font-bold shrink-0">
               {(entry.name || "?")[0].toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="font-heading text-base sm:text-lg text-white font-bold truncate">{entry.name}</div>
-              <div className="text-[11px] text-white/60 truncate">
+              <div className="font-heading text-base sm:text-lg text-summit-navy font-bold truncate">{entry.name}</div>
+              <div className="text-[11px] text-gray-500 truncate">
                 <Briefcase size={9} className="inline mr-1" />
                 {entry.profession} · {entry.age} yaş
                 {entry.created_at && <> · <Calendar size={9} className="inline mx-1" />{new Date(entry.created_at).toLocaleDateString("tr-TR")}</>}
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center text-white/80" data-testid="expert-detail-close">
+          <button onClick={onClose} className="w-9 h-9 rounded-lg bg-summit-paper hover:bg-gray-100 border border-gray-200 flex items-center justify-center text-summit-navy" data-testid="expert-detail-close">
             <X size={16} />
           </button>
         </div>
 
         <div className="px-5 sm:px-6 py-5 space-y-5">
           {/* Budget summary */}
-          <div className="bg-gradient-to-br from-amber-400/15 to-amber-500/5 border border-amber-400/30 rounded-2xl p-4 grid grid-cols-3 gap-3">
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 border border-amber-200 rounded-2xl p-4 grid grid-cols-3 gap-3">
             <div>
-              <div className="text-[9px] uppercase tracking-wider text-white/60 font-bold">Bütçe</div>
-              <div className="text-lg font-bold text-white tabular-nums">{fmtTL(entry.starting_budget)}</div>
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">Bütçe</div>
+              <div className="text-lg font-bold text-summit-navy tabular-nums">{fmtTL(entry.starting_budget)}</div>
             </div>
-            <div className="border-l border-r border-white/10 px-3">
-              <div className="text-[9px] uppercase tracking-wider text-white/60 font-bold">Yatırım</div>
-              <div className="text-lg font-bold text-amber-300 tabular-nums">{fmtTL(entry.total_spent)}</div>
+            <div className="border-l border-r border-amber-200 px-3">
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">Yatırım</div>
+              <div className="text-lg font-bold text-amber-600 tabular-nums">{fmtTL(entry.total_spent)}</div>
             </div>
             <div>
-              <div className="text-[9px] uppercase tracking-wider text-white/60 font-bold">Kalan</div>
-              <div className="text-lg font-bold text-white/80 tabular-nums">{fmtTL(entry.remaining)}</div>
+              <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">Kalan</div>
+              <div className="text-lg font-bold text-gray-600 tabular-nums">{fmtTL(entry.remaining)}</div>
             </div>
           </div>
 
@@ -385,7 +386,7 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
           {(entry.badges || []).length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {(entry.badges || []).map(b => (
-                <span key={b.id} className="bg-amber-400/15 border border-amber-400/30 text-amber-100 rounded-full px-2.5 py-1 text-[10px] font-bold" title={b.description}>
+                <span key={b.id} className="bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-2.5 py-1 text-[10px] font-bold" title={b.description}>
                   {b.label}
                 </span>
               ))}
@@ -395,8 +396,8 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
           {/* Portfolio Items */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={14} className="text-amber-300" />
-              <h3 className="font-heading text-white text-sm font-bold uppercase tracking-wider">Portföy ({entry.items?.length || 0})</h3>
+              <TrendingUp size={14} className="text-amber-600" />
+              <h3 className="font-heading text-summit-navy text-sm font-bold uppercase tracking-wider">Portföy ({entry.items?.length || 0})</h3>
             </div>
             <div className="space-y-2">
               {(entry.items || []).map((it, i) => <DetailItem key={i} item={it} />)}
@@ -406,59 +407,59 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
           {/* Comments */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <MessageSquare size={14} className="text-amber-300" />
-              <h3 className="font-heading text-white text-sm font-bold uppercase tracking-wider">Uzman Yorumları ({(entry.expert_comments || []).length})</h3>
+              <MessageSquare size={14} className="text-amber-600" />
+              <h3 className="font-heading text-summit-navy text-sm font-bold uppercase tracking-wider">Uzman Yorumları ({(entry.expert_comments || []).length})</h3>
             </div>
             <div className="space-y-2">
               {(entry.expert_comments || []).length === 0 && (
-                <p className="text-white/40 text-xs italic text-center py-3 bg-white/[0.03] border border-white/5 rounded-lg">Henüz yorum yok.</p>
+                <p className="text-gray-400 text-xs italic text-center py-3 bg-summit-paper border border-gray-200 rounded-lg">Henüz yorum yok.</p>
               )}
               {(entry.expert_comments || []).map(c => (
-                <div key={c.id} className="bg-white/[0.06] border border-white/10 rounded-xl p-3" data-testid={`comment-${c.id}`}>
+                <div key={c.id} className="bg-summit-paper border border-gray-200 rounded-xl p-3" data-testid={`comment-${c.id}`}>
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-summit-navy text-[10px] font-bold shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-[10px] font-bold shrink-0">
                         {(c.author_name || c.author_email || "?")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-semibold text-white truncate">{c.author_name}</div>
-                        <div className="text-[9px] text-white/45 uppercase tracking-wider flex items-center gap-1">
+                        <div className="text-xs font-semibold text-summit-navy truncate">{c.author_name}</div>
+                        <div className="text-[9px] text-gray-500 uppercase tracking-wider flex items-center gap-1">
                           <ShieldCheck size={8} />
                           {c.author_role === "admin" ? "Admin" : "Uzman"}
-                          <span className="text-white/30">·</span>
+                          <span className="text-gray-300">·</span>
                           <Clock size={8} /> {new Date(c.created_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </div>
                       </div>
                     </div>
                     {(currentUser?.role === "admin" || c.author_email === currentUser?.email) && (
-                      <button onClick={() => deleteComment(c.id)} className="text-red-300/70 hover:text-red-300 p-1 rounded hover:bg-red-500/15" title="Sil" data-testid={`delete-comment-${c.id}`}>
+                      <button onClick={() => deleteComment(c.id)} className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50" title="Sil" data-testid={`delete-comment-${c.id}`}>
                         <Trash2 size={11} />
                       </button>
                     )}
                   </div>
-                  <p className="text-sm text-white/85 whitespace-pre-wrap leading-relaxed">{c.comment}</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{c.comment}</p>
                 </div>
               ))}
             </div>
 
             {/* Add comment */}
-            <form onSubmit={submit} className="mt-3 bg-white/[0.05] border border-white/10 rounded-xl p-3">
+            <form onSubmit={submit} className="mt-3 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 placeholder="Bu portföy hakkında uzman yorumunuzu yazın..."
                 rows={3}
                 maxLength={4000}
-                className="w-full bg-transparent text-sm text-white placeholder-white/40 focus:outline-none resize-none"
+                className="w-full bg-transparent text-sm text-summit-navy placeholder-gray-400 focus:outline-none resize-none"
                 data-testid="comment-textarea"
               />
-              {err && <div className="text-red-300 text-xs mb-2">{err}</div>}
-              <div className="flex items-center justify-between mt-1 pt-2 border-t border-white/5">
-                <span className="text-[10px] text-white/40">{comment.length} / 4000</span>
+              {err && <div className="text-red-600 text-xs mb-2">{err}</div>}
+              <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100">
+                <span className="text-[10px] text-gray-400">{comment.length} / 4000</span>
                 <button
                   type="submit"
                   disabled={submitting || !comment.trim()}
-                  className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-summit-navy rounded-lg px-4 py-2 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50 transition-all"
+                  className="bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-md text-white rounded-lg px-4 py-2 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50 transition-all"
                   data-testid="comment-submit"
                 >
                   <Send size={12} /> {submitting ? "Gönderiliyor..." : "Yorum Gönder"}
@@ -468,8 +469,8 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
           </div>
 
           {/* Privacy note */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-lg p-3 text-[11px] text-white/55 leading-relaxed">
-            <strong className="text-white/70">Gizlilik:</strong> Katılımcının telefon/e-posta bilgileri sadece admin panelinden görüntülenebilir. Bu panelde sadece portföy ve demografik veriler yer alır.
+          <div className="bg-summit-paper border border-gray-200 rounded-lg p-3 text-[11px] text-gray-600 leading-relaxed">
+            <strong className="text-summit-navy">Gizlilik:</strong> Katılımcının telefon/e-posta bilgileri sadece admin panelinden görüntülenebilir. Bu panelde sadece portföy ve demografik veriler yer alır.
           </div>
         </div>
       </div>
@@ -481,21 +482,20 @@ function DetailItem({ item }) {
   const isDaire = item.kind === "daire";
   const Icon = isDaire ? Building : Trees;
   const label = isDaire ? `Daire ${item.daire_type || ""}` : (ARSA_LABEL[item.arsa_type] || "Arazi");
-  const accent = isDaire ? "amber" : "emerald";
 
   return (
-    <div className={`group relative bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-white/10 hover:border-${accent}-400/30 rounded-xl transition-all`}>
+    <div className="group relative bg-white border border-gray-200 hover:border-summit-navy/30 rounded-xl transition-all shadow-sm">
       <div className="flex items-stretch">
-        <div className="px-3 py-3 border-r border-dashed border-white/10 flex flex-col items-center justify-center min-w-[60px]">
-          <div className={`w-8 h-8 rounded-lg ${isDaire ? "bg-amber-400/15 border-amber-400/30" : "bg-emerald-400/15 border-emerald-400/30"} border flex items-center justify-center mb-1`}>
-            <Icon size={14} className={isDaire ? "text-amber-300" : "text-emerald-300"} />
+        <div className="px-3 py-3 border-r border-dashed border-gray-200 flex flex-col items-center justify-center min-w-[60px]">
+          <div className={`w-8 h-8 rounded-lg ${isDaire ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"} border flex items-center justify-center mb-1`}>
+            <Icon size={14} className={isDaire ? "text-amber-600" : "text-emerald-600"} />
           </div>
         </div>
         <div className="flex-1 px-3 py-3 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <div className="font-semibold text-white text-sm truncate">{label}</div>
-              <div className="text-[11px] text-white/65 mt-0.5 truncate flex items-center gap-1">
+              <div className="font-semibold text-summit-navy text-sm truncate">{label}</div>
+              <div className="text-[11px] text-gray-600 mt-0.5 truncate flex items-center gap-1">
                 <MapPin size={9} /> {item.city} / {item.district}{item.neighborhood ? ` · ${item.neighborhood}` : ""}
               </div>
               {!isDaire && (
@@ -506,10 +506,10 @@ function DetailItem({ item }) {
                 </div>
               )}
               {item.description && (
-                <div className="text-[11px] text-white/45 mt-1.5 italic line-clamp-2">"{item.description}"</div>
+                <div className="text-[11px] text-gray-500 mt-1.5 italic line-clamp-2">"{item.description}"</div>
               )}
             </div>
-            <div className={`font-bold text-base tabular-nums shrink-0 ${isDaire ? "text-amber-300" : "text-emerald-300"}`}>{fmtTL(item.budget)}</div>
+            <div className={`font-bold text-base tabular-nums shrink-0 ${isDaire ? "text-amber-600" : "text-emerald-600"}`}>{fmtTL(item.budget)}</div>
           </div>
         </div>
       </div>
@@ -519,7 +519,7 @@ function DetailItem({ item }) {
 
 function Chip({ icon: Icon, text }) {
   return (
-    <span className="bg-white/[0.07] border border-white/10 text-white/75 rounded px-1.5 py-0.5 text-[10px] inline-flex items-center gap-1">
+    <span className="bg-summit-paper border border-gray-200 text-gray-700 rounded px-1.5 py-0.5 text-[10px] inline-flex items-center gap-1">
       <Icon size={9} /> {text}
     </span>
   );
@@ -527,14 +527,14 @@ function Chip({ icon: Icon, text }) {
 
 function StatTile({ icon: Icon, label, value, accent = "amber", small = false }) {
   const colors = accent === "emerald"
-    ? { bg: "from-emerald-400/15 to-emerald-500/5", border: "border-emerald-400/30", text: "text-emerald-300" }
-    : { bg: "from-amber-400/15 to-amber-500/5", border: "border-amber-400/30", text: "text-amber-300" };
+    ? { bg: "from-emerald-50 to-emerald-100/40", border: "border-emerald-200", text: "text-emerald-600" }
+    : { bg: "from-amber-50 to-amber-100/40", border: "border-amber-200", text: "text-amber-600" };
   return (
-    <div className={`bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-xl p-3`}>
-      <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-white/60 font-bold mb-1">
+    <div className={`bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-xl p-3 shadow-sm`}>
+      <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-wider text-gray-500 font-bold mb-1">
         <Icon size={11} className={colors.text} /> {label}
       </div>
-      <div className={`font-bold tabular-nums text-white ${small ? "text-sm sm:text-base" : "text-xl sm:text-2xl"}`}>{value}</div>
+      <div className={`font-bold tabular-nums text-summit-navy ${small ? "text-sm sm:text-base" : "text-xl sm:text-2xl"}`}>{value}</div>
     </div>
   );
 }
