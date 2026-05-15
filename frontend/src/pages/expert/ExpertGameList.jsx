@@ -86,46 +86,43 @@ export default function ExpertGameList() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-summit-navy via-[#1A264F] to-[#0F1833] text-white font-body">
-      {/* Decorative */}
+    <div className="min-h-screen bg-gradient-to-br from-summit-paper via-white to-summit-paper text-summit-navy font-body">
+      {/* Decorative — subtle */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -right-24 w-96 h-96 bg-amber-400/8 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-24 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-3xl" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }} />
+        <div className="absolute -top-32 -right-24 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-24 w-[500px] h-[500px] bg-summit-navy/[0.04] rounded-full blur-3xl" />
       </div>
 
-      {/* Top Bar */}
-      <header className="relative border-b border-white/10 backdrop-blur-md bg-summit-navy/40 sticky top-0 z-40">
+      {/* Top Bar — light corporate */}
+      <header className="relative bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-summit-navy via-amber-400 to-summit-navy" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0">
-              <Sparkles size={16} className="text-summit-navy" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shrink-0 shadow-sm">
+              <Sparkles size={18} className="text-summit-navy" />
             </div>
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-wider text-amber-300/80 font-semibold">Arsa Yatırım · Uzman Paneli</div>
-              <div className="font-heading text-sm sm:text-base font-bold text-white leading-tight truncate">Yatırım Simülatörü Değerlendirme</div>
+              <div className="text-[10px] uppercase tracking-wider text-amber-600 font-bold">Arsa Yatırım · Uzman Paneli</div>
+              <div className="font-heading text-sm sm:text-base font-bold text-summit-navy leading-tight truncate">Yatırım Simülatörü Değerlendirme</div>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 bg-white/[0.06] border border-white/10 rounded-lg px-3 py-1.5">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-summit-navy text-[10px] font-bold">
+            <div className="hidden sm:flex items-center gap-2 bg-summit-paper border border-gray-200 rounded-lg px-3 py-1.5">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-[10px] font-bold">
                 {(user?.name || user?.email || "U")[0].toUpperCase()}
               </div>
               <div className="leading-tight">
-                <div className="text-xs font-semibold text-white truncate max-w-[120px]">{user?.name || user?.email}</div>
-                <div className="text-[9px] uppercase tracking-wider text-amber-300/80">{user?.role === "admin" ? "Admin" : "Uzman"}</div>
+                <div className="text-xs font-semibold text-summit-navy truncate max-w-[120px]">{user?.name || user?.email}</div>
+                <div className="text-[9px] uppercase tracking-wider text-amber-600 font-bold">{user?.role === "admin" ? "Admin" : "Uzman"}</div>
               </div>
             </div>
             <button onClick={load} title="Yenile" disabled={refreshing}
-              className="w-9 h-9 rounded-lg bg-white/[0.06] border border-white/10 hover:bg-white/[0.12] flex items-center justify-center text-white/80 transition-colors disabled:opacity-50"
+              className="w-9 h-9 rounded-lg bg-white border border-gray-200 hover:border-summit-navy/40 hover:bg-summit-paper flex items-center justify-center text-summit-navy transition-colors disabled:opacity-50"
               data-testid="expert-refresh">
               <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             </button>
             <button onClick={handleLogout}
-              className="w-9 h-9 rounded-lg bg-white/[0.06] border border-white/10 hover:bg-red-500/20 hover:border-red-400/40 flex items-center justify-center text-white/80 hover:text-red-300 transition-colors"
+              className="w-9 h-9 rounded-lg bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors"
               title="Çıkış"
               data-testid="expert-logout">
               <LogOut size={14} />
@@ -148,13 +145,13 @@ export default function ExpertGameList() {
         {/* Search + Filter */}
         <div className="flex flex-col sm:flex-row gap-2 mb-4">
           <div className="relative flex-1">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="İsim, meslek veya şehir ara..."
-              className="w-full bg-white/[0.07] border border-white/10 rounded-lg pl-9 pr-3 py-2.5 text-white text-sm placeholder-white/40 focus:outline-none focus:border-amber-400/50 transition-colors"
+              className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-navy transition-colors shadow-sm"
               data-testid="expert-search"
             />
           </div>
@@ -170,7 +167,7 @@ export default function ExpertGameList() {
                 <button
                   key={o.v}
                   onClick={() => setFilterKind(o.v)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${active ? "bg-amber-400 text-summit-navy" : "bg-white/[0.07] border border-white/10 text-white/70 hover:bg-white/[0.12]"}`}
+                  className={`px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${active ? "bg-summit-navy text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:border-summit-navy/40 hover:text-summit-navy"}`}
                   data-testid={`filter-${o.v}`}
                 >
                   {I && <I size={12} />}{o.l}
@@ -182,7 +179,7 @@ export default function ExpertGameList() {
 
         {/* Grid of entry cards */}
         {filtered.length === 0 ? (
-          <div className="bg-white/[0.05] border border-white/10 rounded-xl p-12 text-center text-white/50 text-sm">
+          <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-400 text-sm shadow-sm">
             Henüz kayıt yok.
           </div>
         ) : (
