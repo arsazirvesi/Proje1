@@ -479,7 +479,7 @@ def render_register_confirmation_email(guest: dict, seq_number: int, public_base
     accent_text = "#fff" if is_summit else "#22316a"
     label = "Arsa Yatırım Zirvesi 2026" if is_summit else "8. Gayrimenkul Proje Yatırım Fuarı"
     sub_label = "Konferans · Panel · Networking" if is_summit else "Proje Fuarı · Maket Sergisi"
-    venue_info = ("21 Mayıs 2026 · 09:00 - 19:00" if is_summit else "20-21 Mayıs 2026 · Sınırsız Giriş")
+    venue_info = ("21 Mayıs 2026 · 11:30 - 15:50" if is_summit else "20-21 Mayıs 2026 · 10:00 - 19:00")
     intro = (
         "Arsa Yatırım Zirvesi 2026 konferans programına kaydınız başarıyla alınmıştır."
         if is_summit
@@ -2966,7 +2966,7 @@ def render_reminder_email(guest: dict, public_base_url: str) -> tuple[str, str]:
     accent_bg = "#22316a" if is_summit else "#F5E6A3"
     accent_text = "#fff" if is_summit else "#22316a"
     label = "Arsa Yatırım Zirvesi 2026" if is_summit else "8. Gayrimenkul Proje Yatırım Fuarı"
-    venue_info = ("21 Mayıs 2026 · 09:00 - 19:00" if is_summit else "20-21 Mayıs 2026 · Sınırsız Giriş")
+    venue_info = ("21 Mayıs 2026 · 11:30 - 15:50" if is_summit else "20-21 Mayıs 2026 · 10:00 - 19:00")
     subject = f"Hatırlatma · {label} · 21 Mayıs"
     name = (guest.get("name") or "").strip() or "Misafir"
     guest_id = str(guest.get("_id") or "")
@@ -3748,7 +3748,7 @@ async def startup():
             "key": "main",
             "event_datetime": "2026-05-21T09:00:00+03:00",
             "event_date_label": "21 Mayıs 2026",
-            "event_time_label": "09:00 - 19:00",
+            "event_time_label": "11:30 - 15:50",
             "event_location": "Hilton İstanbul Bosphorus",
             "speakers_count": 4,
             "sessions_count": 12,
@@ -3821,8 +3821,8 @@ async def startup():
             "robots": "index, follow",
             "favicon_url": "",
             "event_name": "Arsa Yatırım Zirvesi 2026",
-            "event_start_date": "2026-05-21T09:00:00+03:00",
-            "event_end_date": "2026-05-21T19:00:00+03:00",
+            "event_start_date": "2026-05-21T11:30:00+03:00",
+            "event_end_date": "2026-05-21T15:50:00+03:00",
             "event_location_name": "Hilton İstanbul Bosphorus",
             "event_location_address": "Cumhuriyet Cd. No:50, 34367 Şişli/İstanbul",
             "event_organizer": "FIRAT CONSTRUCTION YAPI A.Ş.",
