@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import {
   Wallet, MapPin, Plus, Trash2, TrendingUp, Share2, ArrowRight, ArrowLeft,
   Sparkles, RefreshCw, AlertCircle, Building, Trees, Mail, User, Phone,
   Briefcase, Calendar as CalendarIcon, Target, Award, BadgeCheck, Coins,
   Ruler, Home, Users as UsersIcon, Clock, Layers, Search, Check, X as XIcon,
+  ChevronLeft,
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import KvkkConsent from "../../components/KvkkConsent";
@@ -148,6 +150,15 @@ export default function InvestmentGamePage() {
       </div>
 
       <div className="relative max-w-3xl mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-12">
+        {/* Back to Home — visible across all steps */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 bg-white/[0.08] hover:bg-white/[0.16] backdrop-blur-sm border border-white/15 hover:border-amber-300/40 text-white/85 hover:text-white rounded-full pl-2.5 pr-3.5 py-1.5 text-xs font-semibold transition-all mb-4 sm:mb-5"
+          data-testid="back-to-home-simulator"
+        >
+          <ChevronLeft size={14} /> Ana Sayfa
+        </Link>
+
         {/* Header — compact & FIXED across all steps */}
         <div className="text-center mb-4 sm:mb-6">
           <div className="inline-flex items-center gap-1.5 bg-amber-400/15 backdrop-blur-sm border border-amber-400/40 rounded-full px-3 py-1">
