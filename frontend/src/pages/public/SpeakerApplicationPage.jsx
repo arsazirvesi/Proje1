@@ -188,8 +188,31 @@ export default function SpeakerApplicationPage() {
   const [kvkk, setKvkk] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [pkgOverrides, setPkgOverrides] = useState({});
   const formRef = useRef(null);
   const countdown = useCountdown();
+
+  // Fetch admin-managed sponsor package prices/sold_out
+  useEffect(() => {
+    axios.get(`${API}/sponsor-packages`)
+      .then(({ data }) => {
+        const map = {};
+        (data || []).forEach(p => { map[p.key] = p; });
+        setPkgOverrides(map);
+      })
+      .catch(() => {/* fallback to defaults */});
+  }, []);
+
+  // Merge overrides with hardcoded tiers
+  const tiers = SPONSOR_TIERS.map(t => {
+    const o = pkgOverrides[t.pkg];
+    if (!o) return t;
+    return {
+      ...t,
+      sold: o.sold_out !== undefined ? o.sold_out : t.sold,
+      price_label: o.price_label || "",
+    };
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -468,7 +491,7 @@ export default function SpeakerApplicationPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SPONSOR_TIERS.map((t, i) => {
+            {tiers.map((t, i) => {
               const Icon = t.icon;
               return (
                 <div key={i}
@@ -508,6 +531,11 @@ export default function SpeakerApplicationPage() {
                     <p className="relative text-white/85 text-[0.68rem] uppercase tracking-[0.18em] mt-1.5 font-semibold">
                       {t.sold ? "Sahibini Buldu" : t.highlight ? "Premium Paket" : "Standart Paket"}
                     </p>
+                    {t.price_label && (
+                      <div className="relative mt-3 inline-block bg-white/15 backdrop-blur-sm border border-white/25 rounded-full px-3.5 py-1">
+                        <span className="text-white text-sm font-bold tracking-tight tabular-nums drop-shadow">{t.price_label}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Perks */}

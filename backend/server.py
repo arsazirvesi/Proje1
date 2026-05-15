@@ -685,6 +685,18 @@ async def get_seo_settings():
     return clean_doc(doc)
 
 
+@api_router.get("/sponsor-packages")
+async def get_sponsor_packages():
+    docs = await db.sponsor_packages.find({}, {"_id": 0}).sort("order", 1).to_list(20)
+    return docs
+
+
+class SponsorPackageUpdate(BaseModel):
+    price_label: Optional[str] = None
+    sold_out: Optional[bool] = None
+    label: Optional[str] = None
+
+
 # ==================== TR LOCATIONS (provinces & districts) ====================
 _TR_LOCATIONS_CACHE: Optional[dict] = None
 
@@ -3073,6 +3085,25 @@ async def admin_delete_sponsor(sponsor_id: str, admin: dict = Depends(get_admin_
     return {"message": "Sponsor silindi"}
 
 
+# ==================== ADMIN SPONSOR PACKAGES (Tier Prices) ====================
+@api_router.get("/admin/sponsor-packages")
+async def admin_get_sponsor_packages(admin: dict = Depends(get_admin_user)):
+    docs = await db.sponsor_packages.find({}, {"_id": 0}).sort("order", 1).to_list(20)
+    return docs
+
+@api_router.put("/admin/sponsor-packages/{pkg_key}")
+async def admin_update_sponsor_package(pkg_key: str, body: SponsorPackageUpdate, admin: dict = Depends(get_admin_user)):
+    update = {k: v for k, v in body.model_dump(exclude_unset=True).items() if v is not None or k == "sold_out"}
+    if not update:
+        raise HTTPException(400, "Güncellenecek alan yok")
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    result = await db.sponsor_packages.update_one({"key": pkg_key}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(404, "Sponsor paketi bulunamadı")
+    doc = await db.sponsor_packages.find_one({"key": pkg_key}, {"_id": 0})
+    return doc
+
+
 # ==================== ADMIN BANNERS ====================
 
 @api_router.get("/admin/banners")
@@ -3646,6 +3677,24 @@ async def startup():
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
         logger.info("SEO settings seeded")
+
+    # Seed sponsor packages
+    if await db.sponsor_packages.count_documents({}) == 0:
+        await db.sponsor_packages.insert_many([
+            {"key": "ana", "label": "Ana Sponsor", "order": 1,
+             "price_label": "Talep Üzerine", "sold_out": True,
+             "updated_at": datetime.now(timezone.utc).isoformat()},
+            {"key": "altin", "label": "Altın Sponsor", "order": 2,
+             "price_label": "Talep Üzerine", "sold_out": False,
+             "updated_at": datetime.now(timezone.utc).isoformat()},
+            {"key": "gumus", "label": "Gümüş Sponsor", "order": 3,
+             "price_label": "Talep Üzerine", "sold_out": False,
+             "updated_at": datetime.now(timezone.utc).isoformat()},
+            {"key": "bronz", "label": "Bronz Sponsor", "order": 4,
+             "price_label": "Talep Üzerine", "sold_out": False,
+             "updated_at": datetime.now(timezone.utc).isoformat()},
+        ])
+        logger.info("Sponsor packages seeded")
 
     # Write test credentials
     creds_path = Path("/app/memory/test_credentials.md")

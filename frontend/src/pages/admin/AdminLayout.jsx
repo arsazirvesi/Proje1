@@ -22,6 +22,7 @@ const navItems = [
   { label: "Bülten Üyeleri", href: "/admin/bulten-uyeleri", icon: Users },
   { label: "Konuşmacılar (Site)", href: "/admin/konusmacilar", icon: Mic2 },
   { label: "Sponsorlar (Site)", href: "/admin/sponsorlar", icon: Award },
+  { label: "💰 Sponsor Paket Fiyatları", href: "/admin/sponsor-paketleri", icon: Award },
   { label: "Banner Yönetimi", href: "/admin/bannerlar", icon: Image },
   { label: "Hero Slideshow (Banner Foto)", href: "/admin/hero-slides", icon: Image },
   { label: "Blog", href: "/admin/blog", icon: FileText },

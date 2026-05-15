@@ -35,6 +35,7 @@ import SpeakerApplicationList from "./pages/admin/SpeakerApplicationList";
 import AdminUsers from "./pages/admin/AdminUsers";
 import SpeakerManagement from "./pages/admin/SpeakerManagement";
 import SponsorManagement from "./pages/admin/SponsorManagement";
+import SponsorPackagesManagement from "./pages/admin/SponsorPackagesManagement";
 import BannerManagement from "./pages/admin/BannerManagement";
 import BlogManagement from "./pages/admin/BlogManagement";
 import EventManagement from "./pages/admin/EventManagement";
@@ -131,6 +132,7 @@ function App() {
               <Route path="bulten-uyeleri" element={<MemberList />} />
               <Route path="konusmacilar" element={<SpeakerManagement />} />
               <Route path="sponsorlar" element={<SponsorManagement />} />
+              <Route path="sponsor-paketleri" element={<SponsorPackagesManagement />} />
               <Route path="bannerlar" element={<BannerManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="etkinlikler" element={<EventManagement />} />
