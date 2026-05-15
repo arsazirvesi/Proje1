@@ -4,7 +4,7 @@ import axios from "axios";
 import {
   TrendingUp, Users, Building, Trees, MapPin, Sparkles, LogOut, Search,
   MessageSquare, Send, Trash2, Clock, Ruler, Layers, Home, Briefcase,
-  Calendar, ShieldCheck, ChevronDown, RefreshCw, X,
+  Calendar, ShieldCheck, ChevronDown, RefreshCw, X, Maximize, ArrowRight,
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import { useAuth } from "../../contexts/AuthContext";
@@ -386,6 +386,26 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
         </div>
 
         <div className="px-5 sm:px-6 py-5 space-y-5">
+          {/* Presentation Mode Button — for stage use */}
+          <a
+            href={`/uzman/sunum/${entry.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between bg-summit-navy hover:bg-summit-navy-dark text-white rounded-xl px-4 py-3 transition-colors group"
+            data-testid="open-presentation-mode"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-amber-400 flex items-center justify-center text-summit-navy shrink-0">
+                <Maximize size={16} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-bold leading-tight">Sahne / Sunum Modu</div>
+                <div className="text-[11px] text-white/70 mt-0.5">Yeni sekmede tam ekran projeksiyon görünümü</div>
+              </div>
+            </div>
+            <ArrowRight size={16} className="text-amber-300 shrink-0 group-hover:translate-x-1 transition-transform" />
+          </a>
+
           {/* Budget summary — balanced scale */}
           <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 border border-amber-200 rounded-2xl p-4 sm:p-5 grid grid-cols-3 gap-3 sm:gap-4 shadow-sm">
             <div className="text-center">

@@ -2531,6 +2531,17 @@ async def expert_list_investment_game(limit: int = 500, user: dict = Depends(get
     return [_scrub_entry_for_expert(d) for d in docs]
 
 
+@api_router.get("/expert/investment-game/{entry_id}")
+async def expert_get_investment_game(entry_id: str, user: dict = Depends(get_expert_or_admin_user)):
+    try:
+        doc = await db.investment_game.find_one({"_id": ObjectId(entry_id)})
+    except Exception:
+        raise HTTPException(400, "Geçersiz ID")
+    if not doc:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    return _scrub_entry_for_expert(doc)
+
+
 @api_router.get("/expert/investment-game/stats")
 async def expert_investment_game_stats(user: dict = Depends(get_expert_or_admin_user)):
     total = await db.investment_game.count_documents({})
