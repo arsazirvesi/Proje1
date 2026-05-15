@@ -86,15 +86,29 @@ export default function ExpertGameList() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-summit-paper via-white to-summit-paper text-summit-navy font-body">
-      {/* Decorative — subtle */}
+    <div className="min-h-screen text-summit-navy font-body relative bg-[#F4F2EC]">
+      {/* Layered background — corporate but with character */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -right-24 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-24 w-[500px] h-[500px] bg-summit-navy/[0.04] rounded-full blur-3xl" />
+        {/* Soft warm gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#F4F2EC] via-[#FAF8F2] to-[#EFEAE0]" />
+        {/* Dot grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.18]"
+          style={{
+            backgroundImage: "radial-gradient(circle, #1E2C5B 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
+        {/* Decorative gradient orbs */}
+        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-amber-300/25 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -left-32 w-[420px] h-[420px] bg-summit-navy/[0.06] rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 right-1/4 w-[460px] h-[460px] bg-amber-400/15 rounded-full blur-3xl" />
+        {/* Diagonal accent line */}
+        <div className="absolute inset-x-0 top-[55%] h-px bg-gradient-to-r from-transparent via-summit-navy/10 to-transparent" />
       </div>
 
       {/* Top Bar — light corporate */}
-      <header className="relative bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+      <header className="relative bg-white/80 backdrop-blur-xl border-b border-gray-200/70 sticky top-0 z-40 shadow-sm">
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-summit-navy via-amber-400 to-summit-navy" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
@@ -107,7 +121,7 @@ export default function ExpertGameList() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 bg-summit-paper border border-gray-200 rounded-lg px-3 py-1.5">
+            <div className="hidden sm:flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm">
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-[10px] font-bold">
                 {(user?.name || user?.email || "U")[0].toUpperCase()}
               </div>
@@ -117,12 +131,12 @@ export default function ExpertGameList() {
               </div>
             </div>
             <button onClick={load} title="Yenile" disabled={refreshing}
-              className="w-9 h-9 rounded-lg bg-white border border-gray-200 hover:border-summit-navy/40 hover:bg-summit-paper flex items-center justify-center text-summit-navy transition-colors disabled:opacity-50"
+              className="w-9 h-9 rounded-lg bg-white border border-gray-200 hover:border-summit-navy/40 hover:bg-summit-paper flex items-center justify-center text-summit-navy transition-colors disabled:opacity-50 shadow-sm"
               data-testid="expert-refresh">
               <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
             </button>
             <button onClick={handleLogout}
-              className="w-9 h-9 rounded-lg bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors"
+              className="w-9 h-9 rounded-lg bg-white border border-gray-200 hover:bg-red-50 hover:border-red-300 flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors shadow-sm"
               title="Çıkış"
               data-testid="expert-logout">
               <LogOut size={14} />
@@ -151,7 +165,7 @@ export default function ExpertGameList() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="İsim, meslek veya şehir ara..."
-              className="w-full bg-white border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-navy transition-colors shadow-sm"
+              className="w-full bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none focus:border-summit-navy transition-colors shadow-sm"
               data-testid="expert-search"
             />
           </div>
@@ -167,7 +181,7 @@ export default function ExpertGameList() {
                 <button
                   key={o.v}
                   onClick={() => setFilterKind(o.v)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${active ? "bg-summit-navy text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:border-summit-navy/40 hover:text-summit-navy"}`}
+                  className={`px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-all ${active ? "bg-summit-navy text-white shadow-sm" : "bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-600 hover:border-summit-navy/40 hover:text-summit-navy"}`}
                   data-testid={`filter-${o.v}`}
                 >
                   {I && <I size={12} />}{o.l}
@@ -179,7 +193,7 @@ export default function ExpertGameList() {
 
         {/* Grid of entry cards */}
         {filtered.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-400 text-sm shadow-sm">
+          <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-12 text-center text-gray-400 text-sm shadow-sm">
             Henüz kayıt yok.
           </div>
         ) : (
@@ -221,10 +235,12 @@ function EntryCard({ entry, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="group relative bg-white hover:bg-summit-paper border border-gray-200 hover:border-summit-navy/40 rounded-2xl p-4 text-left transition-all overflow-hidden shadow-sm hover:shadow-md"
+      className="group relative bg-white hover:bg-white border border-gray-200 hover:border-summit-navy/40 rounded-2xl p-4 text-left transition-all overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5"
       data-testid={`expert-card-${entry.id}`}
     >
-      <div className="absolute -top-12 -right-12 w-28 h-28 bg-amber-200/30 rounded-full blur-2xl group-hover:bg-amber-300/40 transition-all" />
+      {/* Top corporate stripe */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-summit-navy/0 via-amber-400/70 to-summit-navy/0 opacity-60 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute -top-12 -right-12 w-28 h-28 bg-amber-200/35 rounded-full blur-2xl group-hover:bg-amber-300/50 transition-all" />
 
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-2 relative">
