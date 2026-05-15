@@ -343,137 +343,137 @@ function EntryDetail({ entry, currentUser, onClose, onCommentAdded }) {
   return (
     <div className="fixed inset-0 z-50 flex" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} data-testid="expert-detail">
       <div className="absolute inset-0 bg-summit-navy/40 backdrop-blur-sm" />
-      <div className="relative ml-auto h-full w-full max-w-5xl bg-white border-l border-gray-200 overflow-y-auto shadow-2xl">
+      <div className="relative ml-auto h-full w-full max-w-3xl bg-white border-l border-gray-200 overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200 px-6 sm:px-10 py-6 flex items-center justify-between z-10">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-summit-navy via-amber-400 to-summit-navy" />
-          <div className="flex items-center gap-5 min-w-0">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-2xl sm:text-3xl font-bold shrink-0 shadow-md">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200 px-5 sm:px-6 py-4 flex items-center justify-between z-10">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-summit-navy via-amber-400 to-summit-navy" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-base font-bold shrink-0 shadow-sm">
               {(entry.name || "?")[0].toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="font-heading text-2xl sm:text-4xl text-summit-navy font-bold truncate tracking-tight uppercase">{entry.name}</div>
-              <div className="text-sm sm:text-base text-gray-600 truncate flex items-center gap-3 mt-1">
-                <span className="inline-flex items-center gap-1.5"><Briefcase size={14} /> {entry.profession}</span>
+              <div className="font-heading text-lg sm:text-xl text-summit-navy font-bold truncate tracking-tight">{entry.name}</div>
+              <div className="text-xs text-gray-500 truncate flex items-center gap-2 mt-0.5">
+                <span className="inline-flex items-center gap-1"><Briefcase size={11} /> {entry.profession}</span>
                 <span className="text-gray-300">·</span>
                 <span>{entry.age} yaş</span>
                 {entry.created_at && (<>
                   <span className="text-gray-300">·</span>
-                  <span className="inline-flex items-center gap-1.5"><Calendar size={14} />{new Date(entry.created_at).toLocaleDateString("tr-TR")}</span>
+                  <span className="inline-flex items-center gap-1"><Calendar size={11} />{new Date(entry.created_at).toLocaleDateString("tr-TR")}</span>
                 </>)}
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="w-11 h-11 rounded-lg bg-summit-paper hover:bg-gray-100 border border-gray-200 flex items-center justify-center text-summit-navy shrink-0" data-testid="expert-detail-close">
-            <X size={20} />
+          <button onClick={onClose} className="w-9 h-9 rounded-lg bg-summit-paper hover:bg-gray-100 border border-gray-200 flex items-center justify-center text-summit-navy shrink-0" data-testid="expert-detail-close">
+            <X size={16} />
           </button>
         </div>
 
-        <div className="px-6 sm:px-10 py-8 space-y-8">
-          {/* Budget summary — PRESENTATION SCALE */}
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border-2 border-amber-200 rounded-3xl p-6 sm:p-8 grid grid-cols-3 gap-4 sm:gap-6 shadow-sm">
+        <div className="px-5 sm:px-6 py-5 space-y-5">
+          {/* Budget summary — balanced scale */}
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 border border-amber-200 rounded-2xl p-4 sm:p-5 grid grid-cols-3 gap-3 sm:gap-4 shadow-sm">
             <div className="text-center">
-              <div className="text-xs sm:text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">Bütçe</div>
-              <div className="text-2xl sm:text-4xl lg:text-5xl font-bold text-summit-navy tabular-nums tracking-tight">{fmtTL(entry.starting_budget)}</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">Bütçe</div>
+              <div className="text-base sm:text-xl font-bold text-summit-navy tabular-nums tracking-tight">{fmtTL(entry.starting_budget)}</div>
             </div>
-            <div className="border-l-2 border-r-2 border-amber-200/70 px-3 sm:px-6 text-center">
-              <div className="text-xs sm:text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">Yatırım</div>
-              <div className="text-2xl sm:text-4xl lg:text-5xl font-bold text-amber-600 tabular-nums tracking-tight">{fmtTL(entry.total_spent)}</div>
+            <div className="border-l border-r border-amber-200/70 px-2 sm:px-3 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">Yatırım</div>
+              <div className="text-base sm:text-xl font-bold text-amber-600 tabular-nums tracking-tight">{fmtTL(entry.total_spent)}</div>
             </div>
             <div className="text-center">
-              <div className="text-xs sm:text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">Kalan</div>
-              <div className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-700 tabular-nums tracking-tight">{fmtTL(entry.remaining)}</div>
+              <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-1">Kalan</div>
+              <div className="text-base sm:text-xl font-bold text-gray-700 tabular-nums tracking-tight">{fmtTL(entry.remaining)}</div>
             </div>
           </div>
 
           {/* Badges */}
           {(entry.badges || []).length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {(entry.badges || []).map(b => (
-                <span key={b.id} className="bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-4 py-1.5 text-sm font-bold" title={b.description}>
+                <span key={b.id} className="bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-2.5 py-1 text-[10px] font-bold" title={b.description}>
                   {b.label}
                 </span>
               ))}
             </div>
           )}
 
-          {/* Portfolio Items — large */}
+          {/* Portfolio Items */}
           <div>
-            <div className="flex items-center gap-2.5 mb-4">
-              <TrendingUp size={20} className="text-amber-600" />
-              <h3 className="font-heading text-summit-navy text-lg sm:text-xl font-bold uppercase tracking-wider">Portföy ({entry.items?.length || 0})</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp size={15} className="text-amber-600" />
+              <h3 className="font-heading text-summit-navy text-sm sm:text-base font-bold uppercase tracking-wider">Portföy ({entry.items?.length || 0})</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {(entry.items || []).map((it, i) => <DetailItem key={i} item={it} />)}
             </div>
           </div>
 
           {/* Comments */}
           <div>
-            <div className="flex items-center gap-2.5 mb-4">
-              <MessageSquare size={20} className="text-amber-600" />
-              <h3 className="font-heading text-summit-navy text-lg sm:text-xl font-bold uppercase tracking-wider">Uzman Yorumları ({(entry.expert_comments || []).length})</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <MessageSquare size={15} className="text-amber-600" />
+              <h3 className="font-heading text-summit-navy text-sm sm:text-base font-bold uppercase tracking-wider">Uzman Yorumları ({(entry.expert_comments || []).length})</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {(entry.expert_comments || []).length === 0 && (
-                <p className="text-gray-400 text-sm italic text-center py-6 bg-summit-paper border border-gray-200 rounded-xl">Henüz yorum yok.</p>
+                <p className="text-gray-400 text-xs italic text-center py-4 bg-summit-paper border border-gray-200 rounded-lg">Henüz yorum yok.</p>
               )}
               {(entry.expert_comments || []).map(c => (
-                <div key={c.id} className="bg-summit-paper border border-gray-200 rounded-xl p-4" data-testid={`comment-${c.id}`}>
-                  <div className="flex items-center justify-between gap-2 mb-2">
+                <div key={c.id} className="bg-summit-paper border border-gray-200 rounded-xl p-3" data-testid={`comment-${c.id}`}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-xs font-bold shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-summit-navy text-[11px] font-bold shrink-0">
                         {(c.author_name || c.author_email || "?")[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-summit-navy truncate">{c.author_name}</div>
-                        <div className="text-[10px] text-gray-500 uppercase tracking-wider flex items-center gap-1">
-                          <ShieldCheck size={9} />
+                        <div className="text-xs font-semibold text-summit-navy truncate">{c.author_name}</div>
+                        <div className="text-[9px] text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                          <ShieldCheck size={8} />
                           {c.author_role === "admin" ? "Admin" : "Uzman"}
                           <span className="text-gray-300">·</span>
-                          <Clock size={9} /> {new Date(c.created_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          <Clock size={8} /> {new Date(c.created_at).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </div>
                       </div>
                     </div>
                     {(currentUser?.role === "admin" || c.author_email === currentUser?.email) && (
-                      <button onClick={() => deleteComment(c.id)} className="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50" title="Sil" data-testid={`delete-comment-${c.id}`}>
-                        <Trash2 size={13} />
+                      <button onClick={() => deleteComment(c.id)} className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50" title="Sil" data-testid={`delete-comment-${c.id}`}>
+                        <Trash2 size={12} />
                       </button>
                     )}
                   </div>
-                  <p className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">{c.comment}</p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{c.comment}</p>
                 </div>
               ))}
             </div>
 
             {/* Add comment */}
-            <form onSubmit={submit} className="mt-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <form onSubmit={submit} className="mt-3 bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 placeholder="Bu portföy hakkında uzman yorumunuzu yazın..."
                 rows={3}
                 maxLength={4000}
-                className="w-full bg-transparent text-base text-summit-navy placeholder-gray-400 focus:outline-none resize-none"
+                className="w-full bg-transparent text-sm text-summit-navy placeholder-gray-400 focus:outline-none resize-none"
                 data-testid="comment-textarea"
               />
-              {err && <div className="text-red-600 text-sm mb-2">{err}</div>}
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-                <span className="text-xs text-gray-400">{comment.length} / 4000</span>
+              {err && <div className="text-red-600 text-xs mb-2">{err}</div>}
+              <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100">
+                <span className="text-[10px] text-gray-400">{comment.length} / 4000</span>
                 <button
                   type="submit"
                   disabled={submitting || !comment.trim()}
-                  className="bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-md text-white rounded-lg px-5 py-2.5 text-sm font-bold inline-flex items-center gap-2 disabled:opacity-50 transition-all"
+                  className="bg-gradient-to-r from-summit-navy to-summit-navy-dark hover:shadow-md text-white rounded-lg px-4 py-2 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50 transition-all"
                   data-testid="comment-submit"
                 >
-                  <Send size={14} /> {submitting ? "Gönderiliyor..." : "Yorum Gönder"}
+                  <Send size={12} /> {submitting ? "Gönderiliyor..." : "Yorum Gönder"}
                 </button>
               </div>
             </form>
           </div>
 
           {/* Privacy note */}
-          <div className="bg-summit-paper border border-gray-200 rounded-lg p-4 text-sm text-gray-600 leading-relaxed">
+          <div className="bg-summit-paper border border-gray-200 rounded-lg p-3 text-[11px] text-gray-600 leading-relaxed">
             <strong className="text-summit-navy">Gizlilik:</strong> Katılımcının telefon/e-posta bilgileri sadece admin panelinden görüntülenebilir. Bu panelde sadece portföy ve demografik veriler yer alır.
           </div>
         </div>
@@ -488,32 +488,32 @@ function DetailItem({ item }) {
   const label = isDaire ? `Daire ${item.daire_type || ""}` : (ARSA_LABEL[item.arsa_type] || "Arazi");
 
   return (
-    <div className="group relative bg-white border-2 border-gray-200 hover:border-summit-navy/30 rounded-2xl transition-all shadow-sm hover:shadow-md overflow-hidden">
+    <div className="group relative bg-white border border-gray-200 hover:border-summit-navy/30 rounded-xl transition-all shadow-sm hover:shadow-md overflow-hidden">
       <div className="flex items-stretch">
-        <div className={`px-5 py-6 border-r-2 border-dashed border-gray-200 flex flex-col items-center justify-center min-w-[100px] ${isDaire ? "bg-amber-50/40" : "bg-emerald-50/40"}`}>
-          <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${isDaire ? "bg-amber-100 border-amber-200" : "bg-emerald-100 border-emerald-200"} border-2 flex items-center justify-center`}>
-            <Icon size={28} className={isDaire ? "text-amber-600" : "text-emerald-600"} />
+        <div className={`px-3 py-3 border-r border-dashed border-gray-200 flex flex-col items-center justify-center min-w-[70px] ${isDaire ? "bg-amber-50/40" : "bg-emerald-50/40"}`}>
+          <div className={`w-10 h-10 rounded-xl ${isDaire ? "bg-amber-100 border-amber-200" : "bg-emerald-100 border-emerald-200"} border flex items-center justify-center`}>
+            <Icon size={18} className={isDaire ? "text-amber-600" : "text-emerald-600"} />
           </div>
         </div>
-        <div className="flex-1 px-5 sm:px-6 py-5 min-w-0">
-          <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 px-3.5 py-3 min-w-0">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <div className="font-heading font-bold text-summit-navy text-xl sm:text-2xl truncate">{label}</div>
-              <div className="text-sm sm:text-base text-gray-600 mt-1.5 truncate flex items-center gap-1.5">
-                <MapPin size={14} className="shrink-0" /> {item.city} / {item.district}{item.neighborhood ? ` · ${item.neighborhood}` : ""}
+              <div className="font-heading font-bold text-summit-navy text-base sm:text-lg truncate">{label}</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1 truncate flex items-center gap-1.5">
+                <MapPin size={11} className="shrink-0" /> {item.city} / {item.district}{item.neighborhood ? ` · ${item.neighborhood}` : ""}
               </div>
               {!isDaire && (
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap gap-1.5 mt-2">
                   {item.area_m2 && <Chip icon={Ruler} text={`${fmtN(item.area_m2)} m²`} />}
                   {item.vade_years && <Chip icon={Clock} text={VADE_LABEL(item.vade_years)} />}
                   {item.ownership && <Chip icon={Layers} text={item.ownership === "hisseli" ? "Hisseli" : "Müstakil"} />}
                 </div>
               )}
               {item.description && (
-                <div className="text-sm sm:text-base text-gray-500 mt-3 italic leading-relaxed">"{item.description}"</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-2 italic leading-relaxed">"{item.description}"</div>
               )}
             </div>
-            <div className={`font-bold text-xl sm:text-3xl tabular-nums shrink-0 ${isDaire ? "text-amber-600" : "text-emerald-600"}`}>{fmtTL(item.budget)}</div>
+            <div className={`font-bold text-base sm:text-xl tabular-nums shrink-0 ${isDaire ? "text-amber-600" : "text-emerald-600"}`}>{fmtTL(item.budget)}</div>
           </div>
         </div>
       </div>
@@ -523,8 +523,8 @@ function DetailItem({ item }) {
 
 function Chip({ icon: Icon, text }) {
   return (
-    <span className="bg-summit-paper border border-gray-200 text-gray-700 rounded-lg px-3 py-1.5 text-sm font-semibold inline-flex items-center gap-1.5">
-      <Icon size={13} /> {text}
+    <span className="bg-summit-paper border border-gray-200 text-gray-700 rounded-md px-2 py-1 text-[11px] font-semibold inline-flex items-center gap-1">
+      <Icon size={11} /> {text}
     </span>
   );
 }
