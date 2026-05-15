@@ -49,6 +49,8 @@ import ApiKeysManagement from "./pages/admin/ApiKeysManagement";
 import VisitegoSync from "./pages/admin/VisitegoSync";
 import InvestmentGameList from "./pages/admin/InvestmentGameList";
 import IntegrationsPage from "./pages/admin/IntegrationsPage";
+import ExpertLogin from "./pages/expert/ExpertLogin";
+import ExpertGameList from "./pages/expert/ExpertGameList";
 
 function AdminRoute({ children }) {
   const { user, loading } = useAuth();
@@ -96,6 +98,11 @@ function App() {
 
             {/* Investment Mini-Game */}
             <Route path="/yatirim-oyunu" element={<InvestmentGamePage />} />
+
+            {/* Expert Panel — for invited evaluators */}
+            <Route path="/uzman/giris" element={<ExpertLogin />} />
+            <Route path="/uzman" element={<Navigate to="/uzman/yatirim-oyunu" replace />} />
+            <Route path="/uzman/yatirim-oyunu" element={<ExpertGameList />} />
 
             {/* Backward compat redirects */}
             <Route path="/uyelik" element={<Navigate to="/ziyaretci-kaydi" replace />} />

@@ -9,7 +9,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [createForm, setCreateForm] = useState({ name: "", email: "", password: "" });
+  const [createForm, setCreateForm] = useState({ name: "", email: "", password: "", role: "admin" });
   const [showPassword, setShowPassword] = useState(false);
   const [pwModal, setPwModal] = useState(null); // user object
   const [newPw, setNewPw] = useState("");
@@ -38,9 +38,9 @@ export default function AdminUsers() {
     setSubmitting(true);
     try {
       await axios.post(`${API}/admin/users`, createForm, { withCredentials: true });
-      setMsg(`${createForm.email} adresli admin oluşturuldu.`);
+      setMsg(`${createForm.email} adresli ${createForm.role === "expert" ? "uzman" : "admin"} oluşturuldu.`);
       setShowCreate(false);
-      setCreateForm({ name: "", email: "", password: "" });
+      setCreateForm({ name: "", email: "", password: "", role: "admin" });
       fetchUsers();
     } catch (e) {
       setErr(e.response?.data?.detail || "Bir hata oluştu");
@@ -88,7 +88,7 @@ export default function AdminUsers() {
           <p className="text-gray-500 text-sm mt-1">{users.length} admin · Sisteme giriş yapabilen hesaplar</p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-navy flex items-center gap-2 px-5 py-2.5 text-sm" data-testid="create-admin-btn">
-          <Plus size={15} /> Yeni Admin Ekle
+          <Plus size={15} /> Yeni Kullanıcı Ekle
         </button>
       </div>
 
@@ -137,9 +137,15 @@ export default function AdminUsers() {
                     </td>
                     <td className="text-gray-600">{u.email}</td>
                     <td className="hidden md:table-cell">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase text-summit-navy">
-                        <ShieldCheck size={13} /> Admin
-                      </span>
+                      {u.role === "expert" ? (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                          <ShieldCheck size={11} /> Uzman
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase text-summit-navy bg-summit-navy/5 border border-summit-navy/20 rounded-full px-2 py-0.5">
+                          <ShieldCheck size={11} /> Admin
+                        </span>
+                      )}
                     </td>
                     <td className="hidden lg:table-cell text-gray-500 text-xs">
                       {u.created_at?.slice(0, 10)}
@@ -176,13 +182,33 @@ export default function AdminUsers() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h3 className="font-heading text-summit-navy text-lg flex items-center gap-2">
-                  <UserCircle size={18} /> Yeni Admin Oluştur
+                  <UserCircle size={18} /> Yeni Kullanıcı Oluştur
                 </h3>
-                <p className="text-gray-500 text-xs mt-1">Yeni admin sisteme giriş yapabilecek</p>
+                <p className="text-gray-500 text-xs mt-1">{createForm.role === "expert" ? "Uzman, sadece /uzman panelinden simülatör kayıtlarını görüp yorum yapabilir" : "Admin tüm panele erişebilir"}</p>
               </div>
               <button onClick={() => { setShowCreate(false); setErr(""); }}><X size={18} className="text-gray-500" /></button>
             </div>
             <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="text-gray-600 text-xs uppercase tracking-wider mb-2 block font-semibold">Rol</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "admin", label: "Admin", desc: "Tüm yetkiler" },
+                    { value: "expert", label: "Uzman", desc: "Sadece simülatör + yorum" },
+                  ].map(o => (
+                    <button
+                      key={o.value}
+                      type="button"
+                      onClick={() => setCreateForm({...createForm, role: o.value})}
+                      className={`text-left p-3 rounded-lg border-2 transition-all ${createForm.role === o.value ? "border-summit-navy bg-summit-navy/5 shadow-sm" : "border-gray-200 hover:border-summit-navy/40"}`}
+                      data-testid={`role-${o.value}`}
+                    >
+                      <div className="font-bold text-sm text-summit-navy">{o.label}</div>
+                      <div className="text-[11px] text-gray-500 mt-0.5">{o.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div>
                 <label className="text-gray-600 text-xs uppercase tracking-wider mb-2 block font-semibold">Ad Soyad</label>
                 <input type="text" required placeholder="Ad Soyad" value={createForm.name}

@@ -106,6 +106,13 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict
     return current_user
 
 
+async def get_expert_or_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
+    """Expert role can view investment game entries (without phone/email) and comment."""
+    if current_user.get("role") not in ("admin", "expert"):
+        raise HTTPException(403, "Uzman veya admin yetkisi gerekli")
+    return current_user
+
+
 # --- Pydantic Models ---
 class UserLogin(BaseModel):
     email: EmailStr
@@ -221,6 +228,11 @@ class AdminUserCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
+    role: Optional[str] = "admin"  # "admin" | "expert"
+
+
+class ExpertCommentCreate(BaseModel):
+    comment: str = Field(..., min_length=2, max_length=4000)
 
 class AdminPasswordChange(BaseModel):
     new_password: str
@@ -2458,6 +2470,138 @@ async def admin_investment_game_reply(
     return {"sent": True, "to": to_email, "reply": reply_doc}
 
 
+# ==================== EXPERT PANEL (Investment Simulator viewing & commenting) ====================
+
+def _mask_email(email: str) -> str:
+    if not email or "@" not in email:
+        return ""
+    name, domain = email.split("@", 1)
+    if len(name) <= 2:
+        return f"{name[:1]}***@{domain}"
+    return f"{name[:2]}***@{domain}"
+
+
+def _mask_phone(phone: str) -> str:
+    if not phone:
+        return ""
+    digits = "".join(c for c in phone if c.isdigit())
+    if len(digits) < 4:
+        return "***"
+    return f"{digits[:3]}*** **{digits[-2:]}"
+
+
+def _scrub_entry_for_expert(doc: dict) -> dict:
+    """Strip phone/email for expert view; keep everything else."""
+    d = clean_doc(doc)
+    raw_email = d.get("email", "")
+    raw_phone = d.get("phone", "")
+    d.pop("email", None)
+    d.pop("phone", None)
+    d.pop("ip", None)
+    d.pop("user_agent", None)
+    d["email_masked"] = _mask_email(raw_email)
+    d["phone_masked"] = _mask_phone(raw_phone)
+    # Comments + replies — replies are private (admin emails), so strip recipient details:
+    d.setdefault("expert_comments", [])
+    # Don't expose admin replies' body to experts; just count
+    d["admin_replied_count"] = len(d.pop("replies", []) or [])
+    return d
+
+
+@api_router.get("/expert/me")
+async def expert_me(user: dict = Depends(get_expert_or_admin_user)):
+    return {"id": user.get("_id"), "email": user.get("email"), "name": user.get("name"), "role": user.get("role")}
+
+
+@api_router.get("/expert/investment-game")
+async def expert_list_investment_game(limit: int = 500, user: dict = Depends(get_expert_or_admin_user)):
+    docs = await db.investment_game.find().sort("created_at", -1).to_list(limit)
+    return [_scrub_entry_for_expert(d) for d in docs]
+
+
+@api_router.get("/expert/investment-game/stats")
+async def expert_investment_game_stats(user: dict = Depends(get_expert_or_admin_user)):
+    total = await db.investment_game.count_documents({})
+    avg_pipeline = await db.investment_game.aggregate([
+        {"$group": {"_id": None, "avg": {"$avg": "$total_spent"}}}
+    ]).to_list(1)
+    avg = int(avg_pipeline[0]["avg"]) if avg_pipeline else 0
+
+    pipeline = await db.investment_game.aggregate([
+        {"$unwind": "$items"},
+        {"$group": {"_id": "$items.kind", "count": {"$sum": 1}}}
+    ]).to_list(10)
+    kinds = {row["_id"]: row["count"] for row in pipeline}
+
+    city_pipeline = await db.investment_game.aggregate([
+        {"$unwind": "$items"},
+        {"$match": {"items.city": {"$ne": ""}}},
+        {"$group": {"_id": "$items.city", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 8},
+    ]).to_list(8)
+    top_cities = [{"city": r["_id"], "count": r["count"]} for r in city_pipeline]
+
+    return {
+        "total_players": total,
+        "avg_spent": avg,
+        "daire_count": kinds.get("daire", 0),
+        "arsa_count": kinds.get("arsa", 0),
+        "top_cities": top_cities,
+    }
+
+
+@api_router.post("/expert/investment-game/{entry_id}/comments")
+async def expert_add_comment(
+    entry_id: str,
+    body: ExpertCommentCreate,
+    user: dict = Depends(get_expert_or_admin_user),
+):
+    if not ObjectId.is_valid(entry_id):
+        raise HTTPException(400, "Geçersiz ID")
+    entry = await db.investment_game.find_one({"_id": ObjectId(entry_id)})
+    if not entry:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    now = datetime.now(timezone.utc).isoformat()
+    comment_doc = {
+        "id": secrets.token_hex(8),
+        "comment": body.comment.strip(),
+        "author_name": user.get("name") or user.get("email"),
+        "author_email": user.get("email"),
+        "author_role": user.get("role"),
+        "created_at": now,
+    }
+    await db.investment_game.update_one(
+        {"_id": ObjectId(entry_id)},
+        {"$push": {"expert_comments": comment_doc}, "$set": {"updated_at": now}},
+    )
+    return comment_doc
+
+
+@api_router.delete("/expert/investment-game/{entry_id}/comments/{comment_id}")
+async def expert_delete_comment(
+    entry_id: str,
+    comment_id: str,
+    user: dict = Depends(get_expert_or_admin_user),
+):
+    if not ObjectId.is_valid(entry_id):
+        raise HTTPException(400, "Geçersiz ID")
+    entry = await db.investment_game.find_one({"_id": ObjectId(entry_id)})
+    if not entry:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    # Admins can delete any comment; experts only their own
+    target = next((c for c in (entry.get("expert_comments") or []) if c.get("id") == comment_id), None)
+    if not target:
+        raise HTTPException(404, "Yorum bulunamadı")
+    if user.get("role") != "admin" and target.get("author_email") != user.get("email"):
+        raise HTTPException(403, "Bu yorumu silme yetkiniz yok")
+    await db.investment_game.update_one(
+        {"_id": ObjectId(entry_id)},
+        {"$pull": {"expert_comments": {"id": comment_id}}},
+    )
+    return {"deleted": True}
+
+
 # ==================== ADMIN USERS (Admin Account Management) ====================
 
 @api_router.get("/admin/users")
@@ -2469,20 +2613,23 @@ async def admin_list_users(admin: dict = Depends(get_admin_user)):
 async def admin_create_user(body: AdminUserCreate, admin: dict = Depends(get_admin_user)):
     if len(body.password) < 8:
         raise HTTPException(400, "Şifre en az 8 karakter olmalıdır")
+    role = (body.role or "admin").lower()
+    if role not in ("admin", "expert"):
+        raise HTTPException(400, "Geçersiz rol (admin veya expert)")
     email = body.email.lower()
     existing = await db.users.find_one({"email": email})
     if existing:
-        raise HTTPException(400, "Bu email ile zaten bir admin var")
+        raise HTTPException(400, "Bu email ile zaten bir kullanıcı var")
     doc = {
         "email": email,
         "password_hash": hash_password(body.password),
         "name": body.name,
-        "role": "admin",
+        "role": role,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "created_by": admin["email"],
     }
     result = await db.users.insert_one(doc)
-    return {"id": str(result.inserted_id), "email": email, "name": body.name, "message": "Yeni admin oluşturuldu"}
+    return {"id": str(result.inserted_id), "email": email, "name": body.name, "role": role, "message": "Yeni kullanıcı oluşturuldu"}
 
 @api_router.patch("/admin/users/{user_id}/password")
 async def admin_change_password(user_id: str, body: AdminPasswordChange, admin: dict = Depends(get_admin_user)):
