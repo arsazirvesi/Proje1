@@ -2911,6 +2911,149 @@ async def admin_delete_guest(guest_id: str, admin: dict = Depends(get_admin_user
     return {"message": "Ziyaretçi silindi"}
 
 
+# === Resend badge & reminder emails ===
+
+async def _build_badge_attachment(guest_full: dict) -> Optional[list]:
+    """Render badge PNG and wrap for SendGrid attachment."""
+    try:
+        is_summit = (guest_full.get("visit_type") or "summit") == "summit"
+        seq = await db.guests.count_documents({
+            "visit_type": ({"$in": ["summit", None]} if is_summit else "fair"),
+            "is_verified": True,
+            "verified_at": {"$lte": guest_full.get("verified_at") or datetime.now(timezone.utc).isoformat()},
+        })
+        badge_png = await asyncio.to_thread(render_badge_png, guest_full, seq or 1)
+        gid = str(guest_full.get("_id") or "")
+        return [{
+            "content_bytes": badge_png,
+            "filename": f"yaka-karti-{gid[-8:]}.png",
+            "mime_type": "image/png",
+        }], seq or 1
+    except Exception as e:
+        logger.error(f"Failed to render badge attachment: {e}")
+        return None, 0
+
+
+@api_router.post("/admin/guests/{guest_id}/resend-badge")
+async def admin_resend_badge(guest_id: str, background_tasks: BackgroundTasks, admin: dict = Depends(get_admin_user)):
+    try:
+        guest = await db.guests.find_one({"_id": ObjectId(guest_id)})
+    except Exception:
+        raise HTTPException(400, "Geçersiz ID")
+    if not guest:
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+    email = (guest.get("email") or "").strip().lower()
+    if not email:
+        raise HTTPException(400, "Bu ziyaretçinin e-posta adresi yok")
+
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    attachments, seq = await _build_badge_attachment(guest)
+    subject, html = render_register_confirmation_email(guest, seq, public_base)
+    background_tasks.add_task(send_email, email, subject, html, attachments)
+    await db.guests.update_one(
+        {"_id": guest["_id"]},
+        {"$set": {"last_email_sent_at": datetime.now(timezone.utc).isoformat(),
+                  "last_email_type": "badge_resend"}}
+    )
+    return {"message": f"Yaka kartı tekrar gönderildi: {email}"}
+
+
+def render_reminder_email(guest: dict, public_base_url: str) -> tuple[str, str]:
+    """Reminder email: friendly nudge + badge access link."""
+    visit_type = guest.get("visit_type") or "summit"
+    is_summit = visit_type == "summit"
+    accent = "#D4AF37" if is_summit else "#22316a"
+    accent_bg = "#22316a" if is_summit else "#F5E6A3"
+    accent_text = "#fff" if is_summit else "#22316a"
+    label = "Arsa Yatırım Zirvesi 2026" if is_summit else "8. Gayrimenkul Proje Yatırım Fuarı"
+    venue_info = ("21 Mayıs 2026 · 09:00 - 19:00" if is_summit else "20-21 Mayıs 2026 · Sınırsız Giriş")
+    subject = f"Hatırlatma · {label} · 21 Mayıs"
+    name = (guest.get("name") or "").strip() or "Misafir"
+    guest_id = str(guest.get("_id") or "")
+    badge_view_url = f"{public_base_url}/api/badge/{guest_id}"
+
+    html = f"""
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{subject}</title></head>
+<body style="margin:0;padding:0;background:#f4f4f7;font-family:'Helvetica Neue',Arial,sans-serif;color:#22316a;">
+  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f4f4f7;padding:40px 20px;">
+    <tr><td align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+        <tr><td style="background:{accent_bg};padding:30px 40px;text-align:center;">
+          <div style="color:{accent};font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;">Sevgili Misafirimiz</div>
+          <div style="color:{accent_text};font-size:24px;font-weight:700;margin-top:6px;font-family:Georgia,serif;">{label} yaklaşıyor!</div>
+          <div style="color:{accent_text};opacity:0.85;font-size:13px;margin-top:6px;">{venue_info} · Hilton İstanbul Bosphorus</div>
+        </td></tr>
+        <tr><td style="padding:40px;">
+          <p style="font-size:18px;color:#22316a;margin:0 0 16px 0;font-weight:600;">Sayın {html_escape.escape(name)},</p>
+          <p style="font-size:14px;line-height:1.7;color:#555;margin:0 0 16px 0;">
+            <strong>{label}</strong>'ne sizi bekliyoruz! Etkinlik günü hızlı bir giriş için <strong>yaka kartınızın QR kodunu</strong>
+            kayıt masasında okutmanız yeterli olacaktır. Yaka kartınız bu e-postanın ekinde yer almaktadır;
+            telefonunuza kaydedebilir ya da çıktısını yanınızda getirebilirsiniz.
+          </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f8f9fb;border-left:4px solid {accent};border-radius:6px;margin:20px 0;">
+            <tr><td style="padding:18px 22px;">
+              <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Etkinlik Bilgileri</div>
+              <div style="font-size:15px;color:#22316a;font-weight:600;">{label}</div>
+              <div style="font-size:13px;color:#555;margin-top:4px;">📅 {venue_info}</div>
+              <div style="font-size:13px;color:#555;margin-top:2px;">📍 Hilton İstanbul Bosphorus · Cumhuriyet Cd. No:50, Şişli/İstanbul</div>
+              <div style="font-size:13px;color:#555;margin-top:2px;">👔 Smart casual / iş kıyafeti önerilir</div>
+            </td></tr>
+          </table>
+          <p style="font-size:13px;color:#666;line-height:1.6;margin:18px 0;">
+            Gün boyu uzman konuşmacılar, panel oturumları, fuar alanı ve yatırım simülatörü sizi bekliyor.
+            Otopark ücretsizdir ve gün boyunca ikram alanı açıktır.
+          </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:{accent_bg};border-radius:6px;margin:24px 0;">
+            <tr><td style="padding:22px;text-align:center;">
+              <div style="font-size:12px;color:{accent};text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px;">Yaka Kartınız</div>
+              <div style="color:{accent_text};font-size:13px;line-height:1.6;margin-bottom:14px;">
+                Yaka kartınız bu e-postanın ekinde PNG olarak yer alıyor. Tarayıcıda da görüntülemek için aşağıdaki butona dokunun.
+              </div>
+              <a href="{badge_view_url}" style="display:inline-block;background:{accent};color:{("#22316a" if is_summit else "#fff")};padding:11px 28px;border-radius:6px;font-weight:600;text-decoration:none;font-size:14px;">
+                Yaka Kartını Görüntüle
+              </a>
+            </td></tr>
+          </table>
+          <p style="font-size:12px;color:#888;line-height:1.6;margin:24px 0 0 0;text-align:center;">
+            Bu hatırlatma e-postası, Arsa Yatırım Zirvesi 2026 organizasyonu tarafından gönderilmiştir.
+          </p>
+        </td></tr>
+        <tr><td style="background:#f4f4f7;padding:20px;text-align:center;font-size:11px;color:#888;">
+          © 2026 Arsa Yatırım Zirvesi · FIRAT CONSTRUCTION YAPI A.Ş.
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>
+"""
+    return subject, html
+
+
+@api_router.post("/admin/guests/{guest_id}/send-reminder")
+async def admin_send_reminder(guest_id: str, background_tasks: BackgroundTasks, admin: dict = Depends(get_admin_user)):
+    try:
+        guest = await db.guests.find_one({"_id": ObjectId(guest_id)})
+    except Exception:
+        raise HTTPException(400, "Geçersiz ID")
+    if not guest:
+        raise HTTPException(404, "Ziyaretçi bulunamadı")
+    email = (guest.get("email") or "").strip().lower()
+    if not email:
+        raise HTTPException(400, "Bu ziyaretçinin e-posta adresi yok")
+
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    attachments, _ = await _build_badge_attachment(guest)
+    subject, html = render_reminder_email(guest, public_base)
+    background_tasks.add_task(send_email, email, subject, html, attachments)
+    await db.guests.update_one(
+        {"_id": guest["_id"]},
+        {"$set": {"last_email_sent_at": datetime.now(timezone.utc).isoformat(),
+                  "last_email_type": "reminder"}}
+    )
+    return {"message": f"Hatırlatma gönderildi: {email}"}
+
+
 # ==================== ADMIN EXHIBITORS ====================
 
 @api_router.get("/admin/exhibitors")

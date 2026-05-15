@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter, BookmarkPlus, AlertCircle } from "lucide-react";
+import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter, BookmarkPlus, AlertCircle, Mail as MailIcon, Bell } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import { exportXLSX } from "../../lib/xlsx";
 
@@ -116,6 +116,36 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
       setItems(g => g.filter(x => x.id !== id));
       setMsg("Ziyaretçi silindi.");
     } catch {}
+  };
+
+  const [sendingAction, setSendingAction] = useState({}); // {id: "badge"|"reminder"}
+
+  const handleResendBadge = async (g) => {
+    if (!g.email) { setMsg("Bu ziyaretçinin e-posta adresi yok"); return; }
+    if (!window.confirm(`${g.email} adresine yaka kartı tekrar gönderilsin mi?`)) return;
+    setSendingAction(s => ({ ...s, [g.id]: "badge" }));
+    try {
+      const { data } = await axios.post(`${API}/admin/guests/${g.id}/resend-badge`, {}, { withCredentials: true });
+      setMsg(data.message || "Yaka kartı gönderildi");
+    } catch (e) {
+      setMsg(e?.response?.data?.detail || "Gönderilemedi");
+    } finally {
+      setSendingAction(s => { const c = { ...s }; delete c[g.id]; return c; });
+    }
+  };
+
+  const handleSendReminder = async (g) => {
+    if (!g.email) { setMsg("Bu ziyaretçinin e-posta adresi yok"); return; }
+    if (!window.confirm(`${g.email} adresine etkinlik hatırlatması (+ yaka kartı) gönderilsin mi?`)) return;
+    setSendingAction(s => ({ ...s, [g.id]: "reminder" }));
+    try {
+      const { data } = await axios.post(`${API}/admin/guests/${g.id}/send-reminder`, {}, { withCredentials: true });
+      setMsg(data.message || "Hatırlatma gönderildi");
+    } catch (e) {
+      setMsg(e?.response?.data?.detail || "Gönderilemedi");
+    } finally {
+      setSendingAction(s => { const c = { ...s }; delete c[g.id]; return c; });
+    }
   };
 
   const handleUpdateStatus = async (id, status, admin_notes) => {
@@ -384,7 +414,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                     <td><StatusBadge status={g.status || "new"} /></td>
                     <td className="hidden sm:table-cell">{g.created_at?.slice(0,10)}</td>
                     <td>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <button
                           onClick={() => setDetail(g)}
                           className="w-7 h-7 flex items-center justify-center rounded bg-summit-navy/10 text-summit-navy hover:bg-summit-navy/20 transition-colors"
@@ -396,9 +426,31 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-7 h-7 flex items-center justify-center rounded bg-summit-navy/10 text-summit-navy hover:bg-summit-navy/20 transition-colors"
-                          title="Yaka Kartı"
+                          title="Yaka Kartını Görüntüle"
                           data-testid={`badge-btn-${g.id}`}
                         ><ExternalLink size={13} /></a>
+                        <button
+                          onClick={() => handleResendBadge(g)}
+                          disabled={!g.email || sendingAction[g.id] === "badge"}
+                          className="w-7 h-7 flex items-center justify-center rounded bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          title={g.email ? "Yaka kartını tekrar e-posta gönder" : "E-posta yok"}
+                          data-testid={`resend-badge-${g.id}`}
+                        >
+                          {sendingAction[g.id] === "badge"
+                            ? <span className="inline-block w-3 h-3 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+                            : <MailIcon size={13} />}
+                        </button>
+                        <button
+                          onClick={() => handleSendReminder(g)}
+                          disabled={!g.email || sendingAction[g.id] === "reminder"}
+                          className="w-7 h-7 flex items-center justify-center rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          title={g.email ? "Hatırlatma + yaka kartı e-postası gönder" : "E-posta yok"}
+                          data-testid={`send-reminder-${g.id}`}
+                        >
+                          {sendingAction[g.id] === "reminder"
+                            ? <span className="inline-block w-3 h-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                            : <Bell size={13} />}
+                        </button>
                         <button
                           onClick={() => handleDelete(g.id)}
                           className="w-7 h-7 flex items-center justify-center rounded bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
