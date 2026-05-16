@@ -30,11 +30,6 @@ next-env.d.ts
 dist/
 dist
 
-# Environment files (comprehensive coverage)
-
-*token.json*
-*credentials.json*
-
 # Logs and debug files
 npm-debug.log*
 yarn-debug.log*
@@ -45,6 +40,7 @@ dump.rdb
 # System files
 .DS_Store
 *.pem
+*.key
 
 # Python
 __pycache__/
@@ -76,141 +72,20 @@ agenthub/agents/youtube/db
 # Build caches
 .cache/
 
+# Credentials (test only)
 memory/test_credentials.md
+credentials.json
+.credentials
+*token.json*
+*credentials.json*
+
+# IMPORTANT: backend/.env and frontend/.env MUST be committed for Emergent deployment.
+# DO NOT add .env, .env.*, or *.env patterns here.
+# The deploy system reads MONGO_URL, DB_NAME and other values from these committed files.
 
 # Mobile development
-android-sdk/-e 
-# Environment and credential files
-# NOTE: backend/.env and frontend/.env MUST be committed for Emergent deployment.
-# They will be auto-updated with production values at deploy time.
-credentials.json
-*.pem
-*.key
-.credentials
-frontend/node_modules/.cache/default-development/5.pack
-frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/1.pack
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
-frontend/node_modules/.cache/default-development/6.pack
-frontend/node_modules/.cache/default-development/2.pack
-frontend/node_modules/.cache/default-development/7.pack
-frontend/node_modules/.cache/default-development/4.pack
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
-frontend/node_modules/.cache/default-development/8.pack
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
-frontend/node_modules/.cache/default-development/9.pack
-frontend/node_modules/.cache/default-development/10.pack
-frontend/node_modules/.cache/default-development/13.pack
-frontend/node_modules/.cache/default-development/18.pack
-frontend/node_modules/.cache/default-development/14.pack
-frontend/node_modules/.cache/default-development/14.pack
-frontend/node_modules/.cache/default-development/21.pack
-frontend/node_modules/.cache/default-development/16.pack
-frontend/node_modules/.cache/default-development/19.pack
-frontend/node_modules/.cache/default-development/20.pack
-frontend/node_modules/.cache/default-development/20.pack
-frontend/node_modules/.cache/default-development/23.pack
-frontend/node_modules/.cache/default-development/24.pack
-frontend/node_modules/.cache/default-development/22.pack
-frontend/node_modules/.cache/default-development/26.pack
-frontend/node_modules/.cache/default-development/28.pack
-frontend/node_modules/.cache/default-development/28.pack
-frontend/node_modules/.cache/default-development/30.pack
+android-sdk/
+
+# Frontend dev cache (safe to ignore)
+frontend/node_modules/.cache/
 frontend/node_modules/.cache/default-development/36.pack
-frontend/node_modules/.cache/default-development/34.pack
