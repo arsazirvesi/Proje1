@@ -99,8 +99,14 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
       if (verifiedFilter !== "all") params.verified = verifiedFilter;
       if (search) params.q = search;
       const { data } = await axios.get(`${API}/admin/guests`, { params, withCredentials: true });
-      setItems(data);
-    } catch { /* empty */ }
+      setItems(Array.isArray(data) ? data : []);
+      setMsg("");
+    } catch (e) {
+      const detail = e?.response?.data?.detail || e?.message || "Liste yüklenemedi";
+      const status = e?.response?.status;
+      setMsg(`Hata: ${status ? `[${status}] ` : ""}${detail}`);
+      console.error("GuestList fetch failed:", e?.response?.data || e);
+    }
     setLoading(false);
   }, [statusFilter, visitFilter, verifiedFilter, search, forcedVisitType]);
 

@@ -563,10 +563,38 @@ def render_register_confirmation_email(guest: dict, seq_number: int, public_base
 
 # --- Doc Cleaner ---
 def clean_doc(doc: dict) -> dict:
+    """Convert a Mongo document to JSON-safe dict. Handles ObjectId, datetime,
+    and other non-serializable types defensively so a single bad legacy record
+    cannot break the whole endpoint."""
     if doc is None:
         return None
-    doc["id"] = str(doc.pop("_id"))
-    return doc
+    out = {}
+    for k, v in doc.items():
+        if k == "_id":
+            out["id"] = str(v)
+            continue
+        if isinstance(v, ObjectId):
+            out[k] = str(v)
+        elif isinstance(v, datetime):
+            out[k] = v.isoformat()
+        elif isinstance(v, (list, tuple)):
+            out[k] = [
+                (str(x) if isinstance(x, ObjectId)
+                 else x.isoformat() if isinstance(x, datetime)
+                 else x)
+                for x in v
+            ]
+        elif isinstance(v, dict):
+            # shallow clean nested dicts
+            out[k] = {
+                kk: (str(vv) if isinstance(vv, ObjectId)
+                     else vv.isoformat() if isinstance(vv, datetime)
+                     else vv)
+                for kk, vv in v.items()
+            }
+        else:
+            out[k] = v
+    return out
 
 
 # ==================== AUTH ====================
@@ -2760,7 +2788,29 @@ async def admin_get_guests(
             query["$or"] = name_or
     # Oldest first so #1 is first registered visitor
     docs = await db.guests.find(query).sort("created_at", 1).to_list(5000)
-    return [clean_doc(d) for d in docs]
+    cleaned = []
+    for d in docs:
+        try:
+            cleaned.append(clean_doc(d))
+        except Exception as e:
+            # One bad record shouldn't kill the whole response.
+            logger.error(f"clean_doc failed for guest _id={d.get('_id')}: {e}")
+            try:
+                cleaned.append({
+                    "id": str(d.get("_id")),
+                    "name": d.get("name") or "(bozuk kayıt)",
+                    "email": d.get("email") or "",
+                    "phone": d.get("phone") or "",
+                    "company": d.get("company") or "",
+                    "visit_type": d.get("visit_type") or "summit",
+                    "status": d.get("status") or "new",
+                    "is_verified": bool(d.get("is_verified")),
+                    "created_at": "",
+                    "_corrupted": True,
+                })
+            except Exception:
+                continue
+    return cleaned
 
 @api_router.post("/admin/guests/bulk-reserve")
 async def admin_bulk_reserve(body: BulkReserveRequest, admin: dict = Depends(get_admin_user)):
