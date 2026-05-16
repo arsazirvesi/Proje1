@@ -24,6 +24,7 @@ export default function ExpertGameList() {
   const [search, setSearch] = useState("");
   const [filterKind, setFilterKind] = useState("all"); // all | daire | arsa
   const [refreshing, setRefreshing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Auth guard
   useEffect(() => {
@@ -35,14 +36,20 @@ export default function ExpertGameList() {
 
   const load = async () => {
     setRefreshing(true);
+    setErrorMsg("");
     try {
       const [e, s] = await Promise.all([
         axios.get(`${API}/expert/investment-game`, { withCredentials: true }),
         axios.get(`${API}/expert/investment-game/stats`, { withCredentials: true }),
       ]);
-      setEntries(e.data);
+      setEntries(Array.isArray(e.data) ? e.data : []);
       setStats(s.data);
-    } catch {/* ignore */}
+    } catch (err) {
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail || err?.message || "Liste yüklenemedi";
+      setErrorMsg(`Hata: ${status ? `[${status}] ` : ""}${detail}`);
+      console.error("Expert list fetch failed:", err?.response?.data || err);
+    }
     finally {
       setLoading(false);
       setRefreshing(false);
@@ -190,6 +197,13 @@ export default function ExpertGameList() {
             })}
           </div>
         </div>
+
+        {errorMsg && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 rounded-xl p-3.5 text-sm flex items-start gap-2 shadow-sm" data-testid="expert-error-banner">
+            <span className="font-bold">⚠</span>
+            <span className="break-all">{errorMsg}</span>
+          </div>
+        )}
 
         {/* Grid of entry cards */}
         {filtered.length === 0 ? (

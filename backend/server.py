@@ -2556,18 +2556,32 @@ async def expert_me(user: dict = Depends(get_expert_or_admin_user)):
 @api_router.get("/expert/investment-game")
 async def expert_list_investment_game(limit: int = 500, user: dict = Depends(get_expert_or_admin_user)):
     docs = await db.investment_game.find().sort("created_at", -1).to_list(limit)
-    return [_scrub_entry_for_expert(d) for d in docs]
-
-
-@api_router.get("/expert/investment-game/{entry_id}")
-async def expert_get_investment_game(entry_id: str, user: dict = Depends(get_expert_or_admin_user)):
-    try:
-        doc = await db.investment_game.find_one({"_id": ObjectId(entry_id)})
-    except Exception:
-        raise HTTPException(400, "Geçersiz ID")
-    if not doc:
-        raise HTTPException(404, "Kayıt bulunamadı")
-    return _scrub_entry_for_expert(doc)
+    out = []
+    for d in docs:
+        try:
+            out.append(_scrub_entry_for_expert(d))
+        except Exception as e:
+            logger.error(f"_scrub_entry_for_expert failed for _id={d.get('_id')}: {e}")
+            try:
+                out.append({
+                    "id": str(d.get("_id")),
+                    "name": d.get("name") or "(bozuk kayıt)",
+                    "age": d.get("age"),
+                    "profession": d.get("profession") or "",
+                    "starting_budget": d.get("starting_budget", 0),
+                    "total_spent": d.get("total_spent", 0),
+                    "remaining": d.get("remaining", 0),
+                    "items": d.get("items", []) or [],
+                    "expert_comments": d.get("expert_comments", []) or [],
+                    "email_masked": "",
+                    "phone_masked": "",
+                    "admin_replied_count": 0,
+                    "created_at": "",
+                    "_corrupted": True,
+                })
+            except Exception:
+                continue
+    return out
 
 
 @api_router.get("/expert/investment-game/stats")
@@ -2600,6 +2614,16 @@ async def expert_investment_game_stats(user: dict = Depends(get_expert_or_admin_
         "arsa_count": kinds.get("arsa", 0),
         "top_cities": top_cities,
     }
+
+
+@api_router.get("/expert/investment-game/{entry_id}")
+async def expert_get_investment_game(entry_id: str, user: dict = Depends(get_expert_or_admin_user)):
+    if not ObjectId.is_valid(entry_id):
+        raise HTTPException(400, "Geçersiz ID")
+    doc = await db.investment_game.find_one({"_id": ObjectId(entry_id)})
+    if not doc:
+        raise HTTPException(404, "Kayıt bulunamadı")
+    return _scrub_entry_for_expert(doc)
 
 
 @api_router.post("/expert/investment-game/{entry_id}/comments")
