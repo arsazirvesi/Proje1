@@ -2724,8 +2724,18 @@ async def admin_get_guests(
     elif verified == "no":
         query["$or"] = [{"is_verified": False}, {"is_verified": {"$exists": False}}]
     if visit_type and visit_type in ("summit", "fair"):
+        # Summit filter: include anything that's NOT explicitly "fair" — covers
+        # legacy records with missing/null/empty/"zirve"/"konferans" visit_type values.
+        # Fair filter: only explicit "fair".
         vt_or = (
-            [{"visit_type": "summit"}, {"visit_type": {"$exists": False}}, {"visit_type": None}]
+            [
+                {"visit_type": "summit"},
+                {"visit_type": "zirve"},
+                {"visit_type": "konferans"},
+                {"visit_type": ""},
+                {"visit_type": {"$exists": False}},
+                {"visit_type": None},
+            ]
             if visit_type == "summit" else [{"visit_type": "fair"}]
         )
         if "$or" in query:
