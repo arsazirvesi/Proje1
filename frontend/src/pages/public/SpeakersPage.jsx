@@ -86,7 +86,7 @@ function SpeakerCard({ sp, featured = false }) {
       />
       <div className="p-5 flex-1 flex flex-col">
         <h3 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h3>
-        <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
+        <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide">{sp.title}</p>
         <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
         {(sp.social_linkedin || sp.social_instagram || sp.social_twitter) && (
           <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
