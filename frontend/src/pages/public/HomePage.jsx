@@ -289,7 +289,7 @@ export default function HomePage() {
                   data-testid={`speaker-card-${sp.name}`}
                 >
                   <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold py-1.5 text-center px-2">
-                    {featured ? "Moderatör · Sunucu" : (sp.title || "Konuşmacı")}
+                    {sp.title || "Konuşmacı"}
                   </div>
                   <div className={`${featured ? "h-80" : "h-72"} bg-cover`} style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
                   <div className="p-5 flex-1 flex flex-col">
