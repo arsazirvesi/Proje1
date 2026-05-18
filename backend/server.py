@@ -288,7 +288,7 @@ class PastEventCreate(BaseModel):
 
 class ProgramSessionCreate(BaseModel):
     time_start: str
-    time_end: str
+    time_end: Optional[str] = ""
     title: str
     speaker_name: Optional[str] = None
     session_type: str = "talk"
@@ -681,7 +681,7 @@ async def get_events():
 
 @api_router.get("/program")
 async def get_program():
-    docs = await db.program.find({}).sort("order", 1).to_list(50)
+    docs = await db.program.find({}).sort([("time_start", 1), ("order", 1)]).to_list(50)
     return [clean_doc(d) for d in docs]
 
 
@@ -3587,7 +3587,7 @@ async def admin_update_site_settings(body: SiteSettings, admin: dict = Depends(g
 
 @api_router.get("/admin/program")
 async def admin_get_program(admin: dict = Depends(get_admin_user)):
-    docs = await db.program.find({}).sort("order", 1).to_list(50)
+    docs = await db.program.find({}).sort([("time_start", 1), ("order", 1)]).to_list(50)
     return [clean_doc(d) for d in docs]
 
 @api_router.post("/admin/program")

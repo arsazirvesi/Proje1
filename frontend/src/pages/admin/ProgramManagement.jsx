@@ -31,7 +31,10 @@ export default function ProgramManagement() {
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.time_start) return;
+    if (!form.title || !form.time_start) {
+      setMsg("Lütfen başlık ve başlangıç saatini girin.");
+      return;
+    }
     setSaving(true);
     try {
       if (editing) {
@@ -43,15 +46,27 @@ export default function ProgramManagement() {
       }
       setModal(false);
       fetchSessions();
-    } catch {}
+    } catch (e) {
+      const status = e?.response?.status;
+      let detail = e?.response?.data?.detail || e?.message || "Kaydedilemedi";
+      if (Array.isArray(detail)) {
+        detail = detail.map(d => `${d.loc?.slice(-1)?.[0] || "alan"}: ${d.msg}`).join(" · ");
+      }
+      setMsg(`Hata: ${status ? `[${status}] ` : ""}${detail}`);
+      console.error("Program save failed:", e?.response?.data || e);
+    }
     setSaving(false);
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Silmek istediğinizden emin misiniz?")) return;
-    await axios.delete(`${API}/admin/program/${id}`, { withCredentials: true });
-    fetchSessions();
-    setMsg("Oturum silindi.");
+    try {
+      await axios.delete(`${API}/admin/program/${id}`, { withCredentials: true });
+      fetchSessions();
+      setMsg("Oturum silindi.");
+    } catch (e) {
+      setMsg(`Silme hatası: ${e?.response?.data?.detail || e?.message}`);
+    }
   };
 
   return (
@@ -66,7 +81,12 @@ export default function ProgramManagement() {
         </button>
       </div>
 
-      {msg && <div className="bg-summit-gold/10 border border-summit-gold/30 rounded-lg p-3 text-summit-gold text-sm mb-5 flex items-center justify-between">{msg}<button onClick={() => setMsg("")}><X size={14} /></button></div>}
+      {msg && (
+        <div className={`${msg.startsWith("Hata") || msg.startsWith("Silme") ? "bg-red-50 border-red-300 text-red-700" : "bg-summit-gold/10 border-summit-gold/30 text-summit-gold"} border rounded-lg p-3 text-sm mb-5 flex items-center justify-between`}>
+          <span className="break-words pr-3">{msg}</span>
+          <button onClick={() => setMsg("")}><X size={14} /></button>
+        </div>
+      )}
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
