@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import {
-  Linkedin, Mic, Users, TrendingUp, Award, ArrowRight, Sparkles,
+  Linkedin, Instagram, Twitter, Mic, Users, TrendingUp, Award, ArrowRight, Sparkles,
   CheckCircle2, Megaphone, Target, BadgeCheck
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
@@ -71,14 +71,12 @@ export default function SpeakersPage() {
 function SpeakerCard({ sp, featured = false }) {
   return (
     <div
-      className={`bg-white border ${featured ? "border-amber-300" : "border-gray-200"} rounded-md overflow-hidden card-hover flex flex-col shadow-sm`}
+      className="bg-white border border-amber-300 rounded-md overflow-hidden card-hover flex flex-col shadow-sm"
       data-testid={`speaker-card-${sp.id}`}
     >
-      {featured && (
-        <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.25em] font-bold py-1.5 text-center">
-          Moderatör · Sunucu
-        </div>
-      )}
+      <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold py-1.5 text-center px-2">
+        {featured ? "Moderatör · Sunucu" : (sp.title || "Konuşmacı")}
+      </div>
       <div
         className={`${featured ? "h-80" : "h-72"} bg-cover`}
         style={{
@@ -90,16 +88,36 @@ function SpeakerCard({ sp, featured = false }) {
         <h3 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h3>
         <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
         <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
-        {sp.social_linkedin && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <a href={sp.social_linkedin} target="_blank" rel="noopener noreferrer"
-              className="w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors">
-              <Linkedin size={14} />
-            </a>
+        {(sp.social_linkedin || sp.social_instagram || sp.social_twitter) && (
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
+            <SpeakerSocialLinks sp={sp} />
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function SpeakerSocialLinks({ sp }) {
+  const cls = "w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors";
+  return (
+    <>
+      {sp.social_linkedin && (
+        <a href={sp.social_linkedin} target="_blank" rel="noopener noreferrer" className={cls} aria-label="LinkedIn">
+          <Linkedin size={14} />
+        </a>
+      )}
+      {sp.social_instagram && (
+        <a href={sp.social_instagram} target="_blank" rel="noopener noreferrer" className={cls} aria-label="Instagram">
+          <Instagram size={14} />
+        </a>
+      )}
+      {sp.social_twitter && (
+        <a href={sp.social_twitter} target="_blank" rel="noopener noreferrer" className={cls} aria-label="Twitter / X">
+          <Twitter size={14} />
+        </a>
+      )}
+    </>
   );
 }
 

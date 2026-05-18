@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles } from "lucide-react";
+import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles, Linkedin, Instagram, Twitter } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 function useCountdown(targetDate) {
@@ -285,20 +285,40 @@ export default function HomePage() {
               const regulars = speakers.filter((s) => !isModerator(s));
               const SpeakerCardInline = ({ sp, featured }) => (
                 <div
-                  className={`bg-white border ${featured ? "border-amber-300" : "border-gray-200"} overflow-hidden shadow-sm card-hover rounded-md flex flex-col`}
+                  className="bg-white border border-amber-300 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
                   data-testid={`speaker-card-${sp.name}`}
                 >
-                  {featured && (
-                    <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.25em] font-bold py-1.5 text-center">
-                      Moderatör · Sunucu
-                    </div>
-                  )}
+                  <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold py-1.5 text-center px-2">
+                    {featured ? "Moderatör · Sunucu" : (sp.title || "Konuşmacı")}
+                  </div>
                   <div className={`${featured ? "h-80" : "h-72"} bg-cover`} style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
                   <div className="p-5 flex-1 flex flex-col">
                     <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
                     <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
                     {sp.bio && (
                       <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
+                    )}
+                    {(sp.social_linkedin || sp.social_instagram || sp.social_twitter) && (
+                      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
+                        {sp.social_linkedin && (
+                          <a href={sp.social_linkedin} target="_blank" rel="noopener noreferrer"
+                            className="w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors" aria-label="LinkedIn">
+                            <Linkedin size={14} />
+                          </a>
+                        )}
+                        {sp.social_instagram && (
+                          <a href={sp.social_instagram} target="_blank" rel="noopener noreferrer"
+                            className="w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors" aria-label="Instagram">
+                            <Instagram size={14} />
+                          </a>
+                        )}
+                        {sp.social_twitter && (
+                          <a href={sp.social_twitter} target="_blank" rel="noopener noreferrer"
+                            className="w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors" aria-label="Twitter / X">
+                            <Twitter size={14} />
+                          </a>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

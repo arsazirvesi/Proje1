@@ -248,6 +248,8 @@ class SpeakerCreate(BaseModel):
     order: int = 0
     is_featured: bool = False
     social_linkedin: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_twitter: Optional[str] = None
 
 class SponsorCreate(BaseModel):
     name: str

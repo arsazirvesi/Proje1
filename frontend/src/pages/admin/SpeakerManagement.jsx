@@ -3,7 +3,7 @@ import axios from "axios";
 import { Plus, Pencil, Trash2, X, Star } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
-const empty = { name: "", title: "", bio: "", image_url: "", order: 0, is_featured: false, social_linkedin: "" };
+const empty = { name: "", title: "", bio: "", image_url: "", order: 0, is_featured: false, social_linkedin: "", social_instagram: "", social_twitter: "" };
 
 export default function SpeakerManagement() {
   const [speakers, setSpeakers] = useState([]);
@@ -23,7 +23,7 @@ export default function SpeakerManagement() {
   const openCreate = () => { setEditing(null); setForm(empty); setModal(true); };
   const openEdit = (s) => {
     setEditing(s);
-    setForm({ name: s.name, title: s.title, bio: s.bio, image_url: s.image_url || "", order: s.order, is_featured: s.is_featured, social_linkedin: s.social_linkedin || "" });
+    setForm({ name: s.name, title: s.title, bio: s.bio, image_url: s.image_url || "", order: s.order, is_featured: s.is_featured, social_linkedin: s.social_linkedin || "", social_instagram: s.social_instagram || "", social_twitter: s.social_twitter || "" });
     setModal(true);
   };
 
@@ -103,7 +103,7 @@ export default function SpeakerManagement() {
               <button onClick={() => setModal(false)}><X size={18} className="text-gray-500 hover:text-summit-navy" /></button>
             </div>
             <div className="space-y-4">
-              {[["name","Ad Soyad *","text"], ["title","Unvan *","text"], ["image_url","Fotoğraf URL","url"], ["social_linkedin","LinkedIn URL","url"]].map(([field, label, type]) => (
+              {[["name","Ad Soyad *","text"], ["title","Unvan *","text"], ["image_url","Fotoğraf URL","url"], ["social_linkedin","LinkedIn URL","url"], ["social_instagram","Instagram URL","url"], ["social_twitter","Twitter / X URL","url"]].map(([field, label, type]) => (
                 <div key={field}>
                   <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block">{label}</label>
                   <input type={type} placeholder={label} value={form[field]} onChange={e => setForm({...form, [field]: e.target.value})}
