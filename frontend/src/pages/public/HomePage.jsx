@@ -279,14 +279,21 @@ export default function HomePage() {
               <h2 className="gyoder-section-title gyoder-section-title-center inline-block">Zirvenin Uzman İsimleri</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {speakers.map((sp) => (
+            {(() => {
+              const isModerator = (s) => /moderat[oö]r|sunucu/i.test(s.title || "");
+              const moderators = speakers.filter(isModerator);
+              const regulars = speakers.filter((s) => !isModerator(s));
+              const SpeakerCardInline = ({ sp, featured }) => (
                 <div
-                  key={sp.id}
-                  className="bg-white border border-gray-200 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
+                  className={`bg-white border ${featured ? "border-amber-300" : "border-gray-200"} overflow-hidden shadow-sm card-hover rounded-md flex flex-col`}
                   data-testid={`speaker-card-${sp.name}`}
                 >
-                  <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
+                  {featured && (
+                    <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.25em] font-bold py-1.5 text-center">
+                      Moderatör · Sunucu
+                    </div>
+                  )}
+                  <div className={`${featured ? "h-80" : "h-72"} bg-cover`} style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
                   <div className="p-5 flex-1 flex flex-col">
                     <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
                     <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
@@ -295,8 +302,28 @@ export default function HomePage() {
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+              return (
+                <>
+                  {moderators.length > 0 && (
+                    <div className="flex justify-center mb-8 sm:mb-10">
+                      <div className="w-full max-w-sm">
+                        {moderators.map((sp) => (
+                          <SpeakerCardInline key={sp.id} sp={sp} featured />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {regulars.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                      {regulars.map((sp) => (
+                        <SpeakerCardInline key={sp.id} sp={sp} />
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
             <div className="text-center mt-8">
               <Link to="/konusmacilar" className="btn-outline-navy px-7 py-3 inline-flex items-center gap-2">
