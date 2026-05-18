@@ -8,6 +8,7 @@ import WhatsAppHelpWidget from "./components/WhatsAppHelpWidget";
 import CookieConsent from "./components/CookieConsent";
 import SEOHead from "./components/SEOHead";
 import InstallPrompt from "./components/InstallPrompt";
+import PopupBannerHost from "./components/PopupBannerHost";
 
 import HomePage from "./pages/public/HomePage";
 import SpeakersPage from "./pages/public/SpeakersPage";
@@ -154,6 +155,7 @@ function App() {
           </Routes>
           <CookieConsent />
           <InstallPrompt />
+          <PopupBannerHost />
         </BrowserRouter>
       </div>
     </AuthProvider>

@@ -259,13 +259,20 @@ class SponsorCreate(BaseModel):
     order: int = 0
 
 class BannerCreate(BaseModel):
-    title: str
+    title: Optional[str] = ""
     subtitle: Optional[str] = None
     image_url: Optional[str] = None
+    image_url_mobile: Optional[str] = None
     cta_text: Optional[str] = None
     cta_url: Optional[str] = None
     is_active: bool = True
     order: int = 0
+    # New popup/modal fields
+    display_mode: str = "slider"  # "slider" | "modal"
+    start_at: Optional[str] = None  # ISO datetime
+    end_at: Optional[str] = None    # ISO datetime
+    delay_seconds: int = 0          # how long to wait before popup
+    pages: List[str] = []           # empty = all pages; values: "home","program","speakers","fair","blog","game"
 
 class BlogPostCreate(BaseModel):
     title: str
@@ -658,9 +665,27 @@ async def get_sponsors():
     return [clean_doc(d) for d in docs]
 
 @api_router.get("/banners")
-async def get_banners():
-    docs = await db.banners.find({"is_active": True}).sort("order", 1).to_list(10)
-    return [clean_doc(d) for d in docs]
+async def get_banners(page: Optional[str] = None):
+    """Public banner list. Filters by:
+    - is_active = True
+    - start_at <= now <= end_at (if dates set)
+    - page in pages[] (if page filter given AND banner has pages restriction)
+    """
+    now_iso = datetime.now(timezone.utc).isoformat()
+    docs = await db.banners.find({"is_active": True}).sort("order", 1).to_list(50)
+    result = []
+    for d in docs:
+        start = d.get("start_at")
+        end = d.get("end_at")
+        if start and now_iso < start:
+            continue
+        if end and now_iso > end:
+            continue
+        pages = d.get("pages") or []
+        if page and pages and page not in pages:
+            continue
+        result.append(clean_doc(d))
+    return result
 
 @api_router.get("/blog")
 async def get_blog_posts():
