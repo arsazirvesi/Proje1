@@ -30,36 +30,75 @@ export default function SpeakersPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {speakers.map((sp) => (
-            <div
-              key={sp.id}
-              className="bg-white border border-gray-200 rounded-md overflow-hidden card-hover flex flex-col shadow-sm"
-              data-testid={`speaker-card-${sp.id}`}
-            >
-              <div className="h-72 bg-cover" style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
-              <div className="p-5 flex-1 flex flex-col">
-                <h3 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h3>
-                <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
-                <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
-                {sp.social_linkedin && (
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <a href={sp.social_linkedin} target="_blank" rel="noopener noreferrer"
-                      className="w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors">
-                      <Linkedin size={14} />
-                    </a>
+        {(() => {
+          const isModerator = (s) => /moderat[oö]r|sunucu/i.test(s.title || "");
+          const moderators = speakers.filter(isModerator);
+          const regulars = speakers.filter((s) => !isModerator(s));
+          return (
+            <>
+              {/* Top row — Moderator (1 person, centered, slightly larger) */}
+              {moderators.length > 0 && (
+                <div className="flex justify-center mb-8 sm:mb-10">
+                  <div className="w-full max-w-sm">
+                    {moderators.map((sp) => (
+                      <SpeakerCard key={sp.id} sp={sp} featured />
+                    ))}
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+                </div>
+              )}
+
+              {/* Bottom row — Speakers (4 across on desktop) */}
+              {regulars.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {regulars.map((sp) => (
+                    <SpeakerCard key={sp.id} sp={sp} />
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
 
       {/* SPEAKER / SPONSOR APPLICATION CTA */}
       <SpeakerApplyCTA />
 
       <Footer />
+    </div>
+  );
+}
+
+function SpeakerCard({ sp, featured = false }) {
+  return (
+    <div
+      className={`bg-white border ${featured ? "border-amber-300" : "border-gray-200"} rounded-md overflow-hidden card-hover flex flex-col shadow-sm`}
+      data-testid={`speaker-card-${sp.id}`}
+    >
+      {featured && (
+        <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.25em] font-bold py-1.5 text-center">
+          Moderatör · Sunucu
+        </div>
+      )}
+      <div
+        className={`${featured ? "h-80" : "h-72"} bg-cover`}
+        style={{
+          backgroundImage: `url(${sp.image_url})`,
+          backgroundPosition: sp.image_position || "center 20%",
+        }}
+      />
+      <div className="p-5 flex-1 flex flex-col">
+        <h3 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h3>
+        <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
+        <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
+        {sp.social_linkedin && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <a href={sp.social_linkedin} target="_blank" rel="noopener noreferrer"
+              className="w-8 h-8 rounded-md bg-summit-paper border border-gray-200 flex items-center justify-center text-gray-500 hover:text-summit-navy hover:border-summit-navy/40 transition-colors">
+              <Linkedin size={14} />
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
