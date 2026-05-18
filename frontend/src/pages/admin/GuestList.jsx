@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter, BookmarkPlus, AlertCircle, Mail as MailIcon, Bell } from "lucide-react";
+import { Trash2, Search, Download, Send, X, ExternalLink, Eye, Filter, BookmarkPlus, AlertCircle, Mail as MailIcon, Bell, CheckSquare } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import { exportXLSX } from "../../lib/xlsx";
 
@@ -125,6 +125,54 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   };
 
   const [sendingAction, setSendingAction] = useState({}); // {id: "badge"|"reminder"}
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  // Reset selection when the visible list changes (filter / search / refresh)
+  useEffect(() => { setSelectedIds(new Set()); }, [items]);
+
+  const allVisibleSelected = items.length > 0 && items.every((g) => selectedIds.has(g.id));
+  const someVisibleSelected = items.some((g) => selectedIds.has(g.id));
+
+  const toggleOne = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const toggleAll = () => {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) {
+        // Deselect everything visible
+        const next = new Set(prev);
+        items.forEach((g) => next.delete(g.id));
+        return next;
+      }
+      // Add all visible
+      const next = new Set(prev);
+      items.forEach((g) => next.add(g.id));
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    if (!window.confirm(`${ids.length} adet ziyaretçi kaydını kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) return;
+    setBulkDeleting(true);
+    try {
+      const { data } = await axios.post(`${API}/admin/guests/bulk-delete`, { ids }, { withCredentials: true });
+      setItems((prev) => prev.filter((g) => !selectedIds.has(g.id)));
+      setMsg(data.message || `${ids.length} kayıt silindi`);
+      clearSelection();
+    } catch (e) {
+      setMsg(e?.response?.data?.detail || "Toplu silme başarısız");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
 
   const handleResendBadge = async (g) => {
     if (!g.email) { setMsg("Bu ziyaretçinin e-posta adresi yok"); return; }
@@ -378,10 +426,58 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
             <div className="w-8 h-8 border-2 border-summit-navy border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full admin-table">
-              <thead>
+          <>
+            {selectedIds.size > 0 && (
+              <div
+                className="sticky top-2 z-20 mb-3 flex flex-wrap items-center gap-3 bg-summit-navy text-white rounded-xl px-4 py-3 shadow-lg border border-summit-navy-dark"
+                data-testid="bulk-toolbar"
+              >
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  <CheckSquare size={16} className="text-amber-300" />
+                  <span data-testid="bulk-selected-count">{selectedIds.size} kayıt seçildi</span>
+                </div>
+                <div className="flex-1" />
+                <button
+                  onClick={clearSelection}
+                  className="text-xs font-semibold text-white/70 hover:text-white px-2 py-1.5"
+                  data-testid="bulk-clear"
+                >
+                  Temizle
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleting}
+                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold inline-flex items-center gap-1.5 px-3 py-2 rounded-lg disabled:opacity-60"
+                  data-testid="bulk-delete-btn"
+                >
+                  {bulkDeleting ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Siliniyor...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={13} /> Seçilenleri Sil
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+            <div className="overflow-x-auto">
+              <table className="w-full admin-table">
+                <thead>
                 <tr>
+                  <th className="w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      ref={el => { if (el) el.indeterminate = !allVisibleSelected && someVisibleSelected; }}
+                      onChange={toggleAll}
+                      className="w-4 h-4 accent-summit-navy cursor-pointer"
+                      title="Tümünü seç"
+                      data-testid="bulk-select-all"
+                    />
+                  </th>
                   <th className="w-12 text-center">#</th>
                   <th>Ad Soyad</th>
                   {!forcedVisitType && <th className="hidden sm:table-cell">Tip</th>}
@@ -398,10 +494,19 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
               </thead>
               <tbody>
                 {items.length === 0 && (
-                  <tr><td colSpan={forcedVisitType ? 11 : 12} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
+                  <tr><td colSpan={forcedVisitType ? 12 : 13} className="text-center py-10 text-gray-500">Kayıt bulunamadı</td></tr>
                 )}
                 {items.map((g, i) => (
-                  <tr key={g.id} data-testid={`guest-row-${g.id}`}>
+                  <tr key={g.id} data-testid={`guest-row-${g.id}`} className={selectedIds.has(g.id) ? "bg-amber-50/60" : ""}>
+                    <td className="text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(g.id)}
+                        onChange={() => toggleOne(g.id)}
+                        className="w-4 h-4 accent-summit-navy cursor-pointer"
+                        data-testid={`bulk-select-${g.id}`}
+                      />
+                    </td>
                     <td className="text-center text-gray-400 font-mono text-xs font-semibold" data-testid={`guest-seq-${i + 1}`}>
                       #{i + 1}
                     </td>
@@ -468,7 +573,8 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </div>
 

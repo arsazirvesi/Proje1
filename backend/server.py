@@ -2995,6 +2995,24 @@ async def admin_delete_guest(guest_id: str, admin: dict = Depends(get_admin_user
     return {"message": "Ziyaretçi silindi"}
 
 
+class BulkDeleteGuestsBody(BaseModel):
+    ids: List[str]
+
+
+@api_router.post("/admin/guests/bulk-delete")
+async def admin_bulk_delete_guests(body: BulkDeleteGuestsBody, admin: dict = Depends(get_admin_user)):
+    if not body.ids:
+        raise HTTPException(400, "Silinecek kayıt seçilmedi")
+    obj_ids = []
+    for i in body.ids:
+        if ObjectId.is_valid(i):
+            obj_ids.append(ObjectId(i))
+    if not obj_ids:
+        raise HTTPException(400, "Geçerli ID yok")
+    result = await db.guests.delete_many({"_id": {"$in": obj_ids}})
+    return {"message": f"{result.deleted_count} kayıt silindi", "deleted": result.deleted_count}
+
+
 # === Resend badge & reminder emails ===
 
 async def _build_badge_attachment(guest_full: dict) -> Optional[list]:
