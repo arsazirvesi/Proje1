@@ -294,7 +294,6 @@ export default function HomePage() {
                   <div className={`${featured ? "h-80" : "h-72"} bg-cover`} style={{ backgroundImage: `url(${sp.image_url})`, backgroundPosition: sp.image_position || 'center 20%' }} />
                   <div className="p-5 flex-1 flex flex-col">
                     <h4 className="font-heading text-summit-navy text-lg leading-tight">{sp.name}</h4>
-                    <p className="text-summit-navy text-xs mt-1.5 font-semibold uppercase tracking-wide opacity-80">{sp.title}</p>
                     {sp.bio && (
                       <p className="text-gray-600 text-xs mt-3 leading-relaxed flex-1">{sp.bio}</p>
                     )}
