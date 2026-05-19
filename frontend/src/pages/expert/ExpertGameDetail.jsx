@@ -197,7 +197,7 @@ export default function ExpertGameDetail() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp size={15} className="text-amber-600" />
-            <h3 className="font-heading text-summit-navy text-sm sm:text-base font-bold uppercase tracking-wider">Portföy ({entry.items?.length || 0})</h3>
+            <h3 className="font-heading text-white text-sm sm:text-base font-bold uppercase tracking-wider">Portföy ({entry.items?.length || 0})</h3>
           </div>
           <div className="space-y-2.5">
             {(entry.items || []).map((it, i) => <DetailItem key={i} item={it} />)}
@@ -211,8 +211,8 @@ export default function ExpertGameDetail() {
           onEntryUpdate={(updated) => setEntry(updated)}
         />
 
-        <div className="bg-white border border-slate-200 rounded-lg p-3 text-[11px] text-slate-600 leading-relaxed">
-          <strong className="text-summit-navy">Gizlilik:</strong> Katılımcının telefon/e-posta bilgileri sadece admin panelinden görüntülenebilir. Bu sayfada sadece portföy ve demografik veriler yer alır.
+        <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-[11px] text-white/70 leading-relaxed">
+          <strong className="text-amber-400">Gizlilik:</strong> Katılımcının telefon/e-posta bilgileri sadece admin panelinden görüntülenebilir. Bu sayfada sadece portföy ve demografik veriler yer alır.
         </div>
       </div>
     </div>
@@ -262,7 +262,7 @@ function CommentsBlock({ entry, currentUser, onEntryUpdate }) {
     <div>
       <div className="flex items-center gap-2 mb-3">
         <MessageSquare size={15} className="text-amber-600" />
-        <h3 className="font-heading text-summit-navy text-sm sm:text-base font-bold uppercase tracking-wider">Uzman Yorumları ({(entry.expert_comments || []).length})</h3>
+        <h3 className="font-heading text-white text-sm sm:text-base font-bold uppercase tracking-wider">Uzman Yorumları ({(entry.expert_comments || []).length})</h3>
       </div>
       <div className="space-y-2">
         {(entry.expert_comments || []).length === 0 && (
