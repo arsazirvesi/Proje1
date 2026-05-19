@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import {
   TrendingUp, Building, Trees, MapPin, Sparkles, LogOut,
@@ -17,10 +17,14 @@ const ARSA_LABEL = { ipat: "İPAT", tarla: "Tarla", arsa: "Arsa" };
 export default function ExpertGameDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, loading: authLoading } = useAuth();
   const [entry, setEntry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Where to go on "Back" — preserve which list user came from
+  const backTo = location.state?.from || "/uzman/yatirim-oyunu";
 
   useEffect(() => {
     if (!authLoading) {
@@ -58,18 +62,18 @@ export default function ExpertGameDetail() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-summit-navy border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-summit-navy flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!entry) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-8 text-center max-w-md shadow-sm">
-          <p className="text-slate-700 text-sm mb-4">{errorMsg || "Kayıt bulunamadı."}</p>
-          <Link to="/uzman/yatirim-oyunu" className="inline-flex items-center gap-2 text-summit-navy hover:underline text-sm font-semibold">
+      <div className="min-h-screen bg-summit-navy flex items-center justify-center px-4">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center max-w-md backdrop-blur-sm">
+          <p className="text-white/80 text-sm mb-4">{errorMsg || "Kayıt bulunamadı."}</p>
+          <Link to={backTo} className="inline-flex items-center gap-2 text-amber-400 hover:underline text-sm font-semibold">
             <ArrowLeft size={14} /> Listeye Dön
           </Link>
         </div>
@@ -78,14 +82,26 @@ export default function ExpertGameDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-summit-navy font-body" data-testid="expert-detail-page">
+    <div className="min-h-screen text-white font-body relative bg-summit-navy" data-testid="expert-detail-page">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-summit-navy via-summit-navy-dark to-[#0f1a3a]" />
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: "radial-gradient(circle, #C9A961 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-amber-500/10 rounded-full blur-3xl" />
+      </div>
+
       {/* Top Bar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-summit-navy via-amber-400 to-summit-navy" />
+      <header className="relative bg-summit-navy-dark/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <button
-            onClick={() => navigate("/uzman/yatirim-oyunu")}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-summit-navy/40 text-summit-navy text-xs font-semibold transition-colors"
+            onClick={() => navigate(backTo)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:border-amber-400/50 hover:bg-white/10 text-white text-xs font-semibold transition-colors"
             data-testid="back-to-list"
           >
             <ArrowLeft size={14} /> Listeye Dön
@@ -95,12 +111,12 @@ export default function ExpertGameDetail() {
               <Sparkles size={14} className="text-summit-navy" />
             </div>
             <div className="min-w-0">
-              <div className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Arsa Yatırım · Uzman Paneli</div>
-              <div className="font-heading text-sm font-bold text-summit-navy truncate">Portföy Detayı</div>
+              <div className="text-[9px] uppercase tracking-wider text-amber-400 font-bold">Arsa Yatırım · Uzman Paneli</div>
+              <div className="font-heading text-sm font-bold text-white truncate">Portföy Detayı</div>
             </div>
           </div>
           <button onClick={handleLogout}
-            className="w-9 h-9 rounded-lg bg-white border border-slate-200 hover:bg-red-50 hover:border-red-300 flex items-center justify-center text-slate-600 hover:text-red-600 transition-colors"
+            className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 hover:bg-red-500/20 hover:border-red-400/50 flex items-center justify-center text-white/80 hover:text-red-300 transition-colors"
             title="Çıkış"
             data-testid="expert-logout">
             <LogOut size={14} />
@@ -108,9 +124,9 @@ export default function ExpertGameDetail() {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {/* Header card */}
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div className="bg-white border border-white/10 rounded-xl p-5 shadow-lg">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-full bg-amber-400 flex items-center justify-center text-summit-navy text-lg font-bold shrink-0">
               {(entry.name || "?")[0].toUpperCase()}

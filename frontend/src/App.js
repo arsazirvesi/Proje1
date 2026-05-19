@@ -107,7 +107,8 @@ function App() {
             {/* Expert Panel — for invited evaluators */}
             <Route path="/uzman/giris" element={<ExpertLogin />} />
             <Route path="/uzman" element={<Navigate to="/uzman/yatirim-oyunu" replace />} />
-            <Route path="/uzman/yatirim-oyunu" element={<ExpertGameList />} />
+            <Route path="/uzman/yatirim-oyunu" element={<ExpertGameList mode="pending" />} />
+            <Route path="/uzman/yorumlananlar" element={<ExpertGameList mode="commented" />} />
             <Route path="/uzman/yatirim-oyunu/:id" element={<ExpertGameDetail />} />
             <Route path="/uzman/sunum/:id" element={<ExpertPresentationMode />} />
 
