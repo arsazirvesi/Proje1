@@ -258,10 +258,11 @@ export default function ExpertGameList({ mode = "pending" }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3" data-testid="expert-entries-grid">
-                {filtered.map(e => (
+                {filtered.map((e, idx) => (
                   <EntryCard
                     key={e.id}
                     entry={e}
+                    index={idx + 1}
                     onClick={() => navigate(`/uzman/yatirim-oyunu/${e.id}`, { state: { from: location.pathname } })}
                   />
                 ))}
@@ -290,7 +291,7 @@ function SidebarItem({ to, icon: Icon, label, count, active, testId }) {
   );
 }
 
-function EntryCard({ entry, onClick }) {
+function EntryCard({ entry, onClick, index }) {
   const daireCount = (entry.items || []).filter(i => i.kind === "daire").length;
   const arsaCount = (entry.items || []).filter(i => i.kind === "arsa").length;
   const commentCount = (entry.expert_comments || []).length;
@@ -304,7 +305,14 @@ function EntryCard({ entry, onClick }) {
     >
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-      <div className="flex items-start justify-between gap-2 mb-2">
+      {/* Index badge */}
+      {typeof index === "number" && (
+        <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-summit-navy text-amber-400 text-[11px] font-bold flex items-center justify-center tabular-nums shadow-sm" data-testid={`card-index-${index}`}>
+          #{index}
+        </div>
+      )}
+
+      <div className="flex items-start justify-between gap-2 mb-2 pr-9">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-summit-navy text-[11px] font-bold shrink-0">
