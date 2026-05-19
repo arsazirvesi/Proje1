@@ -54,6 +54,7 @@ import InvestmentGameList from "./pages/admin/InvestmentGameList";
 import IntegrationsPage from "./pages/admin/IntegrationsPage";
 import ExpertLogin from "./pages/expert/ExpertLogin";
 import ExpertGameList from "./pages/expert/ExpertGameList";
+import ExpertGameDetail from "./pages/expert/ExpertGameDetail";
 import ExpertPresentationMode from "./pages/expert/ExpertPresentationMode";
 
 function AdminRoute({ children }) {
@@ -107,6 +108,7 @@ function App() {
             <Route path="/uzman/giris" element={<ExpertLogin />} />
             <Route path="/uzman" element={<Navigate to="/uzman/yatirim-oyunu" replace />} />
             <Route path="/uzman/yatirim-oyunu" element={<ExpertGameList />} />
+            <Route path="/uzman/yatirim-oyunu/:id" element={<ExpertGameDetail />} />
             <Route path="/uzman/sunum/:id" element={<ExpertPresentationMode />} />
 
             {/* Backward compat redirects */}
