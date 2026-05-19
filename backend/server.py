@@ -28,6 +28,7 @@ from sendgrid.helpers.mail import Mail as SGMail
 
 from services import visitego as visitego_service
 import r2_storage
+from image_optimizer import optimize_image
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -3550,10 +3551,15 @@ async def admin_upload_image(file: UploadFile = File(...), admin: dict = Depends
     if len(content) == 0:
         raise HTTPException(400, "Boş dosya")
 
+    original_size = len(content)
+    # Pillow optimization — resize to 1920px max + WebP for opaque, PNG kept for transparency
+    content, optimized_ctype, ext = await asyncio.to_thread(optimize_image, content, file.content_type)
+    logger.info("Upload optimized: %d B → %d B (%.0f%% saved)",
+                original_size, len(content),
+                (1 - len(content) / max(original_size, 1)) * 100)
+
     # Generate safe filename
     import uuid
-    ext_map = {"image/jpeg": ".jpg", "image/jpg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif"}
-    ext = ext_map.get(file.content_type, ".jpg")
     unique_name = f"{uuid.uuid4().hex}{ext}"
 
     # Try Cloudflare R2 first; fallback to local disk so dev keeps working.
@@ -3561,7 +3567,7 @@ async def admin_upload_image(file: UploadFile = File(...), admin: dict = Depends
         try:
             key = f"uploads/{unique_name}"
             public_url = await asyncio.to_thread(
-                r2_storage.upload_bytes, key, content, file.content_type
+                r2_storage.upload_bytes, key, content, optimized_ctype
             )
             return {"url": public_url, "filename": unique_name, "size": len(content), "storage": "r2"}
         except Exception as e:
