@@ -27,6 +27,7 @@ import sendgrid
 from sendgrid.helpers.mail import Mail as SGMail
 
 from services import visitego as visitego_service
+import r2_storage
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -3554,11 +3555,23 @@ async def admin_upload_image(file: UploadFile = File(...), admin: dict = Depends
     ext_map = {"image/jpeg": ".jpg", "image/jpg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif"}
     ext = ext_map.get(file.content_type, ".jpg")
     unique_name = f"{uuid.uuid4().hex}{ext}"
+
+    # Try Cloudflare R2 first; fallback to local disk so dev keeps working.
+    if r2_storage.is_configured():
+        try:
+            key = f"uploads/{unique_name}"
+            public_url = await asyncio.to_thread(
+                r2_storage.upload_bytes, key, content, file.content_type
+            )
+            return {"url": public_url, "filename": unique_name, "size": len(content), "storage": "r2"}
+        except Exception as e:
+            logger.exception("R2 upload failed, falling back to local disk")
+
+    # Local-disk fallback (legacy, will be wiped on container redeploy)
     file_path = UPLOADS_DIR / unique_name
     file_path.write_bytes(content)
-
     public_url = f"/api/uploads/{unique_name}"
-    return {"url": public_url, "filename": unique_name, "size": len(content)}
+    return {"url": public_url, "filename": unique_name, "size": len(content), "storage": "local"}
 
 
 
