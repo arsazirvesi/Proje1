@@ -127,6 +127,7 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
   const [sendingAction, setSendingAction] = useState({}); // {id: "badge"|"reminder"}
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkSending, setBulkSending] = useState(null); // 'badge' | 'reminder' | null
 
   // Reset selection when the visible list changes (filter / search / refresh)
   useEffect(() => { setSelectedIds(new Set()); }, [items]);
@@ -171,6 +172,24 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
       setMsg(e?.response?.data?.detail || "Toplu silme başarısız");
     } finally {
       setBulkDeleting(false);
+    }
+  };
+
+  const handleBulkSend = async (kind) => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const label = kind === "badge" ? "yaka kartı" : "hatırlatma e-postası";
+    if (!window.confirm(`${ids.length} kayda ${label} göndermek istediğinizden emin misiniz?`)) return;
+    setBulkSending(kind);
+    try {
+      const endpoint = kind === "badge" ? "bulk-resend-badge" : "bulk-send-reminder";
+      const { data } = await axios.post(`${API}/admin/guests/${endpoint}`, { ids }, { withCredentials: true });
+      setMsg(data.message || `${data.sent} ${label} gönderildi`);
+      clearSelection();
+    } catch (e) {
+      setMsg(e?.response?.data?.detail || "Toplu gönderim başarısız");
+    } finally {
+      setBulkSending(null);
     }
   };
 
@@ -445,8 +464,42 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                   Temizle
                 </button>
                 <button
+                  onClick={() => handleBulkSend("badge")}
+                  disabled={bulkSending !== null || bulkDeleting}
+                  className="bg-amber-400 hover:bg-amber-300 text-summit-navy text-xs font-bold inline-flex items-center gap-1.5 px-3 py-2 rounded-lg disabled:opacity-60"
+                  data-testid="bulk-resend-badge-btn"
+                >
+                  {bulkSending === "badge" ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-summit-navy border-t-transparent rounded-full animate-spin" />
+                      Gönderiliyor...
+                    </>
+                  ) : (
+                    <>
+                      <MailIcon size={13} /> Yaka Kartı Gönder
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleBulkSend("reminder")}
+                  disabled={bulkSending !== null || bulkDeleting}
+                  className="bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold inline-flex items-center gap-1.5 px-3 py-2 rounded-lg disabled:opacity-60"
+                  data-testid="bulk-send-reminder-btn"
+                >
+                  {bulkSending === "reminder" ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Gönderiliyor...
+                    </>
+                  ) : (
+                    <>
+                      <Bell size={13} /> Hatırlatma Gönder
+                    </>
+                  )}
+                </button>
+                <button
                   onClick={handleBulkDelete}
-                  disabled={bulkDeleting}
+                  disabled={bulkDeleting || bulkSending !== null}
                   className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold inline-flex items-center gap-1.5 px-3 py-2 rounded-lg disabled:opacity-60"
                   data-testid="bulk-delete-btn"
                 >

@@ -3185,6 +3185,74 @@ async def admin_send_reminder(guest_id: str, background_tasks: BackgroundTasks, 
     return {"message": f"Hatırlatma gönderildi: {email}"}
 
 
+@api_router.post("/admin/guests/bulk-resend-badge")
+async def admin_bulk_resend_badge(body: BulkDeleteGuestsBody, background_tasks: BackgroundTasks, admin: dict = Depends(get_admin_user)):
+    if not body.ids:
+        raise HTTPException(400, "Kayıt seçilmedi")
+    obj_ids = [ObjectId(i) for i in body.ids if ObjectId.is_valid(i)]
+    if not obj_ids:
+        raise HTTPException(400, "Geçerli ID yok")
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    sent, skipped, failed = 0, 0, 0
+    now_iso = datetime.now(timezone.utc).isoformat()
+    cursor = db.guests.find({"_id": {"$in": obj_ids}})
+    async for guest in cursor:
+        email = (guest.get("email") or "").strip().lower()
+        if not email:
+            skipped += 1
+            continue
+        try:
+            attachments, seq = await _build_badge_attachment(guest)
+            subject, html = render_register_confirmation_email(guest, seq, public_base)
+            background_tasks.add_task(send_email, email, subject, html, attachments)
+            await db.guests.update_one(
+                {"_id": guest["_id"]},
+                {"$set": {"last_email_sent_at": now_iso, "last_email_type": "badge_resend"}}
+            )
+            sent += 1
+        except Exception as e:
+            logger.exception("bulk-resend-badge failed for %s: %s", guest.get("_id"), e)
+            failed += 1
+    return {
+        "message": f"{sent} yaka kartı gönderildi" + (f", {skipped} e-postasız atlandı" if skipped else "") + (f", {failed} hata" if failed else ""),
+        "sent": sent, "skipped": skipped, "failed": failed,
+    }
+
+
+@api_router.post("/admin/guests/bulk-send-reminder")
+async def admin_bulk_send_reminder(body: BulkDeleteGuestsBody, background_tasks: BackgroundTasks, admin: dict = Depends(get_admin_user)):
+    if not body.ids:
+        raise HTTPException(400, "Kayıt seçilmedi")
+    obj_ids = [ObjectId(i) for i in body.ids if ObjectId.is_valid(i)]
+    if not obj_ids:
+        raise HTTPException(400, "Geçerli ID yok")
+    public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
+    sent, skipped, failed = 0, 0, 0
+    now_iso = datetime.now(timezone.utc).isoformat()
+    cursor = db.guests.find({"_id": {"$in": obj_ids}})
+    async for guest in cursor:
+        email = (guest.get("email") or "").strip().lower()
+        if not email:
+            skipped += 1
+            continue
+        try:
+            attachments, _ = await _build_badge_attachment(guest)
+            subject, html = render_reminder_email(guest, public_base)
+            background_tasks.add_task(send_email, email, subject, html, attachments)
+            await db.guests.update_one(
+                {"_id": guest["_id"]},
+                {"$set": {"last_email_sent_at": now_iso, "last_email_type": "reminder"}}
+            )
+            sent += 1
+        except Exception as e:
+            logger.exception("bulk-send-reminder failed for %s: %s", guest.get("_id"), e)
+            failed += 1
+    return {
+        "message": f"{sent} hatırlatma gönderildi" + (f", {skipped} e-postasız atlandı" if skipped else "") + (f", {failed} hata" if failed else ""),
+        "sent": sent, "skipped": skipped, "failed": failed,
+    }
+
+
 # ==================== ADMIN EXHIBITORS ====================
 
 @api_router.get("/admin/exhibitors")
