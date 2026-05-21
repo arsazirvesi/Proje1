@@ -99,7 +99,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 to="/yatirim-oyunu"
-                className="hidden md:inline-flex group relative text-xs font-bold px-3 lg:px-3.5 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all items-center gap-1.5 whitespace-nowrap"
+                className="inline-flex group relative text-xs font-bold px-2.5 sm:px-3 lg:px-3.5 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all items-center gap-1.5 whitespace-nowrap"
                 data-testid="nav-game-btn"
               >
                 <span className="animate-pulse">📊</span>
@@ -115,7 +115,7 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/fuar-stant-kaydi"
-                className="hidden md:inline-flex items-center btn-navy py-2 px-3.5 lg:px-4 text-xs whitespace-nowrap"
+                className="hidden lg:inline-flex items-center btn-navy py-2 px-3.5 lg:px-4 text-xs whitespace-nowrap"
                 data-testid="nav-exhibitor-btn"
               >
                 <span className="hidden lg:inline">Stant Başvurusu</span>
