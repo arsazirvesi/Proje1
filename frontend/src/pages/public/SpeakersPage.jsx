@@ -34,10 +34,13 @@ export default function SpeakersPage() {
           const isModerator = (s) => /moderat[oö]r|sunucu/i.test(s.title || "");
           const moderators = speakers.filter(isModerator);
           const regulars = speakers.filter((s) => !isModerator(s));
+          // Fill grid up to 4 with promo placeholders when fewer real speakers exist
+          const TARGET = 4;
+          const promoCount = Math.max(TARGET - regulars.length, regulars.length === 0 ? 4 : 0);
           return (
             <>
               {/* Top row — Moderator (1 person, centered, slightly larger) */}
-              {moderators.length > 0 && (
+              {moderators.length > 0 ? (
                 <div className="flex justify-center mb-8 sm:mb-10">
                   <div className="w-full max-w-sm">
                     {moderators.map((sp) => (
@@ -45,16 +48,23 @@ export default function SpeakersPage() {
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="flex justify-center mb-8 sm:mb-10">
+                  <div className="w-full max-w-sm">
+                    <SpeakerPromoCard featured tone="moderator" />
+                  </div>
+                </div>
               )}
 
               {/* Bottom row — Speakers (4 across on desktop) */}
-              {regulars.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {regulars.map((sp) => (
-                    <SpeakerCard key={sp.id} sp={sp} />
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {regulars.map((sp) => (
+                  <SpeakerCard key={sp.id} sp={sp} />
+                ))}
+                {Array.from({ length: promoCount }).map((_, i) => (
+                  <SpeakerPromoCard key={`promo-${i}`} />
+                ))}
+              </div>
             </>
           );
         })()}
@@ -95,6 +105,43 @@ function SpeakerCard({ sp, featured = false }) {
         )}
       </div>
     </div>
+  );
+}
+
+function SpeakerPromoCard({ featured = false, tone = "speaker" }) {
+  const isModerator = tone === "moderator";
+  return (
+    <Link
+      to="/konusmaci-basvuru"
+      className="group relative bg-gradient-to-br from-summit-navy via-summit-navy to-summit-navy-dark border-2 border-dashed border-amber-400/60 hover:border-amber-400 rounded-md overflow-hidden flex flex-col shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all"
+      data-testid="speaker-promo-card"
+    >
+      <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold py-1.5 text-center px-2">
+        {isModerator ? "Boş Slot · Sunucu / Moderatör" : "Boş Slot · Konuşmacı"}
+      </div>
+      <div className={`${featured ? "h-80" : "h-72"} flex flex-col items-center justify-center px-6 relative overflow-hidden`}>
+        <div className="absolute inset-0 opacity-[0.05]" style={{
+          backgroundImage: "radial-gradient(circle, #C9A961 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+        }} />
+        <div className="w-16 h-16 rounded-full bg-amber-400/15 border border-amber-400/40 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <Mic size={28} className="text-amber-300" />
+        </div>
+        <p className="text-amber-300 text-[11px] uppercase tracking-[0.2em] font-bold mb-2">Bir Sonraki Zirve</p>
+        <h3 className="font-heading text-white text-xl text-center leading-tight">Konuşmacı Olun</h3>
+        <p className="text-white/70 text-xs text-center mt-3 leading-relaxed max-w-[220px]">
+          Uzmanlığınızı 600+ yatırımcıya anlatın. Yerinizi şimdiden ayırtın.
+        </p>
+      </div>
+      <div className="p-5 flex-1 flex flex-col">
+        <div className="flex items-center justify-between gap-2 mt-auto">
+          <span className="text-amber-300 text-xs font-bold uppercase tracking-wider">Başvur</span>
+          <span className="w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+            <ArrowRight size={13} className="text-amber-300 group-hover:text-summit-navy transition-colors" />
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }
 

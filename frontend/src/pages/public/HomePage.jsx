@@ -271,8 +271,7 @@ export default function HomePage() {
       </section>
 
       {/* ===== SPEAKERS (moved up - prominent on mobile) ===== */}
-      {speakers.length > 0 && (
-        <section className="py-12 sm:py-16 bg-white border-t border-gray-100" data-testid="speakers-section">
+      <section className="py-12 sm:py-16 bg-white border-t border-gray-100" data-testid="speakers-section">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
               <span className="section-overline">Konuşmacılar</span>
@@ -283,6 +282,41 @@ export default function HomePage() {
               const isModerator = (s) => /moderat[oö]r|sunucu/i.test(s.title || "");
               const moderators = speakers.filter(isModerator);
               const regulars = speakers.filter((s) => !isModerator(s));
+              const TARGET = 4;
+              const promoCount = Math.max(TARGET - regulars.length, regulars.length === 0 ? 4 : 0);
+              const PromoSlot = ({ featured = false, isModerator: mod = false }) => (
+                <Link
+                  to="/konusmaci-basvuru"
+                  className="group relative bg-gradient-to-br from-summit-navy via-summit-navy to-summit-navy-dark border-2 border-dashed border-amber-400/60 hover:border-amber-400 rounded-md overflow-hidden flex flex-col shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all"
+                  data-testid="speaker-promo-card"
+                >
+                  <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold py-1.5 text-center px-2">
+                    {mod ? "Boş Slot · Sunucu / Moderatör" : "Boş Slot · Konuşmacı"}
+                  </div>
+                  <div className={`${featured ? "h-80" : "h-72"} flex flex-col items-center justify-center px-6 relative overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-[0.05]" style={{
+                      backgroundImage: "radial-gradient(circle, #C9A961 1px, transparent 1px)",
+                      backgroundSize: "20px 20px",
+                    }} />
+                    <div className="w-16 h-16 rounded-full bg-amber-400/15 border border-amber-400/40 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Mic2 size={28} className="text-amber-300" />
+                    </div>
+                    <p className="text-amber-300 text-[11px] uppercase tracking-[0.2em] font-bold mb-2">Bir Sonraki Zirve</p>
+                    <h4 className="font-heading text-white text-xl text-center leading-tight">Konuşmacı Olun</h4>
+                    <p className="text-white/70 text-xs text-center mt-3 leading-relaxed max-w-[220px]">
+                      Uzmanlığınızı 600+ yatırımcıya anlatın. Yerinizi şimdiden ayırtın.
+                    </p>
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between gap-2 mt-auto">
+                      <span className="text-amber-300 text-xs font-bold uppercase tracking-wider">Başvur</span>
+                      <span className="w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center group-hover:bg-amber-400 transition-colors">
+                        <ArrowRight size={13} className="text-amber-300 group-hover:text-summit-navy transition-colors" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
               const SpeakerCardInline = ({ sp, featured }) => (
                 <div
                   className="bg-white border border-amber-300 overflow-hidden shadow-sm card-hover rounded-md flex flex-col"
@@ -325,7 +359,7 @@ export default function HomePage() {
               );
               return (
                 <>
-                  {moderators.length > 0 && (
+                  {moderators.length > 0 ? (
                     <div className="flex justify-center mb-8 sm:mb-10">
                       <div className="w-full max-w-sm">
                         {moderators.map((sp) => (
@@ -333,14 +367,21 @@ export default function HomePage() {
                         ))}
                       </div>
                     </div>
-                  )}
-                  {regulars.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                      {regulars.map((sp) => (
-                        <SpeakerCardInline key={sp.id} sp={sp} />
-                      ))}
+                  ) : (
+                    <div className="flex justify-center mb-8 sm:mb-10">
+                      <div className="w-full max-w-sm">
+                        <PromoSlot featured isModerator />
+                      </div>
                     </div>
                   )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {regulars.map((sp) => (
+                      <SpeakerCardInline key={sp.id} sp={sp} />
+                    ))}
+                    {Array.from({ length: promoCount }).map((_, i) => (
+                      <PromoSlot key={`promo-${i}`} />
+                    ))}
+                  </div>
                 </>
               );
             })()}
@@ -352,7 +393,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      )}
 
       {/* ===== PROGRAM PREVIEW (moved up) ===== */}
       <section className="py-12 sm:py-16 bg-summit-paper" data-testid="program-section">
