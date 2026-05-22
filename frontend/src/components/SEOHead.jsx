@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { API_BASE as API } from "../lib/api";
 
@@ -8,9 +9,12 @@ import { API_BASE as API } from "../lib/api";
  * Fetches admin-managed SEO settings from /api/seo and injects
  * <title>, meta tags, OG/Twitter cards, canonical, and Event JSON-LD.
  *
- * Per-page override: pass `pageTitle` / `pageDescription` / `pagePath` props.
+ * Pages with their own <Helmet> (e.g. /akademi) can opt out via path prefix.
  */
+const SKIP_PATH_PREFIXES = ["/akademi"];
+
 export default function SEOHead({ pageTitle, pageDescription, pagePath }) {
+  const location = useLocation();
   const [seo, setSeo] = useState(null);
 
   useEffect(() => {
@@ -25,6 +29,8 @@ export default function SEOHead({ pageTitle, pageDescription, pagePath }) {
   }, []);
 
   if (!seo) return null;
+  // Some pages own their full <head> via their own <Helmet>; skip global override
+  if (SKIP_PATH_PREFIXES.some((p) => location.pathname.startsWith(p))) return null;
 
   const siteUrl = (seo.site_url || "https://arsayatirimzirvesi.com").replace(/\/$/, "");
   const title = pageTitle || seo.title || "Arsa Yatırım Zirvesi 2026";

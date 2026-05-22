@@ -3730,6 +3730,10 @@ async def admin_delete_session(session_id: str, admin: dict = Depends(get_admin_
 
 app.include_router(api_router)
 
+# Academy router (categories + courses)
+from academy_routes import init_router as init_academy_router  # noqa: E402
+app.include_router(init_academy_router(db, get_admin_user))
+
 
 # Static uploads directory — serves files uploaded via admin panel
 # Mounted under /api/uploads so K8s ingress routes the requests to the backend

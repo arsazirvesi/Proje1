@@ -24,6 +24,7 @@ import InvestmentGamePage from "./pages/public/InvestmentGamePage";
 import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
+import AcademyHomePage from "./pages/public/AcademyHomePage";
 import PrivacyPage from "./pages/public/PrivacyPage";
 import KvkkPage from "./pages/public/KvkkPage";
 
@@ -52,6 +53,7 @@ import ApiKeysManagement from "./pages/admin/ApiKeysManagement";
 import VisitegoSync from "./pages/admin/VisitegoSync";
 import InvestmentGameList from "./pages/admin/InvestmentGameList";
 import IntegrationsPage from "./pages/admin/IntegrationsPage";
+import AcademyManagement from "./pages/admin/AcademyManagement";
 import ExpertLogin from "./pages/expert/ExpertLogin";
 import ExpertGameList from "./pages/expert/ExpertGameList";
 import ExpertGameDetail from "./pages/expert/ExpertGameDetail";
@@ -87,6 +89,7 @@ function App() {
             <Route path="/etkinlikler" element={<PastEventsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
+            <Route path="/akademi" element={<AcademyHomePage />} />
             <Route path="/gizlilik" element={<PrivacyPage />} />
             <Route path="/kvkk" element={<KvkkPage />} />
 
@@ -141,6 +144,7 @@ function App() {
               <Route path="sponsorlar" element={<SponsorManagement />} />
               <Route path="sponsor-paketleri" element={<SponsorPackagesManagement />} />
               <Route path="bannerlar" element={<BannerManagement />} />
+              <Route path="akademi" element={<AcademyManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="etkinlikler" element={<EventManagement />} />
               <Route path="program" element={<ProgramManagement />} />

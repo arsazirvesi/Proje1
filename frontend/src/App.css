@@ -40,6 +40,23 @@
   box-shadow: 0 8px 24px rgba(34,49,106,0.3);
 }
 
+.form-input {
+  width: 100%;
+  background: #F8F9FB;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #22316a;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.form-input:focus {
+  border-color: #F5B800;
+  background: #fff;
+}
+
+
 .btn-outline-navy {
   background: transparent;
   color: #22316a;
