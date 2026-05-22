@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Plus, Pencil, Trash2, X, Image as ImageIcon, Layers, Clock, Smartphone } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
+import ImageUrlInput from "../../components/ImageUrlInput";
 
 const empty = {
   title: "",
@@ -216,15 +217,21 @@ export default function BannerManagement() {
                 <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block flex items-center gap-1.5">
                   <ImageIcon size={12} /> Web Görsel URL
                 </label>
-                <input type="url" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
+                <ImageUrlInput
+                  value={form.image_url}
+                  onChange={(url) => setForm({ ...form, image_url: url })}
+                  testIdPrefix="banner-web"
+                />
               </div>
               <div>
                 <label className="text-gray-500 text-xs uppercase tracking-wider mb-2 block flex items-center gap-1.5">
                   <Smartphone size={12} /> Mobil Görsel URL (opsiyonel)
                 </label>
-                <input type="url" value={form.image_url_mobile} onChange={e => setForm({ ...form, image_url_mobile: e.target.value })}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-summit-navy text-sm focus:outline-none focus:border-summit-gold/50" />
+                <ImageUrlInput
+                  value={form.image_url_mobile}
+                  onChange={(url) => setForm({ ...form, image_url_mobile: url })}
+                  testIdPrefix="banner-mobile"
+                />
               </div>
 
               <div>
