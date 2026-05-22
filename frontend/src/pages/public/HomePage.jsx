@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles, Linkedin, Instagram, Twitter } from "lucide-react";
+import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles, Linkedin, Instagram, Twitter, GraduationCap } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 function useCountdown(targetDate) {
@@ -169,6 +169,18 @@ export default function HomePage() {
                     <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
                     <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors pointer-events-none" />
                   </button>
+                )}
+
+                {!registerOpen && (
+                  <Link
+                    to="/akademi"
+                    className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-summit-navy hover:text-amber-600 transition-colors"
+                    data-testid="hero-akademi-cta"
+                  >
+                    <GraduationCap size={14} className="text-amber-500" />
+                    <span className="uppercase tracking-wider">Yeni: Arsa Yatırım Akademisi</span>
+                    <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 )}
 
                 {registerOpen && (
