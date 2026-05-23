@@ -138,6 +138,13 @@ export default function HomePage() {
               </div>
 
               {/* Compact countdown (mobile-only visible) */}
+              {siteSettings.event_is_active === false ? (
+                <div className="lg:hidden mt-5 bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy shadow-lg rounded-md p-4 relative overflow-hidden" data-testid="event-completed-mobile">
+                  <p className="text-[10px] uppercase tracking-widest font-bold mb-1">{siteSettings.completed_overline || "Bu Yılki Zirvemiz"}</p>
+                  <p className="font-heading text-base font-bold leading-tight">{siteSettings.completed_title || "Bu Yılki Zirvemiz Başarıyla Tamamlandı"}</p>
+                  <p className="text-summit-navy/80 text-xs mt-1.5 leading-relaxed">{siteSettings.next_event_label || "Bir sonraki zirve yakında"}</p>
+                </div>
+              ) : (
               <div className="lg:hidden mt-5 bg-white border border-gray-200 shadow-sm rounded-md p-4 relative overflow-hidden" data-testid="countdown-timer-mobile">
                 <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
                 <div className="flex items-center justify-between mb-3 mt-1">
@@ -155,9 +162,10 @@ export default function HomePage() {
                   ))}
                 </div>
               </div>
+              )}
 
               <div className="flex flex-col items-stretch gap-2.5 mt-5 sm:mt-8 animate-slide-up stagger-5 opacity-0" data-testid="hero-register-cta">
-                {!registerOpen && (
+                {!registerOpen && siteSettings.event_is_active !== false && (
                   <button
                     type="button"
                     onClick={() => setRegisterOpen(true)}
@@ -169,6 +177,18 @@ export default function HomePage() {
                     <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
                     <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors pointer-events-none" />
                   </button>
+                )}
+
+                {!registerOpen && siteSettings.event_is_active === false && siteSettings.next_event_cta_text && (
+                  <Link
+                    to={siteSettings.next_event_cta_url || "/ziyaretci-kaydi"}
+                    className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 bg-summit-accent text-summit-navy font-heading font-bold text-base sm:text-lg rounded-md shadow-lg hover:shadow-xl hover:bg-summit-accent/90 transition-all overflow-hidden"
+                    data-testid="hero-next-event-btn"
+                  >
+                    <span className="absolute -left-1 top-0 h-full w-1.5 bg-summit-navy" />
+                    <span className="relative z-10">{siteSettings.next_event_cta_text}</span>
+                    <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 )}
 
                 {!registerOpen && (
@@ -236,6 +256,31 @@ export default function HomePage() {
 
             {/* Right: Countdown card (desktop only) */}
             <div className="hidden lg:block lg:col-span-5">
+              {siteSettings.event_is_active === false ? (
+                <div className="bg-gradient-to-br from-amber-400 to-amber-500 text-summit-navy p-7 rounded-md relative overflow-hidden shadow-2xl" data-testid="event-completed-card">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-summit-navy" />
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-block w-2 h-2 rounded-full bg-summit-navy" />
+                    <p className="text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold">{siteSettings.completed_overline || "Bu Yılki Zirvemiz"}</p>
+                  </div>
+                  <h3 className="font-heading text-2xl xl:text-3xl font-bold leading-tight mb-3">{siteSettings.completed_title || "Bu Yılki Zirvemiz Başarıyla Tamamlandı"}</h3>
+                  <p className="text-summit-navy/85 text-sm mb-4 leading-relaxed">{siteSettings.completed_subtitle}</p>
+                  {siteSettings.completed_thanks_message && (
+                    <div className="bg-white/30 border border-white/50 rounded-lg p-3.5 text-summit-navy text-sm italic leading-relaxed mb-5">
+                      "{siteSettings.completed_thanks_message}"
+                    </div>
+                  )}
+                  <div className="border-t border-summit-navy/20 pt-4 mt-2">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-summit-navy/70 mb-2">{siteSettings.next_event_label || "Bir Sonraki Zirve Yakında"}</p>
+                    {siteSettings.next_event_cta_text && (
+                      <Link to={siteSettings.next_event_cta_url || "/ziyaretci-kaydi"}
+                        className="inline-flex items-center gap-2 bg-summit-navy hover:bg-summit-navy-dark text-amber-400 font-bold px-5 py-2.5 rounded-md transition-colors text-sm">
+                        {siteSettings.next_event_cta_text} <ArrowRight size={14} />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ) : (
               <div className="bg-white border border-gray-200 shadow-xl p-7 rounded-md relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
                 <div className="flex items-center justify-between mb-6 mt-1">
@@ -272,6 +317,7 @@ export default function HomePage() {
                   ))}
                 </div>
               </div>
+              )}
 
               <div className="mt-4 flex items-center gap-2 text-gray-600 text-xs justify-center">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

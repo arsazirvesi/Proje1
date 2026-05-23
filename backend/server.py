@@ -333,6 +333,15 @@ class SiteSettings(BaseModel):
     sessions_count: Optional[int] = None
     attendees_count: Optional[str] = None  # "600+"
     countdown_title: Optional[str] = None  # "Zirveye Kalan Süre"
+    # Event lifecycle: when False, the home page shows a "completed" hero
+    event_is_active: Optional[bool] = True
+    completed_overline: Optional[str] = None
+    completed_title: Optional[str] = None
+    completed_subtitle: Optional[str] = None
+    completed_thanks_message: Optional[str] = None
+    next_event_label: Optional[str] = None
+    next_event_cta_text: Optional[str] = None
+    next_event_cta_url: Optional[str] = None
 
 
 class FairSettings(BaseModel):

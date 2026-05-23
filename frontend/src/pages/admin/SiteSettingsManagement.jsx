@@ -26,6 +26,14 @@ export default function SiteSettingsManagement() {
     sessions_count: 12,
     attendees_count: "600+",
     countdown_title: "Zirveye Kalan Süre",
+    event_is_active: true,
+    completed_overline: "5. Arsa Yatırım Zirvesi",
+    completed_title: "Bu Yılki Zirvemiz Başarıyla Tamamlandı",
+    completed_subtitle: "600+ yatırımcı, 12 oturum, 10+ saha uzmanı — birlikte güçlü bir buluşma gerçekleştirdik.",
+    completed_thanks_message: "Bizi seçen tüm katılımcılarımıza, konuşmacılarımıza ve sponsorlarımıza teşekkür ederiz.",
+    next_event_label: "Bir Sonraki Zirve Yakında",
+    next_event_cta_text: "Haberdar Ol",
+    next_event_cta_url: "/ziyaretci-kaydi",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -106,16 +114,84 @@ export default function SiteSettingsManagement() {
       </div>
 
       {/* Live preview */}
-      <div className="bg-summit-navy text-white rounded-xl p-5 mb-6">
+      <div className={`${form.event_is_active === false ? "bg-gradient-to-br from-amber-500 to-amber-600" : "bg-summit-navy"} text-white rounded-xl p-5 mb-6`}>
         <div className="flex items-center gap-2 mb-3">
           <Clock size={16} className="text-summit-accent" />
-          <span className="text-xs uppercase tracking-widest font-semibold opacity-80">Canlı Önizleme</span>
+          <span className="text-xs uppercase tracking-widest font-semibold opacity-80">
+            Canlı Önizleme — {form.event_is_active === false ? "Zirve Tamamlandı" : "Zirve Aktif"}
+          </span>
         </div>
-        <p className="text-summit-accent text-xs font-semibold uppercase tracking-widest mb-1">{form.countdown_title}</p>
-        <p className="font-heading text-3xl font-bold mb-1">{remaining}</p>
-        <p className="text-white/70 text-xs">
-          {form.event_date_label} · {form.event_time_label} · {form.event_location}
-        </p>
+        {form.event_is_active === false ? (
+          <>
+            <p className="text-amber-100 text-xs font-semibold uppercase tracking-widest mb-1">{form.completed_overline}</p>
+            <p className="font-heading text-2xl font-bold mb-2">{form.completed_title}</p>
+            <p className="text-white/85 text-sm">{form.completed_subtitle}</p>
+          </>
+        ) : (
+          <>
+            <p className="text-summit-accent text-xs font-semibold uppercase tracking-widest mb-1">{form.countdown_title}</p>
+            <p className="font-heading text-3xl font-bold mb-1">{remaining}</p>
+            <p className="text-white/70 text-xs">
+              {form.event_date_label} · {form.event_time_label} · {form.event_location}
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* Event status toggle */}
+      <div className="bg-white border-2 border-amber-300 rounded-xl p-5 mb-6">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+            <AlertCircle size={18} />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-base font-semibold text-summit-navy">Zirve Durumu</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Pasif yapıldığında ana sayfada "Zirve tamamlandı" hero'su gösterilir.</p>
+          </div>
+        </div>
+        <div className="flex gap-2 mb-4">
+          <button type="button" onClick={() => set("event_is_active", true)}
+            className={`flex-1 px-4 py-3 rounded-lg text-sm font-bold transition-colors ${form.event_is_active !== false ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
+            data-testid="event-active-btn">
+            ✅ Zirve Aktif (Geri sayım gösterilir)
+          </button>
+          <button type="button" onClick={() => set("event_is_active", false)}
+            className={`flex-1 px-4 py-3 rounded-lg text-sm font-bold transition-colors ${form.event_is_active === false ? "bg-amber-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
+            data-testid="event-passive-btn">
+            🏁 Zirve Tamamlandı (Teşekkür hero'su gösterilir)
+          </button>
+        </div>
+
+        {form.event_is_active === false && (
+          <div className="space-y-3 border-t border-gray-100 pt-4">
+            <h3 className="text-xs font-bold text-summit-navy uppercase tracking-wider">"Tamamlandı" Hero'su</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <SmallField label="Üst Rozet (Overline)">
+                <input value={form.completed_overline || ""} onChange={e => set("completed_overline", e.target.value)} placeholder="5. Arsa Yatırım Zirvesi" className="form-input" />
+              </SmallField>
+              <SmallField label="Sonraki Etkinlik Etiketi">
+                <input value={form.next_event_label || ""} onChange={e => set("next_event_label", e.target.value)} placeholder="Bir Sonraki Zirve Yakında" className="form-input" />
+              </SmallField>
+            </div>
+            <SmallField label="Ana Başlık (H1)">
+              <input value={form.completed_title || ""} onChange={e => set("completed_title", e.target.value)} placeholder="Bu Yılki Zirvemiz Başarıyla Tamamlandı" className="form-input" />
+            </SmallField>
+            <SmallField label="Alt Başlık (H2)">
+              <textarea value={form.completed_subtitle || ""} onChange={e => set("completed_subtitle", e.target.value)} rows={2} placeholder="600+ yatırımcı, 12 oturum..." className="form-input resize-none" />
+            </SmallField>
+            <SmallField label="Teşekkür Mesajı">
+              <textarea value={form.completed_thanks_message || ""} onChange={e => set("completed_thanks_message", e.target.value)} rows={2} className="form-input resize-none" />
+            </SmallField>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <SmallField label="CTA Buton Yazısı">
+                <input value={form.next_event_cta_text || ""} onChange={e => set("next_event_cta_text", e.target.value)} placeholder="Haberdar Ol" className="form-input" />
+              </SmallField>
+              <SmallField label="CTA URL">
+                <input value={form.next_event_cta_url || ""} onChange={e => set("next_event_cta_url", e.target.value)} placeholder="/ziyaretci-kaydi" className="form-input" />
+              </SmallField>
+            </div>
+          </div>
+        )}
       </div>
 
       {msg && <div className="mb-4 px-4 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">{msg}</div>}
@@ -254,3 +330,13 @@ export default function SiteSettingsManagement() {
     </div>
   );
 }
+
+function SmallField({ label, children }) {
+  return (
+    <div>
+      <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">{label}</label>
+      {children}
+    </div>
+  );
+}
+
