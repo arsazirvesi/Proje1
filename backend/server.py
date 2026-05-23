@@ -300,6 +300,11 @@ class PastEventCreate(BaseModel):
     image_url: Optional[str] = None
     attendee_count: Optional[int] = None
     speakers_count: Optional[int] = None
+    type: str = "zirve"          # "zirve" | "seminer"
+    date_label: Optional[str] = None   # "21 Mayıs 2026"
+    topics: List[str] = []             # ["Arsa Yatırım", "Hukuk", ...]
+    video_url: Optional[str] = None    # YouTube URL
+    highlight_text: Optional[str] = None  # Quote / key highlight
 
 class ProgramSessionCreate(BaseModel):
     time_start: str
@@ -720,6 +725,27 @@ async def get_blog_post(slug: str):
 async def get_events():
     docs = await db.past_events.find({}).sort("year", -1).to_list(20)
     return [clean_doc(d) for d in docs]
+
+@api_router.get("/events/{event_id}")
+async def get_event_detail(event_id: str):
+    doc = await db.past_events.find_one({"_id": ObjectId(event_id)})
+    if not doc:
+        raise HTTPException(404, "Etkinlik bulunamadı")
+    event = clean_doc(doc)
+    year = event.get("year")
+    # Attach gallery items for this year
+    gallery = []
+    async for g in db.gallery_items.find({"is_active": True, "year": year}, {"_id": 0}).sort("order", 1):
+        gallery.append(g)
+    event["gallery_items"] = gallery
+    # Attach speakers for this year
+    speakers = []
+    async for s in db.speakers.find({}, {"_id": 0}).sort("order", 1):
+        yrs = s.get("summit_years") or []
+        if not yrs or year in yrs:
+            speakers.append(s)
+    event["speakers"] = speakers
+    return event
 
 @api_router.get("/program")
 async def get_program():
