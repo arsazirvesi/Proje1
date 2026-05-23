@@ -173,12 +173,12 @@ export default function HomePage() {
 
                 {!registerOpen && (
                   <Link
-                    to="/akademi"
+                    to="/seminer"
                     className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-summit-navy hover:text-amber-600 transition-colors"
-                    data-testid="hero-akademi-cta"
+                    data-testid="hero-seminer-cta"
                   >
                     <GraduationCap size={14} className="text-amber-500" />
-                    <span className="uppercase tracking-wider">Yeni: Arsa Yatırım Akademisi</span>
+                    <span className="uppercase tracking-wider">Yeni: Arsa Yatırım Semineri</span>
                     <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 )}

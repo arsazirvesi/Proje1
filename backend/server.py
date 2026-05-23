@@ -3734,6 +3734,10 @@ app.include_router(api_router)
 from academy_routes import init_router as init_academy_router  # noqa: E402
 app.include_router(init_academy_router(db, get_admin_user))
 
+# Seminar page settings (admin-editable SEO + hero content)
+from seminar_settings import init_router as init_seminar_settings_router  # noqa: E402
+app.include_router(init_seminar_settings_router(db, get_admin_user))
+
 
 # Static uploads directory — serves files uploaded via admin panel
 # Mounted under /api/uploads so K8s ingress routes the requests to the backend

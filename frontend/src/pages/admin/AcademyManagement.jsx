@@ -2,28 +2,29 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Plus, Pencil, Trash2, X, Loader2, GraduationCap, Folder,
-  BookOpen, Globe, MapPin, Banknote, Eye, EyeOff,
+  BookOpen, Globe, MapPin, Banknote, Eye, EyeOff, Search,
 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 import ImageUrlInput from "../../components/ImageUrlInput";
 
 const TAB_CATS = "categories";
 const TAB_COURSES = "courses";
+const TAB_SEO = "seo";
 
 export default function AcademyManagement() {
   const [tab, setTab] = useState(TAB_CATS);
 
   return (
-    <div className="space-y-5" data-testid="admin-academy">
+    <div className="space-y-5" data-testid="admin-seminer">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h2 className="font-heading text-xl sm:text-2xl text-summit-navy font-bold flex items-center gap-2">
             <GraduationCap size={22} className="text-amber-500" />
-            Arsa Yatırım Akademisi
+            Arsa Yatırım Semineri
           </h2>
-          <p className="text-xs text-gray-500 mt-0.5">Kategori ve eğitim yönetimi · SEO destekli landing'e otomatik yansır</p>
+          <p className="text-xs text-gray-500 mt-0.5">Kategori, seminer ve SEO yönetimi · /seminer sayfasına otomatik yansır</p>
         </div>
-        <a href="/akademi" target="_blank" rel="noreferrer"
+        <a href="/seminer" target="_blank" rel="noreferrer"
           className="text-xs font-semibold text-summit-navy hover:underline inline-flex items-center gap-1">
           Sayfayı Görüntüle <Globe size={11} />
         </a>
@@ -33,21 +34,29 @@ export default function AcademyManagement() {
         <button
           onClick={() => setTab(TAB_CATS)}
           className={`px-4 py-2 text-xs font-bold rounded-md inline-flex items-center gap-1.5 transition-colors ${tab === TAB_CATS ? "bg-summit-navy text-white" : "text-gray-600 hover:text-summit-navy"}`}
-          data-testid="academy-tab-categories"
+          data-testid="seminer-tab-categories"
         >
           <Folder size={13} /> Kategoriler
         </button>
         <button
           onClick={() => setTab(TAB_COURSES)}
           className={`px-4 py-2 text-xs font-bold rounded-md inline-flex items-center gap-1.5 transition-colors ${tab === TAB_COURSES ? "bg-summit-navy text-white" : "text-gray-600 hover:text-summit-navy"}`}
-          data-testid="academy-tab-courses"
+          data-testid="seminer-tab-courses"
         >
-          <BookOpen size={13} /> Eğitimler
+          <BookOpen size={13} /> Seminerler
+        </button>
+        <button
+          onClick={() => setTab(TAB_SEO)}
+          className={`px-4 py-2 text-xs font-bold rounded-md inline-flex items-center gap-1.5 transition-colors ${tab === TAB_SEO ? "bg-summit-navy text-white" : "text-gray-600 hover:text-summit-navy"}`}
+          data-testid="seminer-tab-seo"
+        >
+          <Search size={13} /> SEO & İçerik
         </button>
       </div>
 
       {tab === TAB_CATS && <CategoriesTab />}
       {tab === TAB_COURSES && <CoursesTab />}
+      {tab === TAB_SEO && <SeoTab />}
     </div>
   );
 }
@@ -432,6 +441,100 @@ function CourseModal({ initial, cats, onClose, onSave }) {
         </div>
       </form>
     </div>
+  );
+}
+
+// ====================== SEO & CONTENT TAB ======================
+function SeoTab() {
+  const [f, setF] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    axios.get(`${API}/seminar/settings`).then(r => setF(r.data));
+  }, []);
+
+  const save = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setMsg("");
+    try {
+      const { data } = await axios.patch(`${API}/admin/seminar/settings`, f, { withCredentials: true });
+      setF(data);
+      setMsg("✅ Kaydedildi — /seminer sayfası güncellendi");
+      setTimeout(() => setMsg(""), 4000);
+    } catch (e2) {
+      setMsg(e2?.response?.data?.detail || "Kaydedilemedi");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!f) return <Loader />;
+
+  return (
+    <form onSubmit={save} className="bg-white border border-gray-200 rounded-xl p-5 space-y-4 max-w-3xl" data-testid="seo-form">
+      {/* HERO */}
+      <section className="space-y-3">
+        <h3 className="text-xs font-bold text-summit-navy uppercase tracking-wider border-b border-gray-100 pb-2">Hero Bölümü</h3>
+        <Field label="Üst Rozet (Overline)">
+          <input value={f.hero_overline || ""} onChange={e => setF({ ...f, hero_overline: e.target.value })} className="form-input" data-testid="seo-hero-overline" placeholder="Saha Uzmanlarından" />
+        </Field>
+        <Field label="Ana Başlık (H1)">
+          <input value={f.hero_title || ""} onChange={e => setF({ ...f, hero_title: e.target.value })} className="form-input" data-testid="seo-hero-title" placeholder="Arsa Yatırım Semineri" />
+        </Field>
+        <Field label="Başlığın Vurgulu Kısmı (altın renk)">
+          <input value={f.hero_accent || ""} onChange={e => setF({ ...f, hero_accent: e.target.value })} className="form-input" placeholder="Semineri" />
+          <p className="text-[10px] text-gray-400 mt-1">Başlık metninin sonunda eşleşen kelime altın renge boyanır. Örn: başlık "Arsa Yatırım Semineri", vurgu "Semineri" → "Arsa Yatırım <span class='text-amber-500 font-bold'>Semineri</span>"</p>
+        </Field>
+        <Field label="Alt Başlık (H2 / Açıklama)">
+          <textarea value={f.hero_subtitle || ""} onChange={e => setF({ ...f, hero_subtitle: e.target.value })} rows={3} className="form-input resize-none" data-testid="seo-hero-subtitle" />
+        </Field>
+      </section>
+
+      {/* SEO */}
+      <section className="space-y-3">
+        <h3 className="text-xs font-bold text-summit-navy uppercase tracking-wider border-b border-gray-100 pb-2 pt-4 flex items-center gap-1.5">
+          <Search size={12} /> SEO Meta Etiketleri
+        </h3>
+        <Field label="SEO Title (60-70 karakter ideal)">
+          <input value={f.seo_title || ""} onChange={e => setF({ ...f, seo_title: e.target.value })} maxLength={120} className="form-input" data-testid="seo-meta-title" />
+          <div className="text-[10px] text-gray-400 mt-1">{(f.seo_title || "").length}/120</div>
+        </Field>
+        <Field label="SEO Description (150-160 karakter ideal)">
+          <textarea value={f.seo_description || ""} onChange={e => setF({ ...f, seo_description: e.target.value })} maxLength={300} rows={3} className="form-input resize-none" data-testid="seo-meta-description" />
+          <div className="text-[10px] text-gray-400 mt-1">{(f.seo_description || "").length}/300</div>
+        </Field>
+        <Field label="Anahtar Kelimeler (virgülle ayır)">
+          <textarea value={f.seo_keywords || ""} onChange={e => setF({ ...f, seo_keywords: e.target.value })} rows={3} className="form-input resize-none" data-testid="seo-meta-keywords"
+            placeholder="arsa yatırım semineri, arsa eğitimi, gayrimenkul semineri..." />
+        </Field>
+        <Field label="Canonical URL Yolu">
+          <input value={f.canonical_path || ""} onChange={e => setF({ ...f, canonical_path: e.target.value })} className="form-input" placeholder="/seminer" />
+        </Field>
+      </section>
+
+      {/* OG */}
+      <section className="space-y-3">
+        <h3 className="text-xs font-bold text-summit-navy uppercase tracking-wider border-b border-gray-100 pb-2 pt-4">Sosyal Medya Önizleme (Open Graph)</h3>
+        <Field label="OG Title (opsiyonel — boşsa SEO title kullanılır)">
+          <input value={f.og_title || ""} onChange={e => setF({ ...f, og_title: e.target.value })} className="form-input" />
+        </Field>
+        <Field label="OG Description (opsiyonel — boşsa SEO description kullanılır)">
+          <textarea value={f.og_description || ""} onChange={e => setF({ ...f, og_description: e.target.value })} rows={2} className="form-input resize-none" />
+        </Field>
+        <Field label="OG Image (1200×630px önerilir)">
+          <ImageUrlInput value={f.og_image} onChange={url => setF({ ...f, og_image: url })} testIdPrefix="seo-og" />
+        </Field>
+      </section>
+
+      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+        {msg && <div className="text-xs font-semibold text-summit-navy">{msg}</div>}
+        <button type="submit" disabled={saving} className="btn-navy px-5 py-2.5 text-xs inline-flex items-center gap-1.5 ml-auto" data-testid="seo-save-btn">
+          {saving && <Loader2 size={12} className="animate-spin" />} Kaydet
+        </button>
+      </div>
+    </form>
   );
 }
 

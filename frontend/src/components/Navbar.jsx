@@ -10,7 +10,7 @@ const navLinks = [
   { label: "Konuşmacılar", href: "/konusmacilar", icon: Mic2 },
   { label: "Program", href: "/program", icon: ListOrdered },
   { label: "Fuar Alanı", href: "/fuar-alani", icon: Building2 },
-  { label: "🎓 Akademi", href: "/akademi", icon: GraduationCap },
+  { label: "🎓 Seminer", href: "/seminer", icon: GraduationCap },
   { label: "Etkinlikler", href: "/etkinlikler", icon: Calendar },
   { label: "Blog", href: "/blog", icon: FileText },
 ];

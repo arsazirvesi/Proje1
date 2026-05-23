@@ -24,7 +24,7 @@ const navItems = [
   { label: "Sponsorlar (Site)", href: "/admin/sponsorlar", icon: Award },
   { label: "💰 Sponsor Paket Fiyatları", href: "/admin/sponsor-paketleri", icon: Award },
   { label: "Banner Yönetimi", href: "/admin/bannerlar", icon: Image },
-  { label: "🎓 Akademi", href: "/admin/akademi", icon: GraduationCap },
+  { label: "🎓 Seminer", href: "/admin/seminer", icon: GraduationCap },
   { label: "Hero Slideshow (Banner Foto)", href: "/admin/hero-slides", icon: Image },
   { label: "Blog", href: "/admin/blog", icon: FileText },
   { label: "Geçmiş Etkinlikler", href: "/admin/etkinlikler", icon: Calendar },
