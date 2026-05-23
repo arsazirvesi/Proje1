@@ -66,9 +66,11 @@ class CourseIn(BaseModel):
     price_try: float = 0.0
     duration_hours: Optional[float] = None
     instructor_names: List[str] = Field(default_factory=list)
+    speakers: List[dict] = Field(default_factory=list)  # [{name, title, image_url, bio, is_moderator}]
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     location: Optional[str] = ""
+    venue: Optional[str] = ""
     capacity: Optional[int] = None
     seo_title: Optional[str] = ""
     seo_description: Optional[str] = ""
@@ -87,9 +89,11 @@ class CourseUpdate(BaseModel):
     price_try: Optional[float] = None
     duration_hours: Optional[float] = None
     instructor_names: Optional[List[str]] = None
+    speakers: Optional[List[dict]] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     location: Optional[str] = None
+    venue: Optional[str] = None
     capacity: Optional[int] = None
     seo_title: Optional[str] = None
     seo_description: Optional[str] = None

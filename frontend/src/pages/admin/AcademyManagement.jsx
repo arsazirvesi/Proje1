@@ -200,11 +200,14 @@ function CategoryModal({ initial, onClose, onSave }) {
 const EMPTY_COURSE = {
   category_id: "", title: "", description: "", cover_image_url: "",
   format: "hybrid", is_free: true, price_try: 0,
-  duration_hours: "", instructor_names: [], start_date: "", end_date: "",
-  location: "", capacity: "",
+  duration_hours: "", instructor_names: [], speakers: [],
+  start_date: "", end_date: "",
+  location: "", venue: "", capacity: "",
   seo_title: "", seo_description: "", seo_keywords: "",
   is_published: true, order: 0,
 };
+
+const EMPTY_SPEAKER = { name: "", title: "", image_url: "", bio: "", is_moderator: false };
 
 function CoursesTab() {
   const [items, setItems] = useState([]);
@@ -236,6 +239,7 @@ function CoursesTab() {
         duration_hours: form.duration_hours === "" ? null : Number(form.duration_hours),
         capacity: form.capacity === "" ? null : Number(form.capacity),
         instructor_names: Array.isArray(form.instructor_names) ? form.instructor_names : String(form.instructor_names || "").split(",").map(s => s.trim()).filter(Boolean),
+        speakers: Array.isArray(form.speakers) ? form.speakers : [],
         start_date: form.start_date || null,
         end_date: form.end_date || null,
       };
@@ -332,9 +336,15 @@ function CourseModal({ initial, cats, onClose, onSave }) {
   const [f, setF] = useState({
     ...EMPTY_COURSE,
     ...initial,
+    speakers: Array.isArray(initial.speakers) ? initial.speakers : [],
     instructor_names: Array.isArray(initial.instructor_names) ? initial.instructor_names.join(", ") : (initial.instructor_names || ""),
   });
   const [saving, setSaving] = useState(false);
+
+  const addSpeaker = (is_moderator = false) => setF({ ...f, speakers: [...f.speakers, { ...EMPTY_SPEAKER, is_moderator }] });
+  const updateSpeaker = (i, patch) => setF({ ...f, speakers: f.speakers.map((s, idx) => idx === i ? { ...s, ...patch } : s) });
+  const removeSpeaker = (i) => setF({ ...f, speakers: f.speakers.filter((_, idx) => idx !== i) });
+
   const submit = async (e) => {
     e.preventDefault();
     if (!f.category_id) return alert("Kategori seçin");
@@ -404,12 +414,49 @@ function CourseModal({ initial, cats, onClose, onSave }) {
             <Field label="Kontenjan">
               <input type="number" min="0" value={f.capacity} onChange={e => setF({ ...f, capacity: e.target.value })} className="form-input" />
             </Field>
-            <Field label={<span className="inline-flex items-center gap-1"><MapPin size={11} /> Konum</span>}>
+            <Field label={<span className="inline-flex items-center gap-1"><MapPin size={11} /> Konum (Şehir)</span>}>
               <input value={f.location} onChange={e => setF({ ...f, location: e.target.value })} className="form-input" placeholder="İstanbul / Online" />
+            </Field>
+            <Field label="Mekan / Salon Adı (opsiyonel)">
+              <input value={f.venue} onChange={e => setF({ ...f, venue: e.target.value })} className="form-input" placeholder="Hilton İstanbul Bosphorus" />
             </Field>
             <Field label="Sıralama">
               <input type="number" value={f.order} onChange={e => setF({ ...f, order: e.target.value })} className="form-input" />
             </Field>
+          </div>
+
+          {/* SPEAKERS */}
+          <div className="bg-summit-paper border border-gray-200 rounded-lg p-3 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-summit-navy uppercase tracking-wider">Konuşmacılar / Eğitmenler</h4>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => addSpeaker(true)} className="text-[10px] font-bold bg-amber-400 hover:bg-amber-300 text-summit-navy px-2 py-1 rounded inline-flex items-center gap-1" data-testid="add-moderator-btn">
+                  <Plus size={10} /> Moderatör
+                </button>
+                <button type="button" onClick={() => addSpeaker(false)} className="text-[10px] font-bold bg-summit-navy hover:bg-summit-navy-dark text-white px-2 py-1 rounded inline-flex items-center gap-1" data-testid="add-speaker-btn">
+                  <Plus size={10} /> Konuşmacı
+                </button>
+              </div>
+            </div>
+            {f.speakers.length === 0 && <p className="text-[11px] text-gray-400 italic">Bu seminere konuşmacı eklemediniz</p>}
+            {f.speakers.map((sp, i) => (
+              <div key={i} className="bg-white border border-gray-200 rounded-lg p-2.5 space-y-2" data-testid={`speaker-editor-${i}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-[9px] uppercase tracking-wider font-bold ${sp.is_moderator ? "text-amber-600" : "text-summit-navy"}`}>
+                    {sp.is_moderator ? "🎙 Moderatör" : "🎤 Konuşmacı"} #{i + 1}
+                  </span>
+                  <button type="button" onClick={() => removeSpeaker(i)} className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50">
+                    <Trash2 size={11} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input value={sp.name} onChange={e => updateSpeaker(i, { name: e.target.value })} placeholder="Ad Soyad" className="form-input text-xs py-1.5" data-testid={`speaker-${i}-name`} />
+                  <input value={sp.title} onChange={e => updateSpeaker(i, { title: e.target.value })} placeholder="Unvan (örn. Avukat · Hukuk)" className="form-input text-xs py-1.5" />
+                </div>
+                <ImageUrlInput value={sp.image_url} onChange={url => updateSpeaker(i, { image_url: url })} placeholder="Profil görseli" testIdPrefix={`speaker-${i}-img`} />
+                <textarea value={sp.bio} onChange={e => updateSpeaker(i, { bio: e.target.value })} rows={2} placeholder="Kısa biyografi" className="form-input text-xs py-1.5 resize-none" />
+              </div>
+            ))}
           </div>
 
           {/* SEO */}

@@ -25,6 +25,7 @@ import PastEventsPage from "./pages/public/PastEventsPage";
 import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
 import SeminarHomePage from "./pages/public/SeminarHomePage";
+import SeminarDetailPage from "./pages/public/SeminarDetailPage";
 import PrivacyPage from "./pages/public/PrivacyPage";
 import KvkkPage from "./pages/public/KvkkPage";
 
@@ -91,6 +92,7 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/akademi" element={<Navigate to="/seminer" replace />} />
             <Route path="/seminer" element={<SeminarHomePage />} />
+            <Route path="/seminer/:slug" element={<SeminarDetailPage />} />
             <Route path="/gizlilik" element={<PrivacyPage />} />
             <Route path="/kvkk" element={<KvkkPage />} />
 
