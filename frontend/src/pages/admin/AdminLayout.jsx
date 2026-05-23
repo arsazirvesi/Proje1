@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   LayoutDashboard, Users, UserCheck, Mic2, Award, Image, FileText,
-  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug, Gamepad2, Settings, GraduationCap
+  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug, Gamepad2, Settings, GraduationCap, Mail
 } from "lucide-react";
 
 const navItems = [
@@ -25,6 +25,7 @@ const navItems = [
   { label: "💰 Sponsor Paket Fiyatları", href: "/admin/sponsor-paketleri", icon: Award },
   { label: "Banner Yönetimi", href: "/admin/bannerlar", icon: Image },
   { label: "🎓 Seminer", href: "/admin/seminer", icon: GraduationCap },
+  { label: "📧 Bülten Aboneleri", href: "/admin/bulten", icon: Mail },
   { label: "Hero Slideshow (Banner Foto)", href: "/admin/hero-slides", icon: Image },
   { label: "Blog", href: "/admin/blog", icon: FileText },
   { label: "Geçmiş Etkinlikler", href: "/admin/etkinlikler", icon: Calendar },

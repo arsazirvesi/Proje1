@@ -26,6 +26,7 @@ import BlogPage from "./pages/public/BlogPage";
 import BlogDetailPage from "./pages/public/BlogDetailPage";
 import SeminarHomePage from "./pages/public/SeminarHomePage";
 import SeminarDetailPage from "./pages/public/SeminarDetailPage";
+import BultenPage from "./pages/public/BultenPage";
 import PrivacyPage from "./pages/public/PrivacyPage";
 import KvkkPage from "./pages/public/KvkkPage";
 
@@ -55,6 +56,7 @@ import VisitegoSync from "./pages/admin/VisitegoSync";
 import InvestmentGameList from "./pages/admin/InvestmentGameList";
 import IntegrationsPage from "./pages/admin/IntegrationsPage";
 import AcademyManagement from "./pages/admin/AcademyManagement";
+import NewsletterManagement from "./pages/admin/NewsletterManagement";
 import ExpertLogin from "./pages/expert/ExpertLogin";
 import ExpertGameList from "./pages/expert/ExpertGameList";
 import ExpertGameDetail from "./pages/expert/ExpertGameDetail";
@@ -93,6 +95,7 @@ function App() {
             <Route path="/akademi" element={<Navigate to="/seminer" replace />} />
             <Route path="/seminer" element={<SeminarHomePage />} />
             <Route path="/seminer/:slug" element={<SeminarDetailPage />} />
+            <Route path="/bulten" element={<BultenPage />} />
             <Route path="/gizlilik" element={<PrivacyPage />} />
             <Route path="/kvkk" element={<KvkkPage />} />
 
@@ -149,6 +152,7 @@ function App() {
               <Route path="bannerlar" element={<BannerManagement />} />
               <Route path="akademi" element={<Navigate to="/admin/seminer" replace />} />
               <Route path="seminer" element={<AcademyManagement />} />
+              <Route path="bulten" element={<NewsletterManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="etkinlikler" element={<EventManagement />} />
               <Route path="program" element={<ProgramManagement />} />

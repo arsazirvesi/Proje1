@@ -33,7 +33,7 @@ export default function SiteSettingsManagement() {
     completed_thanks_message: "Bizi seçen tüm katılımcılarımıza, konuşmacılarımıza ve sponsorlarımıza teşekkür ederiz.",
     next_event_label: "Bir Sonraki Zirve Yakında",
     next_event_cta_text: "Haberdar Ol",
-    next_event_cta_url: "/ziyaretci-kaydi",
+    next_event_cta_url: "/bulten",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -187,7 +187,7 @@ export default function SiteSettingsManagement() {
                 <input value={form.next_event_cta_text || ""} onChange={e => set("next_event_cta_text", e.target.value)} placeholder="Haberdar Ol" className="form-input" />
               </SmallField>
               <SmallField label="CTA URL">
-                <input value={form.next_event_cta_url || ""} onChange={e => set("next_event_cta_url", e.target.value)} placeholder="/ziyaretci-kaydi" className="form-input" />
+                <input value={form.next_event_cta_url || ""} onChange={e => set("next_event_cta_url", e.target.value)} placeholder="/bulten" className="form-input" />
               </SmallField>
             </div>
           </div>

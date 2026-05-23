@@ -181,7 +181,7 @@ export default function HomePage() {
 
                 {!registerOpen && siteSettings.event_is_active === false && siteSettings.next_event_cta_text && (
                   <Link
-                    to={siteSettings.next_event_cta_url || "/ziyaretci-kaydi"}
+                    to={siteSettings.next_event_cta_url || "/bulten"}
                     className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 bg-summit-accent text-summit-navy font-heading font-bold text-base sm:text-lg rounded-md shadow-lg hover:shadow-xl hover:bg-summit-accent/90 transition-all overflow-hidden"
                     data-testid="hero-next-event-btn"
                   >
@@ -273,7 +273,7 @@ export default function HomePage() {
                   <div className="border-t border-summit-navy/20 pt-4 mt-2">
                     <p className="text-[10px] uppercase tracking-wider font-bold text-summit-navy/70 mb-2">{siteSettings.next_event_label || "Bir Sonraki Zirve Yakında"}</p>
                     {siteSettings.next_event_cta_text && (
-                      <Link to={siteSettings.next_event_cta_url || "/ziyaretci-kaydi"}
+                      <Link to={siteSettings.next_event_cta_url || "/bulten"}
                         className="inline-flex items-center gap-2 bg-summit-navy hover:bg-summit-navy-dark text-amber-400 font-bold px-5 py-2.5 rounded-md transition-colors text-sm">
                         {siteSettings.next_event_cta_text} <ArrowRight size={14} />
                       </Link>
