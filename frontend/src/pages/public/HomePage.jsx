@@ -50,6 +50,7 @@ export default function HomePage() {
     sessions_count: 12,
     attendees_count: "600+",
     countdown_title: "Zirveye Kalan Süre",
+    event_is_active: null,   // null = yükleniyor; false = tamamlandı; true = aktif
   });
   const countdown = useCountdown(siteSettings.event_datetime);
 
@@ -180,7 +181,7 @@ export default function HomePage() {
               )}
 
               <div className="flex flex-col items-stretch gap-3 mt-6 sm:mt-8 animate-slide-up stagger-5 opacity-0" data-testid="hero-register-cta">
-                {!registerOpen && siteSettings.event_is_active !== false && (
+                {!registerOpen && siteSettings.event_is_active === true && (
                   <button
                     type="button"
                     onClick={() => setRegisterOpen(true)}
@@ -378,11 +379,14 @@ export default function HomePage() {
                   <div className="border-t border-summit-navy/20 pt-4 mt-2">
                     <p className="text-[10px] uppercase tracking-wider font-bold text-summit-navy/70 mb-2">{siteSettings.next_event_label || "Bir Sonraki Zirve Yakında"}</p>
                     {siteSettings.next_event_cta_text && (
-                      <Link to={siteSettings.next_event_cta_url || "/bulten"}
+                      <button
+                        type="button"
+                        onClick={() => { setBultenOpen(true); setBultenSubmitted(false); setBultenErr(""); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                         className="inline-flex items-center gap-2 font-bold px-5 py-2.5 rounded-md transition-colors text-sm"
-                        style={{ background: "#1A264F", color: "#C9A961" }}>
+                        style={{ background: "#1A264F", color: "#C9A961" }}
+                        data-testid="completed-card-cta-btn">
                         {siteSettings.next_event_cta_text} <ArrowRight size={14} />
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
