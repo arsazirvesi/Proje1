@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Menu, X, Home, Mic2, ListOrdered, Calendar, FileText,
-  Ticket, MapPin, Mail, Building2, Megaphone, UserPlus, GraduationCap, Users
+  Ticket, MapPin, Mail, Building2, Megaphone, UserPlus, GraduationCap, Users, GalleryHorizontal
 } from "lucide-react";
 
 const navLinks = [
@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Fuar Alanı", href: "/fuar-alani", icon: Building2 },
   { label: "🎓 Seminer", href: "/seminer", icon: GraduationCap },
   { label: "Etkinlikler", href: "/etkinlikler", icon: Calendar },
+  { label: "Galeri", href: "/galeri", icon: GalleryHorizontal },
   { label: "Blog", href: "/blog", icon: FileText },
 ];
 

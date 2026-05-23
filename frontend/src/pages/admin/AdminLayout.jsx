@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   LayoutDashboard, Users, UserCheck, Mic2, Award, Image, FileText,
-  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug, Gamepad2, Settings, GraduationCap, Mail
+  Calendar, ListOrdered, LogOut, Menu, ChevronRight, ShieldCheck, Search, Building2, Ticket, Store, ScanLine, KeyRound, Shield, Plug, Gamepad2, Settings, GraduationCap, Mail, GalleryHorizontal
 } from "lucide-react";
 
 const navItems = [
@@ -27,6 +27,7 @@ const navItems = [
   { label: "🎓 Seminer", href: "/admin/seminer", icon: GraduationCap },
   { label: "📧 Bülten Aboneleri", href: "/admin/bulten", icon: Mail },
   { label: "👑 Zirve Ailesi", href: "/admin/zirve-ailesi", icon: Users },
+  { label: "🖼 Galeri", href: "/admin/galeri", icon: GalleryHorizontal },
   { label: "Hero Slideshow (Banner Foto)", href: "/admin/hero-slides", icon: Image },
   { label: "Blog", href: "/admin/blog", icon: FileText },
   { label: "Geçmiş Etkinlikler", href: "/admin/etkinlikler", icon: Calendar },

@@ -28,6 +28,7 @@ import SeminarHomePage from "./pages/public/SeminarHomePage";
 import SeminarDetailPage from "./pages/public/SeminarDetailPage";
 import BultenPage from "./pages/public/BultenPage";
 import ZirveAilesiPage from "./pages/public/ZirveAilesiPage";
+import GalleryPage from "./pages/public/GalleryPage";
 import PrivacyPage from "./pages/public/PrivacyPage";
 import KvkkPage from "./pages/public/KvkkPage";
 
@@ -59,6 +60,7 @@ import IntegrationsPage from "./pages/admin/IntegrationsPage";
 import AcademyManagement from "./pages/admin/AcademyManagement";
 import NewsletterManagement from "./pages/admin/NewsletterManagement";
 import FamilyPageManagement from "./pages/admin/FamilyPageManagement";
+import GalleryManagement from "./pages/admin/GalleryManagement";
 import ExpertLogin from "./pages/expert/ExpertLogin";
 import ExpertGameList from "./pages/expert/ExpertGameList";
 import ExpertGameDetail from "./pages/expert/ExpertGameDetail";
@@ -99,6 +101,7 @@ function App() {
             <Route path="/seminer/:slug" element={<SeminarDetailPage />} />
             <Route path="/bulten" element={<BultenPage />} />
             <Route path="/zirve-ailesi" element={<ZirveAilesiPage />} />
+            <Route path="/galeri" element={<GalleryPage />} />
             <Route path="/gizlilik" element={<PrivacyPage />} />
             <Route path="/kvkk" element={<KvkkPage />} />
 
@@ -157,6 +160,7 @@ function App() {
               <Route path="seminer" element={<AcademyManagement />} />
               <Route path="bulten" element={<NewsletterManagement />} />
               <Route path="zirve-ailesi" element={<FamilyPageManagement />} />
+              <Route path="galeri" element={<GalleryManagement />} />
               <Route path="blog" element={<BlogManagement />} />
               <Route path="etkinlikler" element={<EventManagement />} />
               <Route path="program" element={<ProgramManagement />} />
