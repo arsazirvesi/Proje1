@@ -4,7 +4,7 @@ import axios from "axios";
 import { Helmet } from "react-helmet-async";
 import {
   Crown, X, Calendar, Linkedin, Instagram, Twitter,
-  Users, ChevronRight,
+  Users,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -23,17 +23,19 @@ export default function ZirveAilesiPage() {
     axios.get(`${API}/speakers`).then(r => setSpeakers(r.data || []));
   }, []);
 
-  const founders = useMemo(() => speakers.filter(s => s.is_founder), [speakers]);
-  const regulars = useMemo(() => {
-    const list = speakers.filter(s => s.show_in_family !== false && !s.is_founder);
-    // Most recent year first
+  // Unified list: founders first, then regulars, all together (no separate sections)
+  const everyone = useMemo(() => {
+    const list = speakers.filter(s => s.show_in_family !== false);
     return list.sort((a, b) => {
+      // Founders always pinned to the top
+      if (!!b.is_founder !== !!a.is_founder) return b.is_founder ? 1 : -1;
       const ay = Math.max(...(a.summit_years || [0]));
       const by = Math.max(...(b.summit_years || [0]));
       if (by !== ay) return by - ay;
       return (a.order || 0) - (b.order || 0);
     });
   }, [speakers]);
+
   const allYears = useMemo(() => {
     const set = new Set();
     speakers.forEach(s => (s.summit_years || []).forEach(y => set.add(y)));
@@ -41,10 +43,10 @@ export default function ZirveAilesiPage() {
   }, [speakers]);
 
   const filtered = useMemo(() => {
-    if (yearFilter === "all") return regulars;
+    if (yearFilter === "all") return everyone;
     const y = Number(yearFilter);
-    return regulars.filter(s => (s.summit_years || []).includes(y));
-  }, [regulars, yearFilter]);
+    return everyone.filter(s => (s.summit_years || []).includes(y));
+  }, [everyone, yearFilter]);
 
   if (!settings) {
     return <div className="min-h-screen bg-summit-navy flex items-center justify-center">
@@ -69,7 +71,7 @@ export default function ZirveAilesiPage() {
   const peopleLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": [...founders, ...regulars].slice(0, 20).map((s, i) => ({
+    "itemListElement": everyone.slice(0, 20).map((s, i) => ({
       "@type": "ListItem",
       "position": i + 1,
       "item": {
@@ -108,31 +110,19 @@ export default function ZirveAilesiPage() {
         </div>
       </nav>
 
-      {/* FOUNDER (Hero band removed per user request) */}
-      {founders.length > 0 && (
-        <section className="py-14 sm:py-16 bg-summit-paper">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <span className="section-overline inline-flex items-center gap-1.5"><Crown size={12} className="text-amber-500" /> {settings.founder_title}</span>
-              <h1 className="gyoder-section-title gyoder-section-title-center inline-block mt-2">Kurucumuz</h1>
-              {settings.hero_subtitle && (
-                <p className="text-gray-500 text-sm sm:text-base mt-3 max-w-2xl mx-auto leading-relaxed">{settings.hero_subtitle}</p>
-              )}
-            </div>
-            {founders.map(f => (
-              <FounderCard key={f.id} sp={f} onOpen={() => setOpenDetail(f)} founderTitle={settings.founder_title} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* SPEAKERS */}
-      <section className="py-14 bg-white border-t border-gray-100">
+      {/* UNIFIED PEOPLE LIST (Founder + Speakers together) */}
+      <section className="py-14 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <span className="section-overline inline-flex items-center gap-1.5"><Users size={12} className="text-amber-500" /> Saha Uzmanları</span>
-            <h3 className="gyoder-section-title gyoder-section-title-center inline-block mt-2">{settings.speakers_title || "Konuşmacılarımız"}</h3>
-            {settings.speakers_subtitle && <p className="text-gray-500 text-sm mt-2 max-w-2xl mx-auto">{settings.speakers_subtitle}</p>}
+          <div className="text-center mb-10">
+            <span className="section-overline inline-flex items-center gap-1.5"><Users size={12} className="text-amber-500" /> Zirve Ailesi</span>
+            <h1 className="gyoder-section-title gyoder-section-title-center inline-block mt-2">
+              {settings.speakers_title || "Arsa Yatırım Zirvesi'nin Konuşmacıları"}
+            </h1>
+            {(settings.speakers_subtitle || settings.hero_subtitle) && (
+              <p className="text-gray-500 text-sm sm:text-base mt-3 max-w-2xl mx-auto leading-relaxed">
+                {settings.speakers_subtitle || settings.hero_subtitle}
+              </p>
+            )}
           </div>
 
           {allYears.length > 1 && (
@@ -149,7 +139,7 @@ export default function ZirveAilesiPage() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filtered.map(sp => (
-                <SpeakerCard key={sp.id} sp={sp} onOpen={() => setOpenDetail(sp)} />
+                <SpeakerCard key={sp.id} sp={sp} onOpen={() => setOpenDetail(sp)} founderTitle={settings.founder_title} />
               ))}
             </div>
           )}
@@ -164,40 +154,19 @@ export default function ZirveAilesiPage() {
   );
 }
 
-function FounderCard({ sp, onOpen, founderTitle }) {
+function SpeakerCard({ sp, onOpen, founderTitle }) {
   return (
-    <button onClick={onOpen} className="group w-full bg-white border border-gray-200 rounded-2xl overflow-hidden text-left hover:shadow-xl transition-all" data-testid="founder-card">
-      <div className="grid sm:grid-cols-[280px_1fr]">
-        <div className="h-72 sm:h-auto bg-cover bg-center" style={{
-          backgroundImage: sp.image_url ? `url(${sp.image_url})` : "linear-gradient(135deg, #22316a, #1A264F)",
-          backgroundPosition: 'center 25%',
-        }} />
-        <div className="p-6 sm:p-8 flex flex-col justify-center">
-          <div className="inline-flex items-center gap-1.5 self-start bg-amber-100 border border-amber-300 text-amber-700 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider mb-3">
-            <Crown size={10} /> {sp.founder_role || founderTitle}
-          </div>
-          <h3 className="font-heading text-2xl sm:text-3xl font-bold text-summit-navy leading-tight mb-1">{sp.name}</h3>
-          <p className="text-summit-navy text-sm font-semibold uppercase tracking-wide mb-3">{sp.title}</p>
-          {sp.bio && <p className="text-gray-700 text-sm leading-relaxed line-clamp-4">{sp.bio}</p>}
-          <div className="mt-5 flex items-center gap-3">
-            <span className="inline-flex items-center gap-1 text-summit-navy font-bold text-sm group-hover:text-amber-600 transition-colors">
-              Detaylı Biyografi <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-            </span>
-            <SocialIcons sp={sp} />
-          </div>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function SpeakerCard({ sp, onOpen }) {
-  return (
-    <button onClick={onOpen} className="group bg-white border border-gray-200 rounded-md overflow-hidden text-left hover:border-amber-400 hover:shadow-md transition-all" data-testid={`speaker-card-${sp.id}`}>
-      <div className="h-48 sm:h-52 bg-cover bg-center" style={{
+    <button onClick={onOpen} className={`group bg-white border rounded-md overflow-hidden text-left hover:shadow-md transition-all ${sp.is_founder ? "border-amber-300 hover:border-amber-400 ring-1 ring-amber-200" : "border-gray-200 hover:border-amber-400"}`} data-testid={`speaker-card-${sp.id}`}>
+      <div className="relative h-48 sm:h-52 bg-cover bg-center" style={{
         backgroundImage: sp.image_url ? `url(${sp.image_url})` : "linear-gradient(135deg, #22316a, #1A264F)",
         backgroundPosition: 'center 20%',
-      }} />
+      }}>
+        {sp.is_founder && (
+          <span className="absolute top-2 left-2 inline-flex items-center gap-1 bg-amber-400 text-summit-navy rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow">
+            <Crown size={9} /> {sp.founder_role || founderTitle || "Kurucu"}
+          </span>
+        )}
+      </div>
       <div className="p-3.5">
         <h4 className="font-heading text-summit-navy text-sm leading-tight font-bold line-clamp-1">{sp.name}</h4>
         {sp.title && <p className="text-gray-500 text-[11px] mt-1 line-clamp-1">{sp.title}</p>}
