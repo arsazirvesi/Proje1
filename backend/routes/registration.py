@@ -5,6 +5,7 @@ import base64
 import secrets
 import logging
 import re
+import html as html_escape
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Any, Annotated
 from pathlib import Path
@@ -17,6 +18,8 @@ from bson import ObjectId
 from utils import clean_doc
 from models import *
 from email_service import send_email, render_register_confirmation_email
+from routes.badge import render_badge_png
+from services import visitego as visitego_service
 
 logger = logging.getLogger(__name__)
 UPLOADS_DIR = Path(__file__).parent.parent / "uploads"

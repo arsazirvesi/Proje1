@@ -1,0 +1,33 @@
+{
+  "summary": "RETEST of iter7 critical regressions after E1 added 3 missing imports. All 29/29 backend tests PASS (100%). Backend logs show NO MORE NameError for html_escape, render_badge_png, or visitego_service after the fixes were applied. GET /api/badge/{guest_id} now returns 200 with content. POST /api/register/guest (summit/fair/seminar) completes without background-task NameError. Admin bulk-resend-badge and bulk-send-reminder return 200 and no longer log NameError during reminder/badge attachment rendering. Iter7 regressions are fully fixed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "POST https://visitego.com/api/v1/online/.../create (external)",
+        "issue": "External Visitego 3rd-party API responds 500 on visitor push (seen in backend.err.log at 22:38:46 and 22:39:44). This is on Visitego's side, not our code. Our integration retries via background_task. No user-facing impact since the registration endpoint already returned 200 to the client. Worth flagging to Visitego or improving retry/back-off."
+      }
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter7_regression.py",
+    "/app/test_reports/pytest/iter8_results.xml"
+  ],
+  "action_items": [
+    "None — all iter7 critical regressions verified fixed. Safe to proceed.",
+    "(Optional, non-blocking) Investigate why external Visitego push receives HTTP 500 from upstream service — verify API key / payload shape with Visitego support."
+  ],
+  "critical_code_review_comments": [
+    "Background-task exception handlers in routes/registration.py and routes/crm.py still swallow ALL exceptions and only log. Consider letting NameError/ImportError re-raise (or fail the API call) so future refactors don't silently break side effects again. The current iter7 -> iter8 bug pattern (registration returns 200 but no badge PNG sent) would have been caught immediately if these helper errors surfaced.",
+    "Recommend a startup-time import sanity check: load each routes/* module on app boot and exercise the helper paths via a smoke test, since most helpers are only triggered by user actions (registration, resend, reminder)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (29/29)", "frontend": "n/a (backend-only request)"},
+  "test_credentials": "admin@arsayatirim.com / As537273 (verified working)",
+  "seed_data_creation": "Test guests with TEST_ prefix were auto-cleaned via /api/admin/guests/bulk-delete in the created_guest_ids fixture teardown.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter7 critical regressions fully fixed in iter8. /app/backend/tests/test_iter7_regression.py is the canonical regression suite (29 tests, ~10s runtime). For next iteration: continue using this file as smoke test, and consider extending with an explicit assertion on backend.err.log being free of NameError/ImportError lines after a registration flow.",
+  "rca of the issue": "Iter7 RCA was correct: 3 helpers (html_escape, render_badge_png, visitego_service) referenced in routes/*.py without import. E1 applied the 3 fixes per iter7 action items (badge.py:8 `import html as html_escape`, registration.py:8,21,22 three imports incl. `from routes.badge import render_badge_png`, crm.py:8,21 two imports). Verified by grep + 29/29 test pass + clean error log timestamped after the fix."
+}
