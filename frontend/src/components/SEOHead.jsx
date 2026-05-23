@@ -11,7 +11,7 @@ import { API_BASE as API } from "../lib/api";
  *
  * Pages with their own <Helmet> (e.g. /akademi) can opt out via path prefix.
  */
-const SKIP_PATH_PREFIXES = ["/akademi", "/seminer", "/bulten"];
+const SKIP_PATH_PREFIXES = ["/akademi", "/seminer", "/bulten", "/zirve-ailesi"];
 
 export default function SEOHead({ pageTitle, pageDescription, pagePath }) {
   const location = useLocation();

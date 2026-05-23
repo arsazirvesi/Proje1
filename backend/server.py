@@ -252,6 +252,12 @@ class SpeakerCreate(BaseModel):
     social_linkedin: Optional[str] = None
     social_instagram: Optional[str] = None
     social_twitter: Optional[str] = None
+    # Zirve Ailesi page fields
+    is_founder: bool = False
+    summit_years: List[int] = Field(default_factory=list)  # e.g. [2024, 2025, 2026]
+    extended_bio: Optional[str] = None  # long-form, shown in detail modal
+    show_in_family: bool = True  # if False, hide from /zirve-ailesi
+    founder_role: Optional[str] = None  # e.g. "Zirve ve Platform Kurucusu"
 
 class SponsorCreate(BaseModel):
     name: str
@@ -3750,6 +3756,10 @@ app.include_router(init_seminar_settings_router(db, get_admin_user))
 # Newsletter (bülten)
 from newsletter_routes import init_router as init_newsletter_router  # noqa: E402
 app.include_router(init_newsletter_router(db, get_admin_user))
+
+# Zirve Ailesi page settings
+from family_settings import init_router as init_family_router  # noqa: E402
+app.include_router(init_family_router(db, get_admin_user))
 
 
 # Static uploads directory — serves files uploaded via admin panel

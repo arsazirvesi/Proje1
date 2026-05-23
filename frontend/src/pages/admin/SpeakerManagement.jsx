@@ -3,7 +3,7 @@ import axios from "axios";
 import { Plus, Pencil, Trash2, X, Star } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
-const empty = { name: "", title: "", bio: "", image_url: "", order: 0, is_featured: false, social_linkedin: "", social_instagram: "", social_twitter: "" };
+const empty = { name: "", title: "", bio: "", image_url: "", order: 0, is_featured: false, social_linkedin: "", social_instagram: "", social_twitter: "", is_founder: false, founder_role: "", summit_years: "", extended_bio: "", show_in_family: true };
 
 export default function SpeakerManagement() {
   const [speakers, setSpeakers] = useState([]);
@@ -23,7 +23,15 @@ export default function SpeakerManagement() {
   const openCreate = () => { setEditing(null); setForm(empty); setModal(true); };
   const openEdit = (s) => {
     setEditing(s);
-    setForm({ name: s.name, title: s.title, bio: s.bio, image_url: s.image_url || "", order: s.order, is_featured: s.is_featured, social_linkedin: s.social_linkedin || "", social_instagram: s.social_instagram || "", social_twitter: s.social_twitter || "" });
+    setForm({
+      name: s.name, title: s.title, bio: s.bio, image_url: s.image_url || "", order: s.order,
+      is_featured: s.is_featured,
+      social_linkedin: s.social_linkedin || "", social_instagram: s.social_instagram || "", social_twitter: s.social_twitter || "",
+      is_founder: !!s.is_founder, founder_role: s.founder_role || "",
+      summit_years: Array.isArray(s.summit_years) ? s.summit_years.join(", ") : (s.summit_years || ""),
+      extended_bio: s.extended_bio || "",
+      show_in_family: s.show_in_family !== false,
+    });
     setModal(true);
   };
 
@@ -31,11 +39,16 @@ export default function SpeakerManagement() {
     if (!form.name || !form.title) return;
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        summit_years: String(form.summit_years || "")
+          .split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n) && n > 1900),
+      };
       if (editing) {
-        await axios.put(`${API}/admin/speakers/${editing.id}`, form, { withCredentials: true });
+        await axios.put(`${API}/admin/speakers/${editing.id}`, payload, { withCredentials: true });
         setMsg("Konuşmacı güncellendi.");
       } else {
-        await axios.post(`${API}/admin/speakers`, form, { withCredentials: true });
+        await axios.post(`${API}/admin/speakers`, payload, { withCredentials: true });
         setMsg("Konuşmacı eklendi.");
       }
       setModal(false);
@@ -124,6 +137,40 @@ export default function SpeakerManagement() {
                 <input type="checkbox" checked={form.is_featured} onChange={e => setForm({...form, is_featured: e.target.checked})} className="w-4 h-4 accent-summit-gold" />
                 <span className="text-gray-600 text-sm">Öne Çıkan Konuşmacı (Zirve Sahibi)</span>
               </label>
+
+              {/* Zirve Ailesi fields */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-3">
+                <div className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">👑 Zirve Ailesi Sayfası</div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={form.is_founder} onChange={e => setForm({...form, is_founder: e.target.checked})} className="w-4 h-4 accent-amber-500" data-testid="speaker-is-founder" />
+                  <span className="text-gray-700 text-sm">Kurucu — Sayfa başında büyük kart ile gösterilir</span>
+                </label>
+                {form.is_founder && (
+                  <div>
+                    <label className="text-gray-500 text-[11px] uppercase tracking-wider mb-1 block">Kurucu Unvanı</label>
+                    <input value={form.founder_role} onChange={e => setForm({...form, founder_role: e.target.value})}
+                      placeholder="Zirve ve Platform Kurucusu"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-summit-navy text-sm focus:outline-none focus:border-amber-400" data-testid="speaker-founder-role" />
+                  </div>
+                )}
+                <div>
+                  <label className="text-gray-500 text-[11px] uppercase tracking-wider mb-1 block">Katıldığı Zirve Yılları (virgülle ayır)</label>
+                  <input value={form.summit_years} onChange={e => setForm({...form, summit_years: e.target.value})}
+                    placeholder="2024, 2025, 2026"
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-summit-navy text-sm focus:outline-none focus:border-amber-400" data-testid="speaker-summit-years" />
+                </div>
+                <div>
+                  <label className="text-gray-500 text-[11px] uppercase tracking-wider mb-1 block">Detaylı Biyografi (modal'da gösterilir)</label>
+                  <textarea rows={4} value={form.extended_bio} onChange={e => setForm({...form, extended_bio: e.target.value})}
+                    placeholder="Konuşmacının kariyer detayları, başarıları, projeleri..."
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-summit-navy text-sm focus:outline-none focus:border-amber-400 resize-none" />
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={form.show_in_family} onChange={e => setForm({...form, show_in_family: e.target.checked})} className="w-4 h-4 accent-amber-500" />
+                  <span className="text-gray-700 text-sm">Zirve Ailesi sayfasında göster</span>
+                </label>
+              </div>
+
               <div className="flex gap-3 justify-end mt-2">
                 <button onClick={() => setModal(false)} className="btn-outline-gold px-5 py-2.5 text-sm">İptal</button>
                 <button onClick={handleSave} disabled={saving} className="btn-gold px-5 py-2.5 text-sm" data-testid="save-speaker-btn">

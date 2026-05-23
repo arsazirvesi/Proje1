@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Menu, X, Home, Mic2, ListOrdered, Calendar, FileText,
-  Ticket, MapPin, Mail, Building2, Megaphone, UserPlus, GraduationCap
+  Ticket, MapPin, Mail, Building2, Megaphone, UserPlus, GraduationCap, Users
 } from "lucide-react";
 
 const navLinks = [
   { label: "Ana Sayfa", href: "/", icon: Home },
   { label: "Konuşmacılar", href: "/konusmacilar", icon: Mic2 },
+  { label: "Zirve Ailesi", href: "/zirve-ailesi", icon: Users },
   { label: "Program", href: "/program", icon: ListOrdered },
   { label: "Fuar Alanı", href: "/fuar-alani", icon: Building2 },
   { label: "🎓 Seminer", href: "/seminer", icon: GraduationCap },
