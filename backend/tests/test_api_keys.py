@@ -17,7 +17,7 @@ from bson import ObjectId
 from datetime import datetime, timezone
 
 # ---- Config ---------------------------------------------------------------
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://arsa-yatirim-zirvesi.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://investment-summit.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 ADMIN_EMAIL = "admin@arsayatirim.com"
 ADMIN_PASSWORD = "As537273"

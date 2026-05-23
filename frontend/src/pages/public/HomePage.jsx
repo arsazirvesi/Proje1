@@ -70,26 +70,35 @@ export default function HomePage() {
     <div className="bg-white min-h-screen font-body">
       <Navbar />
 
-      {/* ===== HERO (GYODER style - mobile optimized) ===== */}
+      {/* ===== HERO — Dark Navy / Gold Diagonal Stripe ===== */}
       <section
         className="relative flex items-center overflow-hidden pt-16 sm:pt-20 lg:pt-20"
         data-testid="hero-section"
+        style={{ background: "#1A264F" }}
       >
-        {/* Subtle pattern bg */}
-        <div className="absolute inset-0 bg-summit-paper">
-          <svg className="absolute inset-0 w-full h-full opacity-[0.035]" xmlns="http://www.w3.org/2000/svg">
+        {/* Diagonal gold stripe pattern */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
             <defs>
-              <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#22316a" strokeWidth="1"/>
+              <pattern id="hero-diagonal" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="60" stroke="#C9A961" strokeWidth="1.5" strokeOpacity="0.08"/>
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#hero-grid)"/>
+            <rect width="100%" height="100%" fill="url(#hero-diagonal)"/>
           </svg>
-          <div className="absolute top-20 -right-32 w-[500px] h-[500px] rounded-full bg-summit-navy/5 blur-3xl" />
-          <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-summit-accent/10 blur-3xl" />
+          {/* Gold glow blobs */}
+          <div className="absolute -top-24 right-0 w-[600px] h-[600px] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(201,169,97,0.12) 0%, transparent 70%)" }} />
+          <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(201,169,97,0.08) 0%, transparent 70%)" }} />
+          {/* Sharp diagonal gold slash accent (top-right) */}
+          <div className="absolute top-0 right-0 w-[340px] h-full overflow-hidden pointer-events-none hidden lg:block">
+            <div className="absolute top-0 right-0 w-full h-full"
+              style={{ background: "linear-gradient(to bottom-left, rgba(201,169,97,0.07) 0%, transparent 60%)" }} />
+          </div>
         </div>
 
-        {/* Hero slideshow background — semi-transparent, auto-rotating */}
+        {/* Hero slideshow background — dark overlay */}
         {heroSlides.length > 0 && (
           <div className="absolute inset-0 overflow-hidden" data-testid="hero-slideshow">
             {heroSlides.map((s, i) => (
@@ -99,93 +108,96 @@ export default function HomePage() {
                 className="absolute inset-0 bg-cover bg-center transition-opacity duration-[1500ms] ease-in-out"
                 style={{
                   backgroundImage: `url(${s.image_url})`,
-                  opacity: i === activeSlide ? (typeof s.opacity === "number" ? s.opacity / 100 : 0.45) : 0,
+                  opacity: i === activeSlide ? (typeof s.opacity === "number" ? s.opacity / 100 : 0.18) : 0,
                 }}
               />
             ))}
-            {/* Soft white wash to keep text readable */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/35 to-white/55" />
+            {/* Dark navy wash to keep text readable over slides */}
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(26,38,79,0.72), rgba(26,38,79,0.55))" }} />
           </div>
         )}
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
             {/* Left: Text */}
             <div className="lg:col-span-7">
               {/* Date stamp */}
-              <div className="inline-flex items-center gap-3 mb-4 sm:mb-7 animate-fade-in stagger-1 opacity-0">
-                <div className="w-8 sm:w-10 h-0.5 bg-summit-navy" />
-                <span className="text-summit-navy text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em]">
+              <div className="inline-flex items-center gap-3 mb-5 sm:mb-7 animate-fade-in stagger-1 opacity-0">
+                <div className="w-8 sm:w-10 h-0.5" style={{ background: "#C9A961" }} />
+                <span className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em]" style={{ color: "#C9A961" }}>
                   {siteSettings.event_date_label} · Perşembe
                 </span>
               </div>
 
-              <h1 className="font-heading text-summit-navy text-[2rem] sm:text-5xl lg:text-6xl leading-[1.05] animate-slide-up stagger-2 opacity-0">
+              <h1 className="font-heading text-white text-[2.2rem] sm:text-5xl lg:text-[3.75rem] leading-[1.05] animate-slide-up stagger-2 opacity-0">
                 Arsa Yatırım{" "}
-                <span className="text-summit-accent">Zirvesi</span>
+                <span style={{ color: "#C9A961" }}>Zirvesi</span>
                 <br />
                 2026
               </h1>
 
-              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-4 sm:mt-6 max-w-xl leading-relaxed animate-slide-up stagger-3 opacity-0">
+              <p className="text-white/75 text-sm sm:text-base lg:text-lg mt-4 sm:mt-6 max-w-xl leading-relaxed animate-slide-up stagger-3 opacity-0">
                 Türkiye'nin en kapsamlı arsa yatırım buluşmasında uzman konuşmacılar, stratejik içgörüler ve güçlü networking fırsatları.
               </p>
 
-              {/* Location pill */}
-              <div className="inline-flex items-center gap-2 mt-4 sm:mt-6 bg-white border border-gray-200 rounded-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm animate-slide-up stagger-4 opacity-0">
-                <MapPin size={13} className="text-summit-navy shrink-0" />
-                <span className="text-summit-navy text-xs sm:text-sm font-medium">{siteSettings.event_location}</span>
+              {/* Location pill — glass style */}
+              <div className="inline-flex items-center gap-2 mt-4 sm:mt-6 rounded-md px-3 sm:px-4 py-2 sm:py-2.5 animate-slide-up stagger-4 opacity-0"
+                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(201,169,97,0.35)" }}>
+                <MapPin size={13} style={{ color: "#C9A961" }} className="shrink-0" />
+                <span className="text-white/90 text-xs sm:text-sm font-medium">{siteSettings.event_location}</span>
               </div>
 
               {/* Compact countdown (mobile-only visible) */}
               {siteSettings.event_is_active === false ? (
-                <div className="lg:hidden mt-5 bg-gradient-to-r from-amber-400 to-amber-500 text-summit-navy shadow-lg rounded-md p-4 relative overflow-hidden" data-testid="event-completed-mobile">
-                  <p className="text-[10px] uppercase tracking-widest font-bold mb-1">{siteSettings.completed_overline || "Bu Yılki Zirvemiz"}</p>
-                  <p className="font-heading text-base font-bold leading-tight">{siteSettings.completed_title || "Bu Yılki Zirvemiz Başarıyla Tamamlandı"}</p>
+                <div className="lg:hidden mt-5 rounded-md p-4 relative overflow-hidden shadow-lg" style={{ background: "linear-gradient(135deg, #C9A961, #E3C06A)" }} data-testid="event-completed-mobile">
+                  <p className="text-[10px] uppercase tracking-widest font-bold mb-1 text-summit-navy">{siteSettings.completed_overline || "Bu Yılki Zirvemiz"}</p>
+                  <p className="font-heading text-base font-bold leading-tight text-summit-navy">{siteSettings.completed_title || "Bu Yılki Zirvemiz Başarıyla Tamamlandı"}</p>
                   <p className="text-summit-navy/80 text-xs mt-1.5 leading-relaxed">{siteSettings.next_event_label || "Bir sonraki zirve yakında"}</p>
                 </div>
               ) : (
-              <div className="lg:hidden mt-5 bg-white border border-gray-200 shadow-sm rounded-md p-4 relative overflow-hidden" data-testid="countdown-timer-mobile">
-                <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
+              <div className="lg:hidden mt-5 rounded-md p-4 relative overflow-hidden" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(201,169,97,0.25)" }} data-testid="countdown-timer-mobile">
+                <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(to right, #C9A961, #E3C06A)" }} />
                 <div className="flex items-center justify-between mb-3 mt-1">
-                  <p className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-gray-500">Zirveye Kalan</p>
-                  <Calendar size={13} className="text-summit-navy" />
+                  <p className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-white/60">Zirveye Kalan</p>
+                  <Calendar size={13} style={{ color: "#C9A961" }} />
                 </div>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[["days", "Gün"], ["hours", "Saat"], ["minutes", "Dk"], ["seconds", "Sn"]].map(([key, label]) => (
-                    <div key={key} className="text-center bg-summit-paper rounded">
-                      <div className="font-heading text-xl sm:text-2xl font-bold text-summit-navy leading-none py-2">
+                    <div key={key} className="text-center rounded py-1.5" style={{ background: "rgba(255,255,255,0.06)" }}>
+                      <div className="font-heading text-xl sm:text-2xl font-bold leading-none py-1.5" style={{ color: "#C9A961" }}>
                         {String(countdown[key] ?? 0).padStart(2, "0")}
                       </div>
-                      <div className="text-gray-500 text-[0.55rem] uppercase tracking-widest pb-1.5 font-medium">{label}</div>
+                      <div className="text-white/50 text-[0.55rem] uppercase tracking-widest pb-1.5 font-medium">{label}</div>
                     </div>
                   ))}
                 </div>
               </div>
               )}
 
-              <div className="flex flex-col items-stretch gap-2.5 mt-5 sm:mt-8 animate-slide-up stagger-5 opacity-0" data-testid="hero-register-cta">
+              <div className="flex flex-col items-stretch gap-3 mt-6 sm:mt-8 animate-slide-up stagger-5 opacity-0" data-testid="hero-register-cta">
                 {!registerOpen && siteSettings.event_is_active !== false && (
                   <button
                     type="button"
                     onClick={() => setRegisterOpen(true)}
-                    className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 sm:py-4 bg-summit-accent text-summit-navy font-heading font-bold text-base sm:text-lg rounded-md shadow-lg hover:shadow-xl hover:bg-summit-accent/90 transition-all overflow-hidden"
+                    className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 font-heading font-bold text-base sm:text-lg rounded-md shadow-lg transition-all overflow-hidden"
+                    style={{ background: "#C9A961", color: "#1A264F" }}
                     data-testid="hero-register-btn"
                   >
-                    <span className="absolute -left-1 top-0 h-full w-1.5 bg-summit-navy" />
+                    <span className="absolute -left-1 top-0 h-full w-1.5" style={{ background: "#1A264F" }} />
                     <span className="relative z-10">Kayıt Yap</span>
                     <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
-                    <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors pointer-events-none" />
+                    <span className="absolute inset-0 bg-white/0 group-hover:bg-white/15 transition-colors pointer-events-none" />
                   </button>
                 )}
 
                 {!registerOpen && siteSettings.event_is_active === false && siteSettings.next_event_cta_text && (
                   <Link
                     to={siteSettings.next_event_cta_url || "/bulten"}
-                    className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 bg-summit-accent text-summit-navy font-heading font-bold text-base sm:text-lg rounded-md shadow-lg hover:shadow-xl hover:bg-summit-accent/90 transition-all overflow-hidden"
+                    className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 font-heading font-bold text-base sm:text-lg rounded-md shadow-lg transition-all overflow-hidden"
+                    style={{ background: "#C9A961", color: "#1A264F" }}
                     data-testid="hero-next-event-btn"
                   >
-                    <span className="absolute -left-1 top-0 h-full w-1.5 bg-summit-navy" />
+                    <span className="absolute -left-1 top-0 h-full w-1.5" style={{ background: "#1A264F" }} />
                     <span className="relative z-10">{siteSettings.next_event_cta_text}</span>
                     <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
                   </Link>
@@ -194,40 +206,41 @@ export default function HomePage() {
                 {!registerOpen && (
                   <Link
                     to="/seminer"
-                    className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-summit-navy hover:text-amber-600 transition-colors"
+                    className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold transition-colors"
+                    style={{ color: "rgba(201,169,97,0.85)" }}
                     data-testid="hero-seminer-cta"
                   >
-                    <GraduationCap size={14} className="text-amber-500" />
+                    <GraduationCap size={14} style={{ color: "#C9A961" }} />
                     <span className="uppercase tracking-wider">Yeni: Arsa Yatırım Semineri</span>
                     <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 )}
 
                 {registerOpen && (
-                  <div className="bg-white border-2 border-summit-accent rounded-md p-3 sm:p-4 shadow-xl animate-slide-up" data-testid="hero-register-options">
+                  <div className="rounded-md p-3 sm:p-4 shadow-xl animate-slide-up" style={{ background: "rgba(255,255,255,0.08)", border: "2px solid #C9A961" }} data-testid="hero-register-options">
                     <div className="flex items-center justify-between mb-3 px-1">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-summit-navy">Kayıt Türünüzü Seçin</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-white/80">Kayıt Türünüzü Seçin</p>
                       <button
                         type="button"
                         onClick={() => setRegisterOpen(false)}
-                        className="text-gray-400 hover:text-summit-navy text-xs"
+                        className="text-white/50 hover:text-white text-xs"
                         aria-label="Kapat"
                       >
                         ✕
                       </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      <Link to="/ziyaretci-kaydi" className="group flex items-center gap-3 px-4 py-3 bg-summit-navy text-white rounded-md hover:bg-summit-navy/90 transition-colors" data-testid="hero-visitor-btn">
+                      <Link to="/ziyaretci-kaydi" className="group flex items-center gap-3 px-4 py-3 rounded-md transition-all" style={{ background: "#C9A961", color: "#1A264F" }} data-testid="hero-visitor-btn">
                         <Ticket size={18} className="shrink-0" />
                         <span className="text-sm font-semibold">Ziyaretçi Kaydı</span>
                         <ArrowRight size={14} className="ml-auto opacity-70 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
-                      <Link to="/fuar-stant-kaydi" className="group flex items-center gap-3 px-4 py-3 border-2 border-summit-navy text-summit-navy rounded-md hover:bg-summit-navy hover:text-white transition-colors" data-testid="hero-exhibitor-btn">
+                      <Link to="/fuar-stant-kaydi" className="group flex items-center gap-3 px-4 py-3 rounded-md border transition-all text-white hover:text-summit-navy" style={{ borderColor: "rgba(201,169,97,0.5)" }} onMouseEnter={e => { e.currentTarget.style.background="#C9A961"; e.currentTarget.style.color="#1A264F"; }} onMouseLeave={e => { e.currentTarget.style.background=""; e.currentTarget.style.color=""; }} data-testid="hero-exhibitor-btn">
                         <Building2 size={18} className="shrink-0" />
                         <span className="text-sm font-semibold">Stant Başvurusu</span>
                         <ArrowRight size={14} className="ml-auto opacity-70 group-hover:translate-x-0.5 transition-transform" />
                       </Link>
-                      <Link to="/konusmaci-basvuru" className="group flex items-center gap-3 px-4 py-3 border-2 border-summit-navy text-summit-navy rounded-md hover:bg-summit-navy hover:text-white transition-colors" data-testid="hero-speaker-btn">
+                      <Link to="/konusmaci-basvuru" className="group flex items-center gap-3 px-4 py-3 rounded-md border transition-all text-white" style={{ borderColor: "rgba(201,169,97,0.5)" }} onMouseEnter={e => { e.currentTarget.style.background="#C9A961"; e.currentTarget.style.color="#1A264F"; }} onMouseLeave={e => { e.currentTarget.style.background=""; e.currentTarget.style.color=""; }} data-testid="hero-speaker-btn">
                         <Mic2 size={18} className="shrink-0" />
                         <span className="text-sm font-semibold">Konuşmacı / Sponsor</span>
                         <ArrowRight size={14} className="ml-auto opacity-70 group-hover:translate-x-0.5 transition-transform" />
@@ -239,17 +252,21 @@ export default function HomePage() {
 
               {/* At-a-glance stats (mobile only) */}
               <div className="lg:hidden mt-5 grid grid-cols-3 gap-2" data-testid="hero-stats-mobile">
-                {[["4", "Konuşmacı"], ["12", "Oturum"], ["600+", "Katılımcı"]].map(([n, l]) => (
-                  <div key={l} className="bg-white border border-gray-200 rounded-md py-3 text-center">
-                    <div className="font-heading text-summit-navy text-xl font-bold">{n}</div>
-                    <div className="text-gray-500 text-[0.6rem] uppercase tracking-widest mt-0.5 font-medium">{l}</div>
+                {[
+                  [String(siteSettings.speakers_count || 4), "Konuşmacı"],
+                  [String(siteSettings.sessions_count || 12), "Oturum"],
+                  [siteSettings.attendees_count || "600+", "Katılımcı"]
+                ].map(([n, l]) => (
+                  <div key={l} className="rounded-md py-3 text-center" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(201,169,97,0.2)" }}>
+                    <div className="font-heading text-xl font-bold" style={{ color: "#C9A961" }}>{n}</div>
+                    <div className="text-white/50 text-[0.6rem] uppercase tracking-widest mt-0.5 font-medium">{l}</div>
                   </div>
                 ))}
               </div>
 
               {/* Live indicator (mobile) */}
-              <div className="lg:hidden mt-4 flex items-center gap-2 text-gray-600 text-[0.65rem] justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <div className="lg:hidden mt-4 flex items-center gap-2 text-[0.65rem] justify-center text-white/60">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 <span className="font-medium uppercase tracking-widest">Kayıtlar Açık · Katılım Ücretsiz</span>
               </div>
             </div>
@@ -257,13 +274,13 @@ export default function HomePage() {
             {/* Right: Countdown card (desktop only) */}
             <div className="hidden lg:block lg:col-span-5">
               {siteSettings.event_is_active === false ? (
-                <div className="bg-gradient-to-br from-amber-400 to-amber-500 text-summit-navy p-7 rounded-md relative overflow-hidden shadow-2xl" data-testid="event-completed-card">
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-summit-navy" />
+                <div className="rounded-xl p-7 relative overflow-hidden shadow-2xl" style={{ background: "linear-gradient(135deg, #C9A961 0%, #E3C06A 100%)" }} data-testid="event-completed-card">
+                  <div className="absolute top-0 left-0 right-0 h-1" style={{ background: "#1A264F" }} />
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="inline-block w-2 h-2 rounded-full bg-summit-navy" />
-                    <p className="text-summit-navy text-[10px] uppercase tracking-[0.22em] font-bold">{siteSettings.completed_overline || "Bu Yılki Zirvemiz"}</p>
+                    <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#1A264F" }} />
+                    <p className="text-[10px] uppercase tracking-[0.22em] font-bold text-summit-navy">{siteSettings.completed_overline || "Bu Yılki Zirvemiz"}</p>
                   </div>
-                  <h3 className="font-heading text-2xl xl:text-3xl font-bold leading-tight mb-3">{siteSettings.completed_title || "Bu Yılki Zirvemiz Başarıyla Tamamlandı"}</h3>
+                  <h3 className="font-heading text-2xl xl:text-3xl font-bold leading-tight mb-3 text-summit-navy">{siteSettings.completed_title || "Bu Yılki Zirvemiz Başarıyla Tamamlandı"}</h3>
                   <p className="text-summit-navy/85 text-sm mb-4 leading-relaxed">{siteSettings.completed_subtitle}</p>
                   {siteSettings.completed_thanks_message && (
                     <div className="bg-white/30 border border-white/50 rounded-lg p-3.5 text-summit-navy text-sm italic leading-relaxed mb-5">
@@ -274,53 +291,55 @@ export default function HomePage() {
                     <p className="text-[10px] uppercase tracking-wider font-bold text-summit-navy/70 mb-2">{siteSettings.next_event_label || "Bir Sonraki Zirve Yakında"}</p>
                     {siteSettings.next_event_cta_text && (
                       <Link to={siteSettings.next_event_cta_url || "/bulten"}
-                        className="inline-flex items-center gap-2 bg-summit-navy hover:bg-summit-navy-dark text-amber-400 font-bold px-5 py-2.5 rounded-md transition-colors text-sm">
+                        className="inline-flex items-center gap-2 font-bold px-5 py-2.5 rounded-md transition-colors text-sm"
+                        style={{ background: "#1A264F", color: "#C9A961" }}>
                         {siteSettings.next_event_cta_text} <ArrowRight size={14} />
                       </Link>
                     )}
                   </div>
                 </div>
               ) : (
-              <div className="bg-white border border-gray-200 shadow-xl p-7 rounded-md relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 corp-accent-bar" />
+              <div className="rounded-xl p-7 relative overflow-hidden shadow-2xl" style={{ background: "rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", border: "1px solid rgba(201,169,97,0.3)" }}>
+                {/* Gold top bar */}
+                <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: "linear-gradient(to right, #C9A961, #E3C06A, #C9A961)" }} />
                 <div className="flex items-center justify-between mb-6 mt-1">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500">Geri Sayım</p>
-                    <h3 className="font-heading text-summit-navy text-xl mt-1">{siteSettings.countdown_title || "Zirveye Kalan Süre"}</h3>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/50">Geri Sayım</p>
+                    <h3 className="font-heading text-white text-xl mt-1">{siteSettings.countdown_title || "Zirveye Kalan Süre"}</h3>
                   </div>
-                  <div className="w-11 h-11 rounded-md bg-summit-navy/10 flex items-center justify-center">
-                    <Calendar size={18} className="text-summit-navy" />
+                  <div className="w-11 h-11 rounded-md flex items-center justify-center" style={{ background: "rgba(201,169,97,0.15)", border: "1px solid rgba(201,169,97,0.3)" }}>
+                    <Calendar size={18} style={{ color: "#C9A961" }} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-4 gap-2" data-testid="countdown-timer">
                   {[["days", "Gün"], ["hours", "Saat"], ["minutes", "Dk"], ["seconds", "Sn"]].map(([key, label]) => (
-                    <div key={key} className="text-center bg-summit-paper border border-gray-100 py-4 rounded-md">
-                      <div className="font-heading text-3xl sm:text-4xl font-bold text-summit-navy leading-none">
+                    <div key={key} className="text-center rounded-md py-4" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                      <div className="font-heading text-3xl sm:text-4xl font-bold leading-none" style={{ color: "#C9A961" }}>
                         {String(countdown[key] ?? 0).padStart(2, "0")}
                       </div>
-                      <div className="text-gray-500 text-[0.65rem] uppercase tracking-widest mt-2 font-medium">{label}</div>
+                      <div className="text-white/50 text-[0.65rem] uppercase tracking-widest mt-2 font-medium">{label}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-3 gap-3">
+                <div className="mt-6 pt-6 grid grid-cols-3 gap-3" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                   {[
                     [String(siteSettings.speakers_count || 4), "Konuşmacı"],
                     [String(siteSettings.sessions_count || 12), "Oturum"],
                     [siteSettings.attendees_count || "600+", "Katılımcı"],
                   ].map(([n, l]) => (
                     <div key={l} className="text-center">
-                      <div className="font-heading text-summit-navy text-2xl font-bold">{n}</div>
-                      <div className="text-gray-500 text-[0.65rem] uppercase tracking-widest mt-1 font-medium">{l}</div>
+                      <div className="font-heading text-2xl font-bold text-white">{n}</div>
+                      <div className="text-white/50 text-[0.65rem] uppercase tracking-widest mt-1 font-medium">{l}</div>
                     </div>
                   ))}
                 </div>
               </div>
               )}
 
-              <div className="mt-4 flex items-center gap-2 text-gray-600 text-xs justify-center">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <div className="mt-4 flex items-center gap-2 text-xs justify-center text-white/50">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span className="font-medium uppercase tracking-widest text-[0.65rem]">Kayıtlar Açık · Katılım Ücretsiz</span>
               </div>
             </div>
