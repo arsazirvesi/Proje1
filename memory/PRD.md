@@ -32,8 +32,10 @@ Corporate website and CRM/Admin panel for "Arsa Yatırım Zirvesi" (Land Investm
 - Earlier: KVKK consent, WhatsApp widget, GTM/GA4, Visitego API auto-sync, separate `/zirve-kaydi` & `/fuar-kaydi`, favicon, dynamic footer, Navbar responsive fix, public mobile-scan link.
 
 ## Backlog
-- P2: Split `server.py` (~4130 lines) into routers/models/services for maintainability.
 - P2: Honeypot + rate limit on registration forms (user said "sonra yaparız").
+- P3: Arşiv etkinlikleri admin panelinde konuşmacıları manuel atama.
+- P3: Mahalle autocomplete (would need ~5MB neighborhood dataset on backend, optional).
+- P3: Interactive floor-plan hotspots.
 - P3: Arşiv etkinlikleri admin panelinde konuşmacıları manuel atama (şu an yıl bazlı otomatik eşleşme var).
 - P3: Mahalle autocomplete (would need ~5MB neighborhood dataset on backend, optional).
 - P3: Interactive floor-plan hotspots.
