@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet-async";
 import {
-  Crown, Sparkles, ArrowRight, X, Calendar, Linkedin, Instagram, Twitter,
+  Crown, X, Calendar, Linkedin, Instagram, Twitter,
   Users, ChevronRight,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
@@ -53,10 +53,6 @@ export default function ZirveAilesiPage() {
   }
 
   const canonical = `${SITE}${settings.canonical_path || "/zirve-ailesi"}`;
-  const t = settings.hero_title || "Zirve Ailesi";
-  const accent = settings.hero_accent || "Ailesi";
-  const tStart = accent && t.endsWith(accent) ? t.slice(0, t.length - accent.length).trim() : t;
-  const tEnd = accent && t.endsWith(accent) ? accent : "";
 
   const ogImage = settings.og_image || `${SITE}/og-zirve-ailesi.png`;
   const ogTitle = settings.og_title || settings.seo_title;
@@ -112,32 +108,16 @@ export default function ZirveAilesiPage() {
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="relative bg-summit-navy text-white overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-summit-navy via-summit-navy to-summit-navy-dark" />
-          <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle, #C9A961 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
-          <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-amber-500/15 rounded-full blur-3xl" />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-          <div className="inline-flex items-center gap-2 bg-amber-400/15 border border-amber-400/40 rounded-full px-3 py-1.5 mb-5">
-            <Sparkles size={13} className="text-amber-300" />
-            <span className="text-amber-300 text-[11px] uppercase tracking-[0.2em] font-bold">{settings.hero_overline}</span>
-          </div>
-          <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-4">
-            {tStart}{tEnd && <><br /><span className="text-amber-400">{tEnd}</span></>}
-          </h1>
-          <h2 className="text-base sm:text-lg lg:text-xl text-white/85 max-w-2xl leading-relaxed">{settings.hero_subtitle}</h2>
-        </div>
-      </section>
-
-      {/* FOUNDER */}
+      {/* FOUNDER (Hero band removed per user request) */}
       {founders.length > 0 && (
-        <section className="py-14 bg-summit-paper border-t border-gray-100">
+        <section className="py-14 sm:py-16 bg-summit-paper">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <span className="section-overline inline-flex items-center gap-1.5"><Crown size={12} className="text-amber-500" /> {settings.founder_title}</span>
-              <h3 className="gyoder-section-title gyoder-section-title-center inline-block mt-2">Kurucumuz</h3>
+              <h1 className="gyoder-section-title gyoder-section-title-center inline-block mt-2">Kurucumuz</h1>
+              {settings.hero_subtitle && (
+                <p className="text-gray-500 text-sm sm:text-base mt-3 max-w-2xl mx-auto leading-relaxed">{settings.hero_subtitle}</p>
+              )}
             </div>
             {founders.map(f => (
               <FounderCard key={f.id} sp={f} onOpen={() => setOpenDetail(f)} founderTitle={settings.founder_title} />
