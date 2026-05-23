@@ -1,0 +1,50 @@
+{
+  "summary": "Iteration 7 backend regression after 4200→576 line server.py refactor + new seminar registration feature. 28/29 tests passed (96.5%). SEO 404 bug fix verified (sitemap.xml + robots.txt both 200). NEW seminar registration works end-to-end: POST /api/register/guest with visit_type='seminar' bypasses invite_code and capacity, saves seminar_slug/seminar_title, and GET /api/admin/guests?visit_type=seminar returns only seminar rows. Summit/fair filters remain correct and do not leak seminar records. However the refactor LEFT 3 MISSING IMPORTS that cause 1 hard 500 and 2 silent background-task failures.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/badge/{guest_id}",
+        "issue": "Returns 500 NameError: name 'html_escape' is not defined. /app/backend/routes/badge.py uses html_escape.escape() but never imports it. Fix: add `import html as html_escape` at top of routes/badge.py.",
+        "priority": "CRITICAL"
+      },
+      {
+        "endpoint": "POST /api/register/guest (all visit_types)",
+        "issue": "Registration returns 200 but badge PNG attachment and Visitego push never happen. Backend log: `routes.registration - ERROR - Badge PNG generation failed on register: name 'render_badge_png' is not defined` and `Failed to schedule visitego push: name 'visitego_service' is not defined`. Fix routes/registration.py: `from routes.badge import render_badge_png` (or move helper) and `from services import visitego as visitego_service`. Users will NOT receive the badge PNG email attachment.",
+        "priority": "CRITICAL"
+      },
+      {
+        "endpoint": "POST /api/admin/guests/{id}/resend-badge, /resend-badge bulk, /send-reminder, /bulk-send-reminder",
+        "issue": "Endpoints return 200 with sent count, but internally every guest fails. Backend log: `routes.crm - ERROR - Failed to render badge attachment: name 'render_badge_png' is not defined` and `bulk-send-reminder failed ... name 'html_escape' is not defined`. Fix routes/crm.py: add `import html as html_escape` and import render_badge_png. Admin's 'Resend Badge' / 'Send Reminder' buttons silently send emails WITHOUT attachments and reminder email body fails to render at all.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter7_regression.py",
+    "/app/test_reports/pytest/iter7_results.xml"
+  ],
+  "action_items": [
+    "[CRITICAL] routes/badge.py — add `import html as html_escape` (line ~90 uses html_escape.escape without import) → unblocks GET /api/badge/{id}.",
+    "[CRITICAL] routes/registration.py — import render_badge_png (from routes.badge) and `from services import visitego as visitego_service`. Otherwise badge attachment + visitego push never fire on registration.",
+    "[CRITICAL] routes/crm.py — same two imports (`html as html_escape`, `render_badge_png`). Affects /admin/guests/{id}/resend-badge, send-reminder, and both bulk variants.",
+    "Note for E1: the review request listed paths /api/seminer, /api/seminer/categories, /api/bulten, /api/family — these do NOT exist; actual paths are /api/academy/courses, /api/academy/categories, /api/newsletter/subscribe (POST), /api/family/settings. Tests now use the real paths and pass."
+  ],
+  "critical_code_review_comments": [
+    "Refactor introduced 3 missing-import regressions because helpers (render_badge_png, html_escape, visitego_service) were left in caller files instead of being re-imported in each extracted router module. Consider a `routes/_shared.py` for these helpers, or add a smoke startup-time check that imports each router and lints it.",
+    "Background-task exception handlers in registration.py and crm.py swallow NameError → API returns 200 while feature is completely broken. Recommend re-raising on NameError/ImportError so the regression is caught immediately.",
+    "routes/registration.py:255-265 — `render_badge_png` is referenced inside `register_guest` but only defined in routes/badge.py. Must be imported explicitly.",
+    "routes/crm.py:313, 376 — same issue; both `_build_badge_attachment` and `render_reminder_email` reference unimported names."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter7_regression.py (new — 29 tests)"
+  ],
+  "success_rate": {"backend": "96.5% (28/29)", "frontend": "n/a (backend-only request)"},
+  "test_credentials": "admin@arsayatirim.com / As537273 (verified working)",
+  "seed_data_creation": "Test guests created with TEST_ prefix were auto-cleaned via /api/admin/guests/bulk-delete in fixture teardown.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "After E1 adds the 3 missing imports (html as html_escape in badge.py & crm.py; render_badge_png + visitego_service in registration.py; render_badge_png in crm.py), rerun `pytest /app/backend/tests/test_iter7_regression.py` — should be 29/29. Also do a manual check: after POST /api/register/guest, look at backend.err.log for ANY ERROR lines (should be none); on admin dashboard, click 'Resend Badge' on a guest → log should be clean.",
+  "rca of the issue": "During the 4200→576 line server.py refactor, three helpers (render_badge_png defined only in routes/badge.py; html_escape = `import html as html_escape` at top of original server.py; visitego_service module) remained referenced by extracted router files (routes/registration.py, routes/crm.py, routes/badge.py) but their imports were not propagated to those new files. Because Python's NameError occurs only at call-time AND two of three call sites are wrapped in try/except inside background tasks, the bugs surface as silent 200 responses with broken side-effects, except /api/badge/{id} where the NameError happens in the request path and surfaces as 500."
+}

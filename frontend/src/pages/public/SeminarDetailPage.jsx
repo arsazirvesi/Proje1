@@ -176,9 +176,13 @@ export default function SeminarDetailPage() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <a href="#kayit" className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-summit-navy font-bold px-6 py-3 rounded-md transition-colors">
+                <Link
+                  to={`/seminer-kaydi?slug=${encodeURIComponent(course.slug || slug || "")}&title=${encodeURIComponent(course.title || "")}`}
+                  className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-summit-navy font-bold px-6 py-3 rounded-md transition-colors"
+                  data-testid="seminar-detail-register-btn"
+                >
                   Kayıt Ol <ArrowRight size={15} />
-                </a>
+                </Link>
                 <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-4 py-3 rounded-md">
                   <ArrowLeft size={14} /> Geri
                 </button>
@@ -221,10 +225,13 @@ export default function SeminarDetailPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-heading text-2xl sm:text-3xl text-summit-navy font-bold mb-3">Yerinizi Şimdiden Ayırtın</h2>
           <p className="text-gray-600 mb-6">{course.is_free ? "Bu seminer ücretsizdir — kayıt zorunludur." : `Katılım ücreti: ₺${Number(course.price_try).toLocaleString("tr-TR")}`}</p>
-          <Link to="/ziyaretci-kaydi" className="btn-accent px-8 py-3.5 inline-flex items-center gap-2">
-            Kayıt Formuna Git <ArrowRight size={16} />
+          <Link
+            to={`/seminer-kaydi?slug=${encodeURIComponent(course.slug || slug || "")}&title=${encodeURIComponent(course.title || "")}`}
+            className="btn-accent px-8 py-3.5 inline-flex items-center gap-2"
+            data-testid="seminar-detail-register-cta"
+          >
+            Seminere Kaydol <ArrowRight size={16} />
           </Link>
-          <p className="text-xs text-gray-400 mt-4">Detaylı seminer kayıt akışı (deneyim seviyesi vb.) yakında eklenecek.</p>
         </div>
       </section>
 

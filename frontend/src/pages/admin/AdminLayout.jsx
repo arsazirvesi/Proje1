@@ -17,6 +17,7 @@ const navItems = [
   { label: "Ziyaretçiler (Tümü)", href: "/admin/ziyaretciler", icon: Users },
   { label: "Zirve Ziyaretçileri", href: "/admin/zirve-ziyaretcileri", icon: Ticket },
   { label: "Fuar Ziyaretçileri", href: "/admin/fuar-ziyaretcileri", icon: Store },
+  { label: "🎓 Seminer Kayıtları", href: "/admin/seminer-kayitlari", icon: GraduationCap },
   { label: "Fuar Stant Başvuruları", href: "/admin/fuar-stant", icon: UserCheck },
   { label: "Konuşmacı / Sponsor Başvuruları", href: "/admin/konusmaci-basvuru", icon: Mic2 },
   { label: "Bülten Üyeleri", href: "/admin/bulten-uyeleri", icon: Users },

@@ -195,10 +195,10 @@ def init_registration_router(db, get_admin_user):
     @router.post("/register/guest")
     async def register_guest(body: GuestCreate, background_tasks: BackgroundTasks):
         visit_type = (body.visit_type or "summit").lower()
-        if visit_type not in ("summit", "fair"):
+        if visit_type not in ("summit", "fair", "seminar"):
             visit_type = "summit"
     
-        # === Validate invite code (only required for SUMMIT, fair is open) ===
+        # === Validate invite code (only required for SUMMIT, fair & seminar are open) ===
         invite_code_doc = None
         if visit_type == "summit":
             code_check = await _check_invite_code(body.invite_code, visit_type)
@@ -251,11 +251,18 @@ def init_registration_router(db, get_admin_user):
             )
     
         guest_full = {**doc, "_id": result.inserted_id}
-        seq = await db.guests.count_documents({
-            "visit_type": ({"$in": ["summit", None]} if visit_type == "summit" else "fair"),
-            "is_verified": True,
-            "verified_at": {"$lte": now_iso},
-        })
+        if visit_type == "seminar":
+            seq_query = {"visit_type": "seminar", "is_verified": True, "verified_at": {"$lte": now_iso}}
+            # If a specific seminar slug was provided, scope sequence per-seminar
+            if doc.get("seminar_slug"):
+                seq_query["seminar_slug"] = doc["seminar_slug"]
+            seq = await db.guests.count_documents(seq_query)
+        else:
+            seq = await db.guests.count_documents({
+                "visit_type": ({"$in": ["summit", None]} if visit_type == "summit" else "fair"),
+                "is_verified": True,
+                "verified_at": {"$lte": now_iso},
+            })
         public_base = os.environ.get("PUBLIC_BASE_URL", "https://arsayatirimzirvesi.com").rstrip("/")
     
         attachments = None
@@ -272,10 +279,12 @@ def init_registration_router(db, get_admin_user):
         subject, html = render_register_confirmation_email(guest_full, seq, public_base)
         background_tasks.add_task(send_email, body.email.lower(), subject, html, attachments)
     
-        try:
-            background_tasks.add_task(visitego_service.push_visitor, db, guest_full)
-        except Exception as e:
-            logger.error(f"Failed to schedule visitego push: {e}")
+        # Visitego sync only for summit & fair (3rd-party fair turnstile); skip seminar.
+        if visit_type in ("summit", "fair"):
+            try:
+                background_tasks.add_task(visitego_service.push_visitor, db, guest_full)
+            except Exception as e:
+                logger.error(f"Failed to schedule visitego push: {e}")
     
         return {
             "id": guest_id,

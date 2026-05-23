@@ -179,7 +179,9 @@ async def refresh_token(request: Request, response: Response):
 
 # ==================== APP SETUP ====================
 
-app.include_router(api_router)
+# NOTE: api_router (which holds /auth/* AND /seo/* endpoints) is included LATER
+# at the bottom of this file, AFTER all routes are added to it. Otherwise routes
+# defined after `app.include_router(api_router)` would silently be lost.
 
 # ─── Domain routers (extracted from server.py) ──────────────────
 app.include_router(init_content_router(db, get_admin_user))
@@ -252,6 +254,10 @@ async def sitemap_xml_api():
     )
     xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{items}</urlset>'
     return Response(content=xml, media_type="application/xml")
+
+
+# ─── Mount the api_router LAST, after all its routes are registered ───
+app.include_router(api_router)
 
 
 app.add_middleware(

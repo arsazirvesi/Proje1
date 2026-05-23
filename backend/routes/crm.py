@@ -58,12 +58,13 @@ def init_crm_router(db, get_admin_user):
             query["is_verified"] = True
         elif verified == "no":
             query["$or"] = [{"is_verified": False}, {"is_verified": {"$exists": False}}]
-        if visit_type and visit_type in ("summit", "fair"):
-            # Summit filter: include anything that's NOT explicitly "fair" — covers
+        if visit_type and visit_type in ("summit", "fair", "seminar"):
+            # Summit filter: include anything that's NOT explicitly "fair"/"seminar" — covers
             # legacy records with missing/null/empty/"zirve"/"konferans" visit_type values.
             # Fair filter: only explicit "fair".
-            vt_or = (
-                [
+            # Seminar filter: only explicit "seminar".
+            if visit_type == "summit":
+                vt_or = [
                     {"visit_type": "summit"},
                     {"visit_type": "zirve"},
                     {"visit_type": "konferans"},
@@ -71,8 +72,10 @@ def init_crm_router(db, get_admin_user):
                     {"visit_type": {"$exists": False}},
                     {"visit_type": None},
                 ]
-                if visit_type == "summit" else [{"visit_type": "fair"}]
-            )
+            elif visit_type == "fair":
+                vt_or = [{"visit_type": "fair"}]
+            else:
+                vt_or = [{"visit_type": "seminar"}]
             if "$or" in query:
                 existing_or = query.pop("$or")
                 query["$and"] = [{"$or": existing_or}, {"$or": vt_or}]

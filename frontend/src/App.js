@@ -109,6 +109,7 @@ function App() {
             <Route path="/ziyaretci-kaydi" element={<VisitorRegisterPage />} />
             <Route path="/zirve-kaydi" element={<VisitorRegisterPage />} />
             <Route path="/fuar-kaydi" element={<VisitorRegisterPage />} />
+            <Route path="/seminer-kaydi" element={<VisitorRegisterPage />} />
             <Route path="/fuar-stant-kaydi" element={<ExhibitorRegisterPage />} />
             <Route path="/konusmaci-basvuru" element={<SpeakerApplicationPage />} />
             <Route path="/bulten" element={<RegisterPage />} />
@@ -148,6 +149,10 @@ function App() {
               <Route path="fuar-ziyaretcileri" element={
                 <GuestList forcedVisitType="fair" title="Fuar Ziyaretçileri"
                   subtitle="Sadece 8. Gayrimenkul Proje Yatırım Fuarı'na gelen ziyaretçiler" />
+              } />
+              <Route path="seminer-kayitlari" element={
+                <GuestList forcedVisitType="seminar" title="Seminer Kayıtları"
+                  subtitle="Arsa Yatırım Eğitim seminerlerine kayıt olanlar" />
               } />
               <Route path="fuar-stant" element={<ExhibitorList />} />
               <Route path="konusmaci-basvuru" element={<SpeakerApplicationList />} />

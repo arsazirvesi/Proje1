@@ -36,7 +36,9 @@ class GuestCreate(BaseModel):
     expectations: Optional[str] = None
     interest_area: Optional[str] = None
     participant_type: Optional[str] = None
-    visit_type: Optional[str] = "summit"  # "summit" | "fair"
+    visit_type: Optional[str] = "summit"  # "summit" | "fair" | "seminar"
+    seminar_slug: Optional[str] = None  # set when visit_type=seminar (course slug)
+    seminar_title: Optional[str] = None  # display title captured at submit time
     invite_code: Optional[str] = None  # required at runtime via validator below
 
 class InviteCodeCreate(BaseModel):

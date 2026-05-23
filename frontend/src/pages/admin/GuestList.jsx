@@ -58,6 +58,13 @@ function CheckedInBadge({ guest }) {
 }
 
 function VisitTypeBadge({ type }) {
+  if (type === "seminar") {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[0.65rem] font-semibold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+        Seminer
+      </span>
+    );
+  }
   const isSummit = !type || type === "summit";
   return (
     <span
@@ -259,11 +266,12 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
       const base = [g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
         g.participant_type || "", g.interest_area || "", g.invite_code || "", g.status || "new", g.created_at?.slice(0,10), verifiedAt];
       rows.push(showType
-        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : "Zirve", verifiedStr, checkedStr, checkedAt, ...base]
+        ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : (g.visit_type === "seminar" ? "Seminer" : "Zirve"), verifiedStr, checkedStr, checkedAt, ...base]
         : [i + 1, verifiedStr, checkedStr, checkedAt, ...base]);
     });
     const filename = forcedVisitType === "summit" ? "zirve-ziyaretcileri"
                    : forcedVisitType === "fair" ? "fuar-ziyaretcileri"
+                   : forcedVisitType === "seminar" ? "seminer-kayitlari"
                    : "ziyaretciler";
     exportXLSX(rows, filename, "Ziyaretçiler");
   };
@@ -272,13 +280,17 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
 
   const summitItems = items.filter(i => (i.visit_type || "summit") === "summit");
   const fairItems = items.filter(i => i.visit_type === "fair");
+  const seminarItems = items.filter(i => i.visit_type === "seminar");
   const summitCount = summitItems.length;
   const fairCount = fairItems.length;
+  const seminarCount = seminarItems.length;
   const summitVerified = summitItems.filter(i => i.is_verified).length;
   const fairVerified = fairItems.filter(i => i.is_verified).length;
+  const seminarVerified = seminarItems.filter(i => i.is_verified).length;
   const pendingCount = items.filter(i => !i.is_verified).length;
   const summitCheckedIn = summitItems.filter(i => i.checked_in).length;
   const fairCheckedIn = fairItems.filter(i => i.checked_in).length;
+  const seminarCheckedIn = seminarItems.filter(i => i.checked_in).length;
   const totalCheckedIn = items.filter(i => i.checked_in).length;
   const SUMMIT_CAPACITY = 600;
 
@@ -308,6 +320,13 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                 <span className="ml-1.5">Doğrulanmış <strong className="text-green-600">{fairVerified}</strong></span> ·
                 <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span> ·
                 <span className="ml-1.5">Fuara Geldi <strong className="text-green-700">{fairCheckedIn}</strong></span>
+              </>
+            ) : forcedVisitType === "seminar" ? (
+              <>
+                Toplam <strong className="text-summit-navy">{items.length}</strong> kayıt ·
+                <span className="ml-1.5">Doğrulanmış <strong className="text-green-600">{seminarVerified}</strong></span> ·
+                <span className="ml-1.5">Bekleyen <strong className="text-amber-600">{pendingCount}</strong></span> ·
+                <span className="ml-1.5">Seminere Geldi <strong className="text-green-700">{seminarCheckedIn}</strong></span>
               </>
             ) : (
               <>

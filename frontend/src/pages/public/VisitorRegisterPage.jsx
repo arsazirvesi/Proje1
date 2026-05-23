@@ -46,18 +46,33 @@ const VISIT_META = {
     formSubtitle: "20-21 Mayıs'ta Hilton İstanbul Bosphorus'taki gayrimenkul proje fuarını ziyaret etmek için formu doldurun. Katılım ücretsiz ve sınırsızdır.",
     successMessage: "8. Gayrimenkul Proje Fuar ziyareti kaydınız başarıyla alınmıştır.",
   },
+  seminar: {
+    key: "seminar",
+    tag: "Seminer Kaydı",
+    title: "Arsa Yatırım Eğitimi",
+    subtitle: "Uzman Eğitmenler · Detaylı İçerik · Sertifikalı Program",
+    formTitle: "Seminer Kaydı",
+    formSubtitle: "Seminer kaydınız için formu doldurun. Onaylandığında yaka kartınız ve detaylı katılım bilgileri e-posta adresinize gönderilecektir.",
+    successMessage: "Seminer kaydınız başarıyla alınmıştır.",
+  },
 };
 
 export default function VisitorRegisterPage() {
-  const [visitType, setVisitType] = useState(null); // null | "summit" | "fair"
+  const [visitType, setVisitType] = useState(null); // null | "summit" | "fair" | "seminar"
   const [kvkk, setKvkk] = useState(false);
   const location = useLocation();
+
+  // Read seminar context from URL (?slug=...&title=...) for seminar registrations
+  const searchParams = new URLSearchParams(location.search);
+  const seminarSlug = searchParams.get("slug") || "";
+  const seminarTitleFromUrl = searchParams.get("title") || "";
 
   // Auto-select visit type based on URL path so a direct link can deep-link to either tab
   useEffect(() => {
     const p = location.pathname;
     if (p === "/zirve-kaydi") setVisitType("summit");
     else if (p === "/fuar-kaydi") setVisitType("fair");
+    else if (p === "/seminer-kaydi") setVisitType("seminar");
     // /ziyaretci-kaydi keeps the chooser screen (visitType=null)
   }, [location.pathname]);
   const [capacity, setCapacity] = useState(null);
@@ -125,10 +140,15 @@ export default function VisitorRegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await axios.post(`${API}/register/guest`, {
+      const payload = {
         ...form,
         visit_type: visitType,
-      });
+      };
+      if (visitType === "seminar") {
+        payload.seminar_slug = seminarSlug || null;
+        payload.seminar_title = seminarTitleFromUrl || null;
+      }
+      const { data } = await axios.post(`${API}/register/guest`, payload);
       setResult(data);
     } catch (err) {
       const detail = err.response?.data?.detail;
@@ -412,6 +432,7 @@ export default function VisitorRegisterPage() {
 
   // === STEP 2: Form ===
   const meta = VISIT_META[visitType];
+  const isSeminar = visitType === "seminar";
   const inputCls = "w-full bg-white border border-gray-200 rounded-md pl-9 pr-4 py-2.5 text-summit-navy text-sm placeholder-gray-400 focus:outline-none transition-colors";
   const labelCls = "text-gray-600 text-xs uppercase tracking-wider mb-2 block font-semibold";
 
@@ -424,7 +445,11 @@ export default function VisitorRegisterPage() {
           <button
             type="button"
             onClick={() => {
-              if (location.pathname !== "/ziyaretci-kaydi") {
+              if (isSeminar) {
+                // For seminar registrations, go back to seminar list / detail
+                if (seminarSlug) window.location.href = `/seminer/${seminarSlug}`;
+                else window.location.href = "/seminer";
+              } else if (location.pathname !== "/ziyaretci-kaydi") {
                 window.location.href = "/ziyaretci-kaydi";
               } else {
                 setVisitType(null);
@@ -433,7 +458,7 @@ export default function VisitorRegisterPage() {
             className="inline-flex items-center gap-1.5 text-gray-500 hover:text-summit-navy text-xs mb-6 transition-colors"
             data-testid="visit-picker-back"
           >
-            <ArrowLeft size={13} /> Kayıt türünü değiştir
+            <ArrowLeft size={13} /> {isSeminar ? "Seminer sayfasına dön" : "Kayıt türünü değiştir"}
           </button>
 
           <div className="text-center mb-10">
@@ -442,8 +467,14 @@ export default function VisitorRegisterPage() {
               {visitType === "fair" ? <Store size={14} className="text-summit-navy" /> : <Ticket size={14} className="text-summit-navy" />}
               <span className="text-summit-navy text-xs font-semibold uppercase tracking-wider">{meta.tag}</span>
             </div>
-            <h1 className="font-heading text-summit-navy text-3xl sm:text-4xl">{meta.formTitle}</h1>
-            <p className="text-gray-600 mt-4 text-sm max-w-xl mx-auto">{meta.formSubtitle}</p>
+            <h1 className="font-heading text-summit-navy text-3xl sm:text-4xl">
+              {isSeminar && seminarTitleFromUrl ? seminarTitleFromUrl : meta.formTitle}
+            </h1>
+            <p className="text-gray-600 mt-4 text-sm max-w-xl mx-auto">
+              {isSeminar && seminarTitleFromUrl
+                ? `"${seminarTitleFromUrl}" seminerine kaydolmak için aşağıdaki formu doldurun. Onaylandığında katılım bilgileri ve yaka kartınız e-posta adresinize gönderilecektir.`
+                : meta.formSubtitle}
+            </p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-md p-6 sm:p-10 shadow-sm">
@@ -533,12 +564,12 @@ export default function VisitorRegisterPage() {
 
               <div>
                 <label className={labelCls}>
-                  {visitType === "fair" ? "Fuardan Beklentileriniz" : "Zirveden Beklentileriniz"}
+                  {visitType === "fair" ? "Fuardan Beklentileriniz" : visitType === "seminar" ? "Seminerden Beklentileriniz" : "Zirveden Beklentileriniz"}
                 </label>
                 <div className="relative">
                   <FileText size={15} className="absolute left-3 top-3 text-gray-500" />
                   <textarea
-                    placeholder={visitType === "fair" ? "Hangi tür projelerle ilgileniyorsunuz?" : "Hangi konuları öğrenmek istiyorsunuz?"}
+                    placeholder={visitType === "fair" ? "Hangi tür projelerle ilgileniyorsunuz?" : visitType === "seminar" ? "Bu seminerden hangi konuları öğrenmek istiyorsunuz?" : "Hangi konuları öğrenmek istiyorsunuz?"}
                     rows={3}
                     value={form.expectations}
                     onChange={e => setForm({...form, expectations: e.target.value})}
