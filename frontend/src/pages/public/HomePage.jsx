@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles, Linkedin, Instagram, Twitter, GraduationCap } from "lucide-react";
+import { MapPin, Calendar, Users, Award, ChevronRight, Check, ArrowRight, Ticket, Building2, Mic2, Store, Crown, Star, Sparkles, Linkedin, Instagram, Twitter, GraduationCap, Mail, CheckCircle2 } from "lucide-react";
 import { API_BASE as API } from "../../lib/api";
 
 function useCountdown(targetDate) {
@@ -36,6 +36,11 @@ export default function HomePage() {
   const [heroSlides, setHeroSlides] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [bultenOpen, setBultenOpen] = useState(false);
+  const [bultenForm, setBultenForm] = useState({ name: "", email: "", phone: "", interests: ["zirve", "seminer"] });
+  const [bultenSubmitted, setBultenSubmitted] = useState(false);
+  const [bultenLoading, setBultenLoading] = useState(false);
+  const [bultenErr, setBultenErr] = useState("");
   const [siteSettings, setSiteSettings] = useState({
     event_datetime: "2026-05-21T09:00:00+03:00",
     event_date_label: "21 Mayıs 2026",
@@ -191,8 +196,9 @@ export default function HomePage() {
                 )}
 
                 {!registerOpen && siteSettings.event_is_active === false && siteSettings.next_event_cta_text && (
-                  <Link
-                    to={siteSettings.next_event_cta_url || "/bulten"}
+                  <button
+                    type="button"
+                    onClick={() => { setBultenOpen(o => !o); setBultenSubmitted(false); setBultenErr(""); }}
                     className="relative group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 font-heading font-bold text-base sm:text-lg rounded-md shadow-lg transition-all overflow-hidden"
                     style={{ background: "#C9A961", color: "#1A264F" }}
                     data-testid="hero-next-event-btn"
@@ -200,7 +206,89 @@ export default function HomePage() {
                     <span className="absolute -left-1 top-0 h-full w-1.5" style={{ background: "#1A264F" }} />
                     <span className="relative z-10">{siteSettings.next_event_cta_text}</span>
                     <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
-                  </Link>
+                  </button>
+                )}
+
+                {/* Inline Bülten Form */}
+                {bultenOpen && siteSettings.event_is_active === false && !bultenSubmitted && (
+                  <div className="rounded-xl p-4 sm:p-5 animate-slide-up" style={{ background: "rgba(255,255,255,0.08)", border: "2px solid rgba(201,169,97,0.5)" }} data-testid="hero-bulten-form">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Mail size={16} style={{ color: "#C9A961" }} />
+                        <p className="text-sm font-bold text-white">Yeni Zirve'den Haberdar Ol</p>
+                      </div>
+                      <button type="button" onClick={() => setBultenOpen(false)} className="text-white/50 hover:text-white text-xs" aria-label="Kapat">✕</button>
+                    </div>
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      setBultenErr(""); setBultenLoading(true);
+                      try {
+                        await axios.post(`${API}/newsletter/subscribe`, { ...bultenForm, source: "hero_haberdar_ol" });
+                        setBultenSubmitted(true);
+                      } catch (ex) {
+                        setBultenErr(ex?.response?.data?.detail || "Kayıt oluşturulamadı");
+                      } finally { setBultenLoading(false); }
+                    }} className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <input
+                          value={bultenForm.name}
+                          onChange={e => setBultenForm(f => ({ ...f, name: e.target.value }))}
+                          placeholder="Ad Soyad"
+                          className="rounded-md px-3 py-2.5 text-sm text-summit-navy placeholder-gray-400 outline-none focus:ring-2 focus:ring-amber-400/60 bg-white w-full"
+                          data-testid="hero-bulten-name"
+                        />
+                        <input
+                          type="tel"
+                          value={bultenForm.phone}
+                          onChange={e => setBultenForm(f => ({ ...f, phone: e.target.value }))}
+                          placeholder="Telefon (opsiyonel)"
+                          className="rounded-md px-3 py-2.5 text-sm text-summit-navy placeholder-gray-400 outline-none focus:ring-2 focus:ring-amber-400/60 bg-white w-full"
+                          data-testid="hero-bulten-phone"
+                        />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={bultenForm.email}
+                        onChange={e => setBultenForm(f => ({ ...f, email: e.target.value }))}
+                        placeholder="E-posta *"
+                        className="rounded-md px-3 py-2.5 text-sm text-summit-navy placeholder-gray-400 outline-none focus:ring-2 focus:ring-amber-400/60 bg-white w-full"
+                        data-testid="hero-bulten-email"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {[["zirve", "Yıllık Zirve"], ["seminer", "Seminerler"], ["egitim", "Eğitimler"]].map(([v, l]) => {
+                          const active = bultenForm.interests.includes(v);
+                          return (
+                            <button key={v} type="button"
+                              onClick={() => setBultenForm(f => ({ ...f, interests: active ? f.interests.filter(x => x !== v) : [...f.interests, v] }))}
+                              className="px-3 py-1.5 rounded-full text-xs font-bold border transition-all"
+                              style={active ? { background: "#C9A961", color: "#1A264F", borderColor: "#C9A961" } : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", borderColor: "rgba(201,169,97,0.35)" }}
+                              data-testid={`hero-bulten-interest-${v}`}>
+                              {l}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {bultenErr && <p className="text-red-300 text-xs">{bultenErr}</p>}
+                      <button type="submit" disabled={bultenLoading}
+                        className="w-full rounded-md py-3 font-heading font-bold text-sm transition-all disabled:opacity-60"
+                        style={{ background: "#C9A961", color: "#1A264F" }}
+                        data-testid="hero-bulten-submit">
+                        {bultenLoading ? "Gönderiliyor..." : "Bültene Abone Ol"}
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {/* Bülten başarı mesajı */}
+                {bultenOpen && bultenSubmitted && (
+                  <div className="rounded-xl p-5 flex items-center gap-3 animate-slide-up" style={{ background: "rgba(255,255,255,0.08)", border: "2px solid rgba(74,222,128,0.4)" }} data-testid="hero-bulten-success">
+                    <CheckCircle2 size={22} className="text-green-400 shrink-0" />
+                    <div>
+                      <p className="text-white font-bold text-sm">Teşekkürler!</p>
+                      <p className="text-white/70 text-xs mt-0.5">Yeni zirve açıldığında ilk siz haberdar olacaksınız.</p>
+                    </div>
+                  </div>
                 )}
 
                 {!registerOpen && (
