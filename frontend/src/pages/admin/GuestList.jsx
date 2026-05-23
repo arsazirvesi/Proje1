@@ -254,17 +254,21 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
 
   const exportCSV = () => {
     const showType = !forcedVisitType;
+    const isSeminarMode = forcedVisitType === "seminar";
     const headers = showType
       ? ["Sıra", "Ziyaret Tipi", "Doğrulama", "Etkinlik Girişi", "Giriş Saati", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
-      : ["Sıra", "Doğrulama", "Etkinlik Girişi", "Giriş Saati", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
+      : isSeminarMode
+        ? ["Sıra", "Doğrulama", "Etkinlik Girişi", "Giriş Saati", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Seminer", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"]
+        : ["Sıra", "Doğrulama", "Etkinlik Girişi", "Giriş Saati", "Ad", "Email", "Telefon", "Şirket", "Unvan", "Şehir", "Katılımcı Türü", "İlgi Alanı", "Davet Kodu", "Durum", "Kayıt Tarihi", "Doğrulama Tarihi"];
     const rows = [headers];
     items.forEach((g, i) => {
       const verifiedStr = g.is_verified ? "Evet" : "Bekliyor";
       const verifiedAt = g.verified_at ? g.verified_at.slice(0, 10) : "";
       const checkedStr = g.checked_in ? "Geldi" : "Bekliyor";
       const checkedAt = g.checked_in_at ? new Date(g.checked_in_at).toLocaleString("tr-TR") : "";
+      const seminarRef = isSeminarMode ? (g.seminar_title || g.seminar_slug || "") : (g.invite_code || "");
       const base = [g.name, g.email, g.phone || "", g.company || "", g.title || "", g.city || "",
-        g.participant_type || "", g.interest_area || "", g.invite_code || "", g.status || "new", g.created_at?.slice(0,10), verifiedAt];
+        g.participant_type || "", g.interest_area || "", seminarRef, g.status || "new", g.created_at?.slice(0,10), verifiedAt];
       rows.push(showType
         ? [i + 1, (g.visit_type || "summit") === "fair" ? "Fuar" : (g.visit_type === "seminar" ? "Seminer" : "Zirve"), verifiedStr, checkedStr, checkedAt, ...base]
         : [i + 1, verifiedStr, checkedStr, checkedAt, ...base]);
@@ -558,7 +562,9 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                   <th>E-posta</th>
                   <th className="hidden md:table-cell">Telefon</th>
                   <th className="hidden lg:table-cell">Şirket</th>
-                  <th className="hidden md:table-cell">Davet Kodu</th>
+                  {forcedVisitType === "seminar"
+                    ? <th className="hidden md:table-cell">Seminer</th>
+                    : <th className="hidden md:table-cell">Davet Kodu</th>}
                   <th>Durum</th>
                   <th className="hidden sm:table-cell">Tarih</th>
                   <th>İşlem</th>
@@ -590,9 +596,17 @@ export default function GuestList({ forcedVisitType, title, subtitle }) {
                     <td className="hidden md:table-cell">{g.phone || "-"}</td>
                     <td className="hidden lg:table-cell">{g.company || "-"}</td>
                     <td className="hidden md:table-cell">
-                      {g.invite_code
-                        ? <code className="font-mono text-xs font-bold text-summit-navy bg-summit-paper px-2 py-0.5 rounded" data-testid={`invite-code-${g.id}`}>{g.invite_code}</code>
-                        : <span className="text-gray-300 text-xs">—</span>}
+                      {forcedVisitType === "seminar" ? (
+                        g.seminar_title
+                          ? <span className="inline-block text-xs text-summit-navy bg-emerald-50 border border-emerald-200 rounded px-2 py-0.5 max-w-[220px] truncate" title={g.seminar_title} data-testid={`seminar-title-${g.id}`}>{g.seminar_title}</span>
+                          : g.seminar_slug
+                            ? <code className="font-mono text-xs text-gray-500" data-testid={`seminar-slug-${g.id}`}>{g.seminar_slug}</code>
+                            : <span className="text-gray-300 text-xs">—</span>
+                      ) : (
+                        g.invite_code
+                          ? <code className="font-mono text-xs font-bold text-summit-navy bg-summit-paper px-2 py-0.5 rounded" data-testid={`invite-code-${g.id}`}>{g.invite_code}</code>
+                          : <span className="text-gray-300 text-xs">—</span>
+                      )}
                     </td>
                     <td><StatusBadge status={g.status || "new"} /></td>
                     <td className="hidden sm:table-cell">{g.created_at?.slice(0,10)}</td>

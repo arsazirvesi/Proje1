@@ -100,8 +100,11 @@ export default function VisitorRegisterPage() {
   const [codeMessage, setCodeMessage] = useState("");
 
   useEffect(() => {
-    axios.get(`${API}/register/capacity`).then(r => setCapacity(r.data)).catch(() => {});
-  }, []);
+    const url = seminarSlug
+      ? `${API}/register/capacity?seminar_slug=${encodeURIComponent(seminarSlug)}`
+      : `${API}/register/capacity`;
+    axios.get(url).then(r => setCapacity(r.data)).catch(() => {});
+  }, [seminarSlug]);
 
   // Validate invite code on blur or after typing
   const validateCode = async () => {
@@ -135,6 +138,11 @@ export default function VisitorRegisterPage() {
     // Davet kodu sadece Zirve için zorunlu
     if (visitType === "summit" && codeStatus !== "valid") {
       setError("Lütfen geçerli bir davet kodu girin ve doğrulayın.");
+      return;
+    }
+    // Block submit if this seminar is full (also defended on backend)
+    if (visitType === "seminar" && capacity?.seminar?.is_full) {
+      setError("Bu seminerin kontenjanı doldu. Lütfen yakın tarihli diğer seminerleri inceleyin.");
       return;
     }
     setLoading(true);
@@ -475,6 +483,11 @@ export default function VisitorRegisterPage() {
                 ? `"${seminarTitleFromUrl}" seminerine kaydolmak için aşağıdaki formu doldurun. Onaylandığında katılım bilgileri ve yaka kartınız e-posta adresinize gönderilecektir.`
                 : meta.formSubtitle}
             </p>
+
+            {/* Per-seminar capacity meter (only for seminar registrations with a known capacity) */}
+            {isSeminar && capacity?.seminar && capacity.seminar.capacity != null && (
+              <SeminarCapacityMeter seminar={capacity.seminar} />
+            )}
           </div>
 
           <div className="bg-white border border-gray-200 rounded-md p-6 sm:p-10 shadow-sm">
@@ -627,6 +640,87 @@ export default function VisitorRegisterPage() {
       </div>
 
       <Footer />
+    </div>
+  );
+}
+
+
+/**
+ * Per-seminar live capacity meter. Shows the same urgency cues as the summit
+ * meter (critical / low / healthy bands) but scoped to a single seminar slug.
+ */
+function SeminarCapacityMeter({ seminar }) {
+  const { registered = 0, capacity = 0, remaining = 0, is_full } = seminar || {};
+  const fillPct = capacity > 0 ? Math.min(100, Math.round((registered / capacity) * 100)) : 0;
+  const isCritical = !is_full && remaining <= Math.max(3, Math.round(capacity * 0.08));
+  const isLow = !is_full && !isCritical && remaining <= Math.max(5, Math.round(capacity * 0.25));
+
+  const meterColor = is_full
+    ? "bg-gradient-to-r from-red-600 to-red-500"
+    : isCritical
+      ? "bg-gradient-to-r from-red-500 via-orange-500 to-amber-500"
+      : isLow
+        ? "bg-gradient-to-r from-amber-500 to-yellow-400"
+        : "bg-gradient-to-r from-summit-navy to-summit-accent";
+
+  return (
+    <div className="mt-6 max-w-md mx-auto bg-white border border-gray-200 rounded-lg p-4 shadow-sm" data-testid="seminar-capacity-meter">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${is_full ? "bg-red-500" : isCritical ? "bg-red-500" : isLow ? "bg-amber-500" : "bg-green-500"}`} />
+            <span className={`relative inline-flex rounded-full h-2 w-2 ${is_full ? "bg-red-600" : isCritical ? "bg-red-600" : isLow ? "bg-amber-600" : "bg-green-600"}`} />
+          </span>
+          <span className={`text-[0.65rem] font-bold uppercase tracking-widest ${is_full ? "text-red-600" : isCritical ? "text-red-600" : isLow ? "text-amber-700" : "text-summit-navy"}`}>
+            {is_full ? "Kontenjan Doldu" : "Canlı Kontenjan"}
+          </span>
+        </div>
+        <span className="text-[0.65rem] uppercase tracking-wider text-gray-500 font-semibold tabular-nums" data-testid="seminar-capacity-count">
+          {registered} / {capacity}
+        </span>
+      </div>
+
+      {!is_full && (
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className={`font-heading text-3xl font-black leading-none tabular-nums
+            ${isCritical ? "text-red-600" : isLow ? "text-amber-600" : "text-summit-navy"}`}
+            data-testid="seminar-capacity-remaining">
+            {remaining}
+          </span>
+          <span className={`text-xs font-semibold uppercase tracking-wider
+            ${isCritical ? "text-red-600" : isLow ? "text-amber-700" : "text-gray-600"}`}>
+            kişilik yer kaldı
+          </span>
+        </div>
+      )}
+      {is_full && (
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className="font-heading text-2xl font-black leading-none text-red-600">0</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-red-600">boş yer kalmadı</span>
+        </div>
+      )}
+
+      <div className={`relative w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border ${isCritical && !is_full ? "border-red-200 ring-2 ring-red-500/20" : "border-gray-200"}`}>
+        <div className={`h-full ${meterColor} transition-all duration-1000 relative`} style={{ width: `${fillPct}%` }}>
+          {(isCritical || is_full) && (
+            <div
+              className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage: "linear-gradient(45deg,rgba(255,255,255,0.4) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.4) 75%,transparent 75%,transparent)",
+                backgroundSize: "16px 16px",
+                animation: "stripeMove 1s linear infinite",
+              }}
+            />
+          )}
+        </div>
+      </div>
+
+      {!is_full && isCritical && (
+        <p className="mt-2 text-[0.7rem] font-bold text-red-600 uppercase tracking-wider">⚠ Acil! Son birkaç yer — hemen kaydol</p>
+      )}
+      {!is_full && isLow && (
+        <p className="mt-2 text-[0.7rem] font-bold text-amber-700 uppercase tracking-wider">🔥 Hızlı dolduruyor — geç kalmayın</p>
+      )}
     </div>
   );
 }

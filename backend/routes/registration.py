@@ -120,7 +120,7 @@ def init_registration_router(db, get_admin_user):
     
     
     @router.get("/register/capacity")
-    async def get_register_capacity():
+    async def get_register_capacity(seminar_slug: Optional[str] = None):
         # Only count VERIFIED visitors towards capacity (spam-proof)
         summit_count = await db.guests.count_documents({
             "visit_type": {"$in": ["summit", None]},
@@ -130,7 +130,7 @@ def init_registration_router(db, get_admin_user):
             "visit_type": "fair",
             "is_verified": True,
         })
-        return {
+        result = {
             "summit": {
                 "registered": summit_count,
                 "capacity": SUMMIT_CAPACITY,
@@ -143,6 +143,32 @@ def init_registration_router(db, get_admin_user):
                 "unlimited": True,
             },
         }
+        # Per-seminar capacity (when a slug is provided)
+        if seminar_slug:
+            course = await db.academy_courses.find_one({"slug": seminar_slug})
+            capacity = None
+            if course:
+                # course.capacity is admin-editable; treat 0 / None as "unlimited"
+                cap_raw = course.get("capacity")
+                try:
+                    capacity = int(cap_raw) if cap_raw not in (None, "", 0, "0") else None
+                except (TypeError, ValueError):
+                    capacity = None
+            seminar_count = await db.guests.count_documents({
+                "visit_type": "seminar",
+                "seminar_slug": seminar_slug,
+                "is_verified": True,
+            })
+            result["seminar"] = {
+                "slug": seminar_slug,
+                "title": (course or {}).get("title"),
+                "registered": seminar_count,
+                "capacity": capacity,
+                "remaining": (max(0, capacity - seminar_count) if capacity is not None else None),
+                "is_full": (seminar_count >= capacity) if capacity is not None else False,
+                "unlimited": capacity is None,
+            }
+        return result
     
     
     def render_verify_email(guest: dict, verify_url: str) -> tuple[str, str]:
@@ -224,6 +250,26 @@ def init_registration_router(db, get_admin_user):
                     400,
                     "Zirve kontenjanımız doldu. Fuar ziyareti kayıtları hâlâ açık, oradan devam edebilirsiniz.",
                 )
+    
+        # === Per-seminar capacity enforcement ===
+        if visit_type == "seminar" and body.seminar_slug:
+            course = await db.academy_courses.find_one({"slug": body.seminar_slug})
+            cap_raw = (course or {}).get("capacity")
+            try:
+                cap_int = int(cap_raw) if cap_raw not in (None, "", 0, "0") else None
+            except (TypeError, ValueError):
+                cap_int = None
+            if cap_int is not None:
+                seminar_count = await db.guests.count_documents({
+                    "visit_type": "seminar",
+                    "seminar_slug": body.seminar_slug,
+                    "is_verified": True,
+                })
+                if seminar_count >= cap_int:
+                    raise HTTPException(
+                        400,
+                        "Bu seminerin kontenjanı doldu. Lütfen yakındaki diğer seminer tarihlerini kontrol edin.",
+                    )
     
         # === Auto-verify, send badge attachment, push to Visitego — same flow for both summit & fair ===
         now_iso = datetime.now(timezone.utc).isoformat()
