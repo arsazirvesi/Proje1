@@ -4,11 +4,14 @@
 Corporate website and CRM/Admin panel for "Arsa Yatırım Zirvesi" (Land Investment Summit). Distinct registration flows (Zirve 600 limit, Fuar unlimited), Admin CRM lists, QR check-in, badge generation, email automation, dynamic SEO, 3rd-party API keys for external fair companies, Investment Simulator lead-gen tool.
 
 ## Stack
-- React frontend + FastAPI backend (server.py ~3300 lines) + MongoDB
+- React frontend + FastAPI backend (server.py ~4100 lines) + MongoDB
 - SendGrid emails, Visitego (turnstile push), html5-qrcode, Pillow (badges), GTM/GA4
 - Bundled TR il-ilçe dataset (`/app/backend/data/tr_locations.json`, 81 il, 973 ilçe, ~12KB)
+- Cloudflare R2 (S3-compat), Pillow WebP optimization, PWA (service worker)
 
 ## Completed
+- 2026-05-23: **Ana Sayfa Hero Section Yeniden Tasarımı (P0).** Açık/beyaz `bg-summit-paper` arka plan kaldırıldı. Yeni tema: koyu lacivert (`#1A264F`) zemin, SVG tabanlı altın diagonal çizgi deseni (rotate 45°, altın renk `#C9A961` %8 opaklık), glassmorphic location pill (amber kenarlık), geri sayım kartı cam efektli (amber sayılar), tamamlandı kartı amber gradient, "Zirvesi" kelimesi ve tarih çizgisi/metni altın (#C9A961). Slideshow görseller artık koyu navy overlay ile karıştırılıyor. Mobil ve masaüstü uyumlu. `WATCHPACK_POLLING=true` + `CHOKIDAR_USEPOLLING=true` frontend/.env'e eklendi (container hot-reload düzeltmesi). Test: %100 geçti (testing agent iteration_6).
+- 2026-05-23: **Zirve Ailesi Sayfa Birleşimi.** Kurucu ve konuşmacılar tek grid altında "Arsa Yatırım Zirvesi'nin Konuşmacıları" başlığıyla birleştirildi. Kurucuya "ZİRVE VE PLATFORM KURUCUSU" rozeti eklendi. Aradaki lacivert şerit kaldırıldı. Test: %100 geçti.
 - 2026-02-22: **Arsa Yatırım Akademisi — Faz 1 (SEO destekli landing + admin yönetim).** Yeni backend modülü `/app/backend/academy_routes.py` (Mongo'da `academy_categories` + `academy_courses` koleksiyonları, public + admin CRUD). Admin paneline sol menüde "🎓 Akademi" sekmesi → Kategoriler + Eğitimler iki tab; her ikisi de yeni `ImageUrlInput` ile R2 yükleme destekli, ücretli/ücretsiz toggle, SEO field'ları (title/desc/keywords). Public sayfa `/akademi`: Helmet ile SEO meta (title, description, keywords, OG, Twitter, canonical), JSON-LD (EducationalOrganization + BreadcrumbList + FAQPage + ItemList of Courses), H1/H2 hierarchy, breadcrumb nav, Why-cards, dinamik Kategoriler grid, SSS bölümü. 4 başlangıç kategorisi seed edildi (Arsa Yatırım, Hukuk, Dijital Pazarlama, Satış). SEOHead `/akademi` prefix'ini atlıyor (sayfa kendi <Helmet>'ini yönetir).
 - 2026-02-19: **Otomatik görsel optimizasyon.** Yeni `/app/backend/image_optimizer.py` — Pillow ile yüklenen görselleri max 1920px'e küçültür, opak görselleri WebP'ye (Q85), şeffaf görselleri PNG olarak (alpha korunur) optimize eder. GIF ve <800px küçük dosyalar değişmeden geçer. EXIF orientation otomatik düzeltilir. E2E test: 9.2 MB JPEG → 589 KB WebP (%94 tasarruf), 1.2 MB şeffaf PNG → 14 KB PNG (alpha korundu).
 - 2026-02-19: **Cloudflare R2 görsel depolama entegrasyonu (P1).** Admin panel görsel upload'ları artık R2 bucket'a (`arsayatirimzirvesi-media`) gidiyor, custom domain `media.arsayatirimzirvesi.com` üzerinden CDN ile servis ediliyor — deploy'lar arası KALICI. Yeni `/app/backend/r2_storage.py` boto3 ile S3-uyumlu R2 client'ı sarıyor; `POST /api/admin/uploads/image` önce R2'ye yükler, hata olursa local'e fallback yapar. Eski `/api/uploads/...` linkleri korundu (geriye uyum). Env: `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT_URL`, `R2_PUBLIC_BASE_URL`. Curl E2E testi: upload → public URL → HTTP 200 fetch ✅.
@@ -28,11 +31,9 @@ Corporate website and CRM/Admin panel for "Arsa Yatırım Zirvesi" (Land Investm
 - Earlier: KVKK consent, WhatsApp widget, GTM/GA4, Visitego API auto-sync, separate `/zirve-kaydi` & `/fuar-kaydi`, favicon, dynamic footer, Navbar responsive fix, public mobile-scan link.
 
 ## Backlog
-- P2: PWA conversion (offline + install prompt).
-- P2: Split `server.py` (~3300 lines) into routers/models/services.
-- P2: Editable sponsor package prices.
+- P2: Split `server.py` (~4100 lines) into routers/models/services for maintainability.
+- P2: Honeypot + rate limit on registration forms (user said "sonra yaparız").
 - P3: Mahalle autocomplete (would need ~5MB neighborhood dataset on backend, optional).
-- P3: Honeypot + rate limit on registrations.
 - P3: Interactive floor-plan hotspots.
 
 ## Key APIs
