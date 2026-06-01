@@ -3,18 +3,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "summit-navy": "#22316a",
-        "summit-navy-dark": "#1A264F",
-        "summit-navy-light": "#2F4289",
+        // === Official brand palette ===
+        // Main Navy:        #27357A (RGB 39, 53, 122)
+        // Dark Navy Shadow: #1B2559 (RGB 27, 37, 89)
+        // Main Yellow:      #F4BE08 (RGB 244, 190, 8)
+        "summit-navy": "#27357A",
+        "summit-navy-dark": "#1B2559",
+        "summit-navy-light": "#3A4A9A",
         "summit-paper": "#F8F9FB",
         "summit-surface": "#EDF0F5",
         "summit-card": "#FFFFFF",
-        "summit-gold": "#22316a",
-        "summit-gold-light": "#2F4289",
-        "summit-gold-dark": "#1A264F",
-        "summit-orange": "#22316a",
-        "summit-yellow": "#F5B800",
-        "summit-accent": "#F5B800",
+        "summit-gold": "#F4BE08",
+        "summit-gold-light": "#FFD333",
+        "summit-gold-dark": "#C99A00",
+        "summit-orange": "#27357A",
+        "summit-yellow": "#F4BE08",
+        "summit-accent": "#F4BE08",
         "summit-text": "#1F2937",
         "summit-text-secondary": "#4B5563",
         "summit-text-muted": "#9CA3AF",
@@ -27,9 +31,9 @@ module.exports = {
       },
       backgroundImage: {
         "hero-gradient":
-          "linear-gradient(to bottom, rgba(10,17,40,0.3) 0%, rgba(10,17,40,0.7) 60%, #0A1128 100%)",
-        "gold-gradient": "linear-gradient(135deg, #D4AF37 0%, #FDB813 50%, #D4AF37 100%)",
-        "card-gradient": "linear-gradient(135deg, #14213D 0%, #0A1128 100%)",
+          "linear-gradient(to bottom, rgba(27,37,89,0.3) 0%, rgba(27,37,89,0.7) 60%, #1B2559 100%)",
+        "gold-gradient": "linear-gradient(135deg, #F4BE08 0%, #FFD333 50%, #F4BE08 100%)",
+        "card-gradient": "linear-gradient(135deg, #27357A 0%, #1B2559 100%)",
       },
       animation: {
         "fade-in": "fadeIn 0.8s ease-out forwards",

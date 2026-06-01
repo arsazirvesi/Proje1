@@ -5,14 +5,14 @@
 @tailwind utilities;
 
 :root {
-  --navy: #22316a;
-  --navy-dark: #1A264F;
-  --navy-light: #2F4289;
+  --navy: #27357A;
+  --navy-dark: #1B2559;
+  --navy-light: #3A4A9A;
   --paper: #F8F9FB;
   --surface: #EDF0F5;
-  --gold: #22316a;
-  --gold-light: #2F4289;
-  --accent: #F5B800;
+  --gold: #F4BE08;
+  --gold-light: #FFD333;
+  --accent: #F4BE08;
   --text: #1F2937;
   --text-secondary: #4B5563;
   --text-muted: #9CA3AF;
@@ -32,7 +32,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Poppins', sans-serif;
-  color: #22316a;
+  color: #27357A;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -40,13 +40,13 @@ h1, h2, h3, h4, h5, h6 {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #F8F9FB; }
-::-webkit-scrollbar-thumb { background: #22316a; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #27357A; border-radius: 3px; }
 
 /* Text gradient (navy-based) */
 .text-gold-gradient,
 .text-navy-gradient,
 .text-orange-gradient {
-  background: linear-gradient(135deg, #22316a 0%, #2F4289 100%);
+  background: linear-gradient(135deg, #27357A 0%, #3A4A9A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -58,7 +58,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 40px rgba(34,49,106,0.12);
+  box-shadow: 0 14px 40px rgba(39,53,122,0.12);
 }
 
 /* Glass */
@@ -90,14 +90,14 @@ h1, h2, h3, h4, h5, h6 {
   border-left: 3px solid transparent;
 }
 .admin-nav-item:hover {
-  background: rgba(34,49,106,0.05);
-  border-left-color: rgba(34,49,106,0.3);
-  color: #22316a;
+  background: rgba(39,53,122,0.05);
+  border-left-color: rgba(39,53,122,0.3);
+  color: #27357A;
 }
 .admin-nav-item.active {
-  background: rgba(34,49,106,0.08);
-  border-left-color: #22316a;
-  color: #22316a;
+  background: rgba(39,53,122,0.08);
+  border-left-color: #27357A;
+  color: #27357A;
 }
 
 /* Admin table */
@@ -118,7 +118,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #1F2937;
   font-size: 0.875rem;
 }
-.admin-table tr:hover td { background: rgba(34,49,106,0.03); }
+.admin-table tr:hover td { background: rgba(39,53,122,0.03); }
 
 /* Drawer animation */
 @keyframes slideInLeft {
@@ -132,7 +132,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Corporate top accent bar */
 .corp-accent-bar {
   height: 3px;
-  background: #22316a;
+  background: #27357A;
 }
 
 /* Section label (GYODER style) */
@@ -140,7 +140,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Poppins', sans-serif;
   font-size: 2.25rem;
   font-weight: 700;
-  color: #22316a;
+  color: #27357A;
   letter-spacing: -0.01em;
   position: relative;
   padding-bottom: 14px;
@@ -152,7 +152,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 54px;
   height: 3px;
-  background: #22316a;
+  background: #27357A;
 }
 .gyoder-section-title-center {
   text-align: center;

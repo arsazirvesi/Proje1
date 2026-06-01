@@ -441,28 +441,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== SEMINAR PROMO — Summit date TBA, seminars are open NOW ===== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-amber-50 border-y border-amber-200/60" data-testid="seminar-promo-section">
-        {/* Decorative diagonal accent (subtle gold stripe behind heading) */}
+      {/* ===== SEMINAR PROMO — distinct emerald palette to signal a SEPARATE event ===== */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50 border-y-2 border-emerald-200" data-testid="seminar-promo-section">
+        {/* Decorative diagonal accent (subtle emerald stripe behind heading) */}
         <div
           aria-hidden
-          className="absolute inset-y-0 right-0 w-[55%] opacity-[0.06] pointer-events-none"
+          className="absolute inset-y-0 right-0 w-[55%] opacity-[0.08] pointer-events-none"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(135deg, #C9A961 0 2px, transparent 2px 18px)",
+              "repeating-linear-gradient(135deg, #047857 0 2px, transparent 2px 18px)",
           }}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative">
           {/* Heading row */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-summit-navy text-amber-300 px-3 py-1.5 rounded-md mb-4 shadow-sm">
+              <div className="inline-flex items-center gap-2 bg-emerald-700 text-white px-3 py-1.5 rounded-md mb-4 shadow-sm">
                 <GraduationCap size={14} />
                 <span className="text-[0.65rem] font-bold uppercase tracking-[0.18em]">Eğitim Programları · Kayıtlar Açık</span>
               </div>
               <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl text-summit-navy leading-[1.05] mb-3">
                 Zirve Tarihimiz Henüz Açıklanmadı —<br className="hidden sm:block" />
-                <span className="text-amber-600">Ama Seminerlerimize Şimdiden Katılabilirsiniz</span>
+                <span className="text-emerald-700">Ama Seminerlerimize Şimdiden Katılabilirsiniz</span>
               </h2>
               <p className="text-gray-700 text-sm sm:text-base leading-relaxed max-w-xl">
                 Arsa yatırımının inceliklerini uzman eğitmenlerden öğrenin. Konferans tarihimizi beklemenize gerek yok — kontenjan sınırlıdır.
@@ -470,7 +470,7 @@ export default function HomePage() {
             </div>
             <Link
               to="/seminer"
-              className="hidden lg:inline-flex items-center gap-2 bg-summit-navy hover:bg-summit-navy/90 text-white font-bold px-5 py-3 rounded-md text-sm transition-colors whitespace-nowrap"
+              className="hidden lg:inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-3 rounded-md text-sm transition-colors whitespace-nowrap"
               data-testid="seminar-promo-view-all-desktop"
             >
               Tüm Seminerleri Gör <ArrowRight size={15} />
@@ -489,18 +489,18 @@ export default function HomePage() {
                   <Link
                     key={s.slug}
                     to={`/seminer/${s.slug}`}
-                    className="group bg-white border border-gray-200 hover:border-amber-400 hover:shadow-xl rounded-lg p-5 transition-all relative overflow-hidden"
+                    className="group bg-white border border-emerald-200 hover:border-emerald-500 hover:shadow-xl rounded-lg p-5 transition-all relative overflow-hidden"
                     data-testid={`seminar-promo-card-${s.slug}`}
                   >
                     {/* Top accent bar */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-summit-navy" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600" />
                     <div className="flex items-start justify-between mb-3">
-                      <span className="inline-flex items-center gap-1.5 bg-summit-navy/8 text-summit-navy text-[0.65rem] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+                      <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-[0.65rem] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
                         {s.is_free ? "Ücretsiz" : `₺${Number(s.price_try || 0).toLocaleString("tr-TR")}`}
                       </span>
                       <span className="text-[0.6rem] uppercase tracking-widest text-gray-500 font-semibold">{formatLabel}</span>
                     </div>
-                    <h3 className="font-heading text-summit-navy text-lg leading-snug mb-2 group-hover:text-amber-600 transition-colors line-clamp-2">
+                    <h3 className="font-heading text-summit-navy text-lg leading-snug mb-2 group-hover:text-emerald-700 transition-colors line-clamp-2">
                       {s.title}
                     </h3>
                     {s.description && (
@@ -508,16 +508,16 @@ export default function HomePage() {
                     )}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem] text-gray-500 mb-4">
                       {startStr && (
-                        <span className="inline-flex items-center gap-1"><Calendar size={11} className="text-amber-600" /> {startStr}</span>
+                        <span className="inline-flex items-center gap-1"><Calendar size={11} className="text-emerald-600" /> {startStr}</span>
                       )}
                       {s.duration_hours && (
                         <span className="inline-flex items-center gap-1">⏱ {s.duration_hours} saat</span>
                       )}
                       {s.capacity && (
-                        <span className="inline-flex items-center gap-1"><Users size={11} className="text-amber-600" /> {s.capacity} kişi</span>
+                        <span className="inline-flex items-center gap-1"><Users size={11} className="text-emerald-600" /> {s.capacity} kişi</span>
                       )}
                     </div>
-                    <div className="inline-flex items-center gap-1.5 text-sm font-bold text-summit-navy group-hover:gap-2.5 transition-all">
+                    <div className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 group-hover:gap-2.5 transition-all">
                       Detayları Gör ve Kaydol <ArrowRight size={14} />
                     </div>
                   </Link>
@@ -525,8 +525,8 @@ export default function HomePage() {
               })}
             </div>
           ) : (
-            <div className="bg-white border border-dashed border-amber-300 rounded-lg p-8 text-center" data-testid="seminar-promo-empty">
-              <GraduationCap className="text-amber-500 mx-auto mb-3" size={36} />
+            <div className="bg-white border border-dashed border-emerald-300 rounded-lg p-8 text-center" data-testid="seminar-promo-empty">
+              <GraduationCap className="text-emerald-500 mx-auto mb-3" size={36} />
               <p className="text-summit-navy font-semibold mb-1">Yeni seminer takvimi yakında</p>
               <p className="text-gray-500 text-sm">Detaylar açıklanır açıklanmaz haberdar olmak için bülten listemize katılın.</p>
             </div>
@@ -536,7 +536,7 @@ export default function HomePage() {
           <div className="mt-7 lg:hidden text-center">
             <Link
               to="/seminer"
-              className="inline-flex items-center gap-2 bg-summit-navy hover:bg-summit-navy/90 text-white font-bold px-5 py-3 rounded-md text-sm transition-colors"
+              className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-3 rounded-md text-sm transition-colors"
               data-testid="seminar-promo-view-all-mobile"
             >
               Tüm Seminerleri Gör <ArrowRight size={15} />

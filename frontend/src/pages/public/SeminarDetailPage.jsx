@@ -270,43 +270,46 @@ function CountdownCard({ target, priceFree, price }) {
   }, [target]);
 
   return (
-    <div className="bg-white text-summit-navy rounded-2xl p-6 shadow-2xl">
-      <div className="absolute -mt-12 ml-2 h-1 w-12 bg-amber-400 rounded-full" />
+    <div className="bg-white text-summit-navy rounded-2xl p-6 shadow-2xl border-2 border-emerald-200 relative">
+      <div className="absolute -top-1 left-6 right-6 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-full" />
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[10px] uppercase tracking-[0.22em] font-bold text-gray-500">Geri Sayım</span>
-        <Calendar size={16} className="text-gray-400" />
+        <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          Seminer Geri Sayım
+        </span>
+        <Calendar size={16} className="text-emerald-500" />
       </div>
-      <h3 className="font-heading text-xl font-bold mb-5">{target ? "Seminere Kalan Süre" : "Tarih Yakında"}</h3>
+      <h3 className="font-heading text-xl font-bold mb-5 text-emerald-900">{target ? "Seminere Kalan Süre" : "Tarih Yakında"}</h3>
 
       {!target ? (
         <p className="text-sm text-gray-500 py-4">Tarih belirlendiğinde geri sayım burada görünür.</p>
       ) : t.started ? (
         <div className="text-center py-4">
-          <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 font-bold px-3 py-1.5 rounded-full text-sm">
+          <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold px-3 py-1.5 rounded-full text-sm">
             <CheckCircle2 size={14} /> Seminer Başladı
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-4 gap-2 mb-5">
           {[["d","Gün"],["h","Saat"],["m","Dk"],["s","Sn"]].map(([k,l]) => (
-            <div key={k} className="bg-gray-50 border border-gray-200 rounded-lg py-3 text-center">
-              <div className="font-heading text-2xl sm:text-3xl text-summit-navy font-bold tabular-nums leading-none">{String(t[k]).padStart(2, "0")}</div>
-              <div className="text-[9px] uppercase tracking-wider text-gray-400 font-bold mt-1">{l}</div>
+            <div key={k} className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg py-3 text-center">
+              <div className="font-heading text-2xl sm:text-3xl text-emerald-800 font-bold tabular-nums leading-none">{String(t[k]).padStart(2, "0")}</div>
+              <div className="text-[9px] uppercase tracking-wider text-emerald-600 font-bold mt-1">{l}</div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="border-t border-gray-100 pt-4 grid grid-cols-2 gap-3">
+      <div className="border-t border-emerald-100 pt-4 grid grid-cols-2 gap-3">
         <div>
           <div className="text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">Katılım</div>
           {priceFree
-            ? <div className="font-bold text-green-600 text-sm">Ücretsiz</div>
+            ? <div className="font-bold text-emerald-600 text-sm">Ücretsiz</div>
             : <div className="font-bold text-summit-navy text-base tabular-nums">₺{Number(price).toLocaleString("tr-TR")}</div>}
         </div>
         <div className="text-right">
           <div className="text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">Kayıt</div>
-          <div className="font-bold text-amber-600 text-sm inline-flex items-center gap-1"><span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500" /> Açık</div>
+          <div className="font-bold text-emerald-700 text-sm inline-flex items-center gap-1"><span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" /> Açık</div>
         </div>
       </div>
     </div>
