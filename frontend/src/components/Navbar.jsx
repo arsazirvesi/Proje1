@@ -99,10 +99,10 @@ export default function Navbar() {
             </div>
 
             {/* Right CTAs */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <Link
                 to="/yatirim-oyunu"
-                className="inline-flex group relative text-xs font-bold px-2.5 sm:px-3 lg:px-3.5 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all items-center gap-1.5 whitespace-nowrap"
+                className="inline-flex group relative text-xs font-bold px-2 sm:px-2.5 lg:px-3.5 py-2 rounded-md text-summit-navy bg-gradient-to-r from-amber-300 to-amber-400 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 transition-all items-center gap-1 whitespace-nowrap"
                 data-testid="nav-game-btn"
               >
                 <span className="animate-pulse">📊</span>
@@ -117,12 +117,14 @@ export default function Navbar() {
                 Ziyaretçi Kaydı
               </Link>
               <Link
-                to="/fuar-stant-kaydi"
-                className="hidden lg:inline-flex items-center btn-navy py-2 px-3.5 lg:px-4 text-xs whitespace-nowrap"
-                data-testid="nav-exhibitor-btn"
+                to="/seminer"
+                className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 sm:px-3 lg:px-3.5 py-2 rounded-md text-summit-navy bg-white border-2 border-summit-navy hover:bg-summit-navy hover:text-white transition-all whitespace-nowrap"
+                data-testid="nav-seminar-btn"
+                aria-label="Seminerler"
               >
-                <span className="hidden lg:inline">Stant Başvurusu</span>
-                <span className="lg:hidden">Stant</span>
+                <GraduationCap size={14} />
+                <span className="hidden lg:inline">Seminerler</span>
+                <span className="lg:hidden">Seminer</span>
               </Link>
             </div>
           </div>
